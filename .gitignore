@@ -43,3 +43,5 @@ scripts/manim_vis/__pycache__/
 scripts/manim_vis/media/
 .cache/
 rvg.egg-info/
+Configs-backup
+

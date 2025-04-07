@@ -1,3 +1,0 @@
-/*!
-\example CGAL_ipelets/simple_triangulation.cpp
-*/

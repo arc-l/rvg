@@ -10,6 +10,7 @@
 [submodule "extern/ompl"]
 	path = extern/ompl
 	url = https://github.com/ompl/ompl.git
+
 [submodule "extern/tracy"]
 	path = extern/tracy
 	url = https://github.com/wolfpld/tracy.git
