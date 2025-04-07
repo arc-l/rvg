@@ -15,10 +15,6 @@ For Ubuntu
 ```bash
 sudo apt install libboost-all-dev  libgmp-dev  libmpfr-dev libtinyxml2-dev qtbase5-dev 
 ```
-For Mac brew
-```bash
-brew install eigen boost tinyxml2
-```
 
 ## To build c++ library
 ```bash
