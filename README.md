@@ -2,8 +2,9 @@
 
 ## Clone this repository with submodules
 ```bash
-git clone --recurse-submodules git@github.com:DuoZhangRobotics/RotationalVisibilityGraph.git
+git clone --recurse-submodules https://github.com/arc-l/rvg.git 
 ```
+
 If you have already cloned the repository, you can run the following command to get the submodules
 ```bash
 git submodule update --init --recursive

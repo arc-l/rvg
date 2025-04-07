@@ -36,7 +36,7 @@ build
 .idea
 release
 Results_*/
-# Results/
+Results/
 scripts/path*.py
 scripts/*.png
 scripts/manim_vis/__pycache__/
