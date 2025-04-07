@@ -6,7 +6,6 @@
 #endif
 #include <CGAL/Arr_segment_traits_2.h>
 #include <CGAL/Arrangement_2.h>
-#include <CGAL/draw_arrangement_2.h>
 #include <CGAL/Boolean_set_operations_2.h>
 #include <iostream>
 #include <vector>

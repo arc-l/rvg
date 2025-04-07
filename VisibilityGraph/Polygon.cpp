@@ -201,16 +201,6 @@ bool Polygon<T>::isConvex() const {
 }
 
 template<typename T>
-void Polygon<T>::draw(Polygon::Polygon_set_2 &S) const {
-  S.insert(_polygon);
-}
-
-template<typename T>
-void Polygon<T>::draw() const {
-  CGAL::draw(_polygon);
-}
-
-template<typename T>
 void Polygon<T>::invert() {
   for (Vertex<T> &vertex : _vertices) {
     auto [x, y] = vertex.getCoord();

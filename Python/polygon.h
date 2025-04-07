@@ -42,8 +42,6 @@ void bind_polygon(py::module &m) {
       .def("moveTo", &PolygonT::moveTo)
       .def("moveToCopy", &PolygonT::moveToCopy)
       .def("isConvex", &PolygonT::isConvex)
-      .def("draw", py::overload_cast<Polygon_set_2 &>(&PolygonT::draw, py::const_))
-      .def("draw", py::overload_cast<>(&PolygonT::draw, py::const_))
       .def("invert", &PolygonT::invert)
       .def("getPolygon", &PolygonT::getPolygon, py::return_value_policy::reference)
       .def("getVertices", &PolygonT::getVertices, py::return_value_policy::reference)

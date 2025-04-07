@@ -12,9 +12,6 @@
 #include <CGAL/Polygon_2_algorithms.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
-#include <CGAL/draw_polygon_2.h>
-#include <CGAL/draw_polygon_set_2.h>
-#include <CGAL/draw_polygon_with_holes_2.h>
 #include <CGAL/Boolean_set_operations_2.h>
 
 namespace RotationalVisibilityGraph {
@@ -41,8 +38,6 @@ class Polygon {
   void moveTo(T x, T y, T theta);
   Polygon<T> moveToCopy(T x, T y, T theta) const;
   [[nodiscard]] bool isConvex() const;
-  void draw(Polygon_set_2 &S) const;
-  void draw() const;
   void invert();
   [[nodiscard]] const Polygon_2 &getPolygon() const;
   const std::vector<Vertex<T>> &getVertices() const;

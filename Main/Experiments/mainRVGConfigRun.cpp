@@ -4,8 +4,6 @@
 #include <VisibilityGraph/Polygon.h>
 #include <VisibilityGraph/VisibilityGraph.h>
 #include <VisibilityGraph/Utils.h>
-#include <OMPL/CollisionDetection.h>
-#include <OMPL/OMPLEnv.h>
 
 using namespace RotationalVisibilityGraph;
 using namespace Utils;

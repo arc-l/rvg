@@ -34,7 +34,6 @@ int main() {
     polygons.push_back(polygon.getPolygon());
     polygons.push_back(polygon1.getPolygon());
   Polygon_with_holes_2 pwh(map.getPolygon(), polygons.begin(), polygons.end());
-  CGAL::draw(pwh);
 
   return 0;
 }

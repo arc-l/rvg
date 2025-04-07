@@ -3,10 +3,8 @@
 #include <CGAL/Boolean_set_operations_2.h>
 #include <CGAL/Partition_traits_2.h>
 #include <CGAL/Polygon_vertical_decomposition_2.h>
-#include <CGAL/draw_arrangement_2.h>
 #include <CGAL/partition_2.h>
 #include <Utils/Timer.h>
-#include <VisibilityGraph/Drawer.h>
 #include <VisibilityGraph/Utils.h>
 #include <unistd.h>
 
