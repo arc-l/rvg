@@ -9,7 +9,10 @@
        ] 
     ,
     "cmake.configureSettings": {
-        "PYTHON_EXECUTABLE": ["/home/duo/miniforge3/envs/drag/bin/python"],
+        "PYTHON_EXECUTABLE": [
+            // "/home/duo/miniforge3/envs/drag/bin/python",
+            "/Users/duo/miniforge3/envs/rvg/bin/python"
+        ],
         "TRACY_ENABLE": "OFF",
     },
     "cmake.generator": "Unix Makefiles", 

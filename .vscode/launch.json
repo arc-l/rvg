@@ -8,11 +8,11 @@
             // Resolved by CMake Tools:
             "program": "${command:cmake.buildDirectory}/mainRVGConfigRun",
             "args": [
-                "../Configs/env2.xml",
+                "../Configs/env3.xml",
                 // "../scripts/manim_vis/manimConfig.xml",
-                "180",
-                "24",
-                "../Results/manimConfig1.gif"
+                "36",
+                "4",
+                "../Results/env3.gif"
             ],
             "stopAtEntry": false,
             "cwd": "${command:cmake.buildDirectory}",
