@@ -9,7 +9,7 @@ class Layer:
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, theta_lb: float, theta_ub: float, roundUpTheta: float, fineApprox: bool, hashWithTheta: bool, simplifiedGeometry: bool) -> None:
+    def __init__(self, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, roundUpTheta: typing.SupportsFloat, fineApprox: bool, hashWithTheta: bool, simplifiedGeometry: bool) -> None:
         ...
     @typing.overload
     def __init__(self, layer: Layer) -> None:
@@ -36,11 +36,11 @@ class Layer:
         ...
     def getThetaUb(self) -> float:
         ...
-    def getVertex(self, index: int) -> vertex:
+    def getVertex(self, index: typing.SupportsInt) -> vertex:
         ...
     def getVisibleArea(self, v: vertex) -> ...:
         ...
-    def getVisibleAreaPolygon(self, x: float, y: float) -> polygon:
+    def getVisibleAreaPolygon(self, x: typing.SupportsFloat, y: typing.SupportsFloat) -> polygon:
         ...
     def getVisibleAreaPolygons(self) -> dict[vertex, polygon]:
         ...
@@ -54,19 +54,29 @@ class Layer:
         ...
 class TwoTuple:
     __hash__: typing.ClassVar[None] = None
-    first: float
-    second: float
     def __eq__(self, arg0: TwoTuple) -> bool:
         ...
     def __init__(self) -> None:
         ...
     def __repr__(self) -> str:
         ...
+    @property
+    def first(self) -> float:
+        ...
+    @first.setter
+    def first(self, arg0: typing.SupportsFloat) -> None:
+        ...
+    @property
+    def second(self) -> float:
+        ...
+    @second.setter
+    def second(self, arg0: typing.SupportsFloat) -> None:
+        ...
 class polygon:
     __hash__: typing.ClassVar[None] = None
     def __eq__(self, arg0: polygon) -> bool:
         ...
-    def __getitem__(self, arg0: int) -> vertex:
+    def __getitem__(self, arg0: typing.SupportsInt) -> vertex:
         ...
     @typing.overload
     def __init__(self) -> None:
@@ -88,7 +98,7 @@ class polygon:
         ...
     def __repr__(self) -> str:
         ...
-    def __setitem__(self, arg0: int) -> vertex:
+    def __setitem__(self, arg0: typing.SupportsInt) -> vertex:
         ...
     def bbox(self) -> polygon:
         ...
@@ -134,29 +144,29 @@ class polygon:
         ...
     def merge(self, arg0: polygon) -> polygon:
         ...
-    def moveTo(self, arg0: float, arg1: float, arg2: float) -> None:
+    def moveTo(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat, arg2: typing.SupportsFloat) -> None:
         ...
-    def moveToCopy(self, arg0: float, arg1: float, arg2: float) -> polygon:
-        ...
-    @typing.overload
-    def rotate(self, arg0: float) -> None:
+    def moveToCopy(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat, arg2: typing.SupportsFloat) -> polygon:
         ...
     @typing.overload
-    def rotate(self, arg0: float, arg1: vertex) -> None:
-        ...
-    def rotateCGALCopy(self, arg0: float) -> ...:
+    def rotate(self, arg0: typing.SupportsFloat) -> None:
         ...
     @typing.overload
-    def rotateCopy(self, arg0: float) -> polygon:
+    def rotate(self, arg0: typing.SupportsFloat, arg1: vertex) -> None:
+        ...
+    def rotateCGALCopy(self, arg0: typing.SupportsFloat) -> ...:
         ...
     @typing.overload
-    def rotateCopy(self, arg0: float, arg1: vertex) -> polygon:
+    def rotateCopy(self, arg0: typing.SupportsFloat) -> polygon:
         ...
-    def scale(self, arg0: float) -> polygon:
+    @typing.overload
+    def rotateCopy(self, arg0: typing.SupportsFloat, arg1: vertex) -> polygon:
+        ...
+    def scale(self, arg0: typing.SupportsFloat) -> polygon:
         ...
     def size(self) -> int:
         ...
-    def translate(self, arg0: float, arg1: float) -> None:
+    def translate(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat) -> None:
         ...
 class vertex:
     __hash__: typing.ClassVar[None] = None
@@ -168,10 +178,10 @@ class vertex:
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, arg0: float, arg1: float) -> None:
+    def __init__(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat) -> None:
         ...
     @typing.overload
-    def __init__(self, x: float, y: float, theta_lb: float, theta_ub: float, theta: float, roundUpTheta: float, hashWithTheta: bool) -> None:
+    def __init__(self, x: typing.SupportsFloat, y: typing.SupportsFloat, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, theta: typing.SupportsFloat, roundUpTheta: typing.SupportsFloat, hashWithTheta: bool) -> None:
         """
         Constructor with all parameters
         """
@@ -207,14 +217,14 @@ class vertex:
         ...
     def rotationalDist(self, arg0: vertex) -> float:
         ...
-    def setBounds(self, arg0: float, arg1: float) -> None:
+    def setBounds(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat) -> None:
         ...
-    def setPos(self, arg0: float, arg1: float) -> None:
+    def setPos(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat) -> None:
         ...
-    def setTheta(self, arg0: float) -> None:
+    def setTheta(self, arg0: typing.SupportsFloat) -> None:
         ...
 class visibility_graph:
-    def __init__(self, robot: polygon, border: polygon, obstacles: list[polygon], resolution: int, considerSymmetry: bool, hashWithTheta: bool, fineApprox: bool, numThreads: int, optimal: bool = False, verbose: bool = False) -> None:
+    def __init__(self, robot: polygon, border: polygon, obstacles: list[polygon], resolution: typing.SupportsInt, considerSymmetry: bool, hashWithTheta: bool, fineApprox: bool, numThreads: typing.SupportsInt, optimal: bool = False, verbose: bool = False) -> None:
         """
         Constructs a VisibilityGraph with the specified parameters.
         """
@@ -244,13 +254,13 @@ class visibility_graph:
         ...
     def getTotalTime(self) -> float:
         ...
-    def setWeight(self, euclideanWeight: float, rotationalWeight: float) -> None:
+    def setWeight(self, euclideanWeight: typing.SupportsFloat, rotationalWeight: typing.SupportsFloat) -> None:
         ...
-    def shortestPath(self, start: vertex, end: vertex, interpolationDensity: int = 0, unwrap: bool = True) -> list[vertex]:
+    def shortestPath(self, start: vertex, end: vertex, interpolationDensity: typing.SupportsInt = 0, unwrap: bool = True) -> list[vertex]:
         ...
     def verticalDecomposition(self) -> list[polygon]:
         ...
-def add(arg0: int, arg1: int) -> int:
+def add(arg0: typing.SupportsInt, arg1: typing.SupportsInt) -> int:
     """
     A function that adds two numbers
     """
@@ -262,7 +272,7 @@ def get_goal(arg0: str) -> vertex:
     """
     Get the goal vertex from XML
     """
-def get_map(arg0: int) -> polygon:
+def get_map(arg0: typing.SupportsInt) -> polygon:
     """
     Generate a map polygon of a given size
     """

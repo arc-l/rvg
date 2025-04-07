@@ -19,8 +19,6 @@ if __name__ == "__main__":
                                     resolution=36,
                                     numThreads=num_threads,
                                     verbose=False,
-                                    incremental=False,
-                                    simplifiedGeometry=False,
                                     fineApprox=False,
                                     optimal=True,
                                     considerSymmetry=True,
