@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <environment>
+        <robot>
+            <Polygon isObs="false">
+                <Vertex x="-3" y="0"/>
+                <Vertex x="-2" y="0"/>
+                <Vertex x="-2" y="2"/>
+                <Vertex x="-3" y="2"/>
+            </Polygon>
+        </robot>
+        <obstacles>
+            <Polygon isObs="true">
+                <Vertex x="-10" y="-0.2"/>
+                <Vertex x="20" y="-0.2"/>
+                <Vertex x="20" y="-5"/>
+                <Vertex x="-10" y="-5"/>
+            </Polygon>
+            <Polygon isObs="true">
+                <Vertex x="2" y="1"/>
+                <Vertex x="4" y="1"/>
+                <Vertex x="4" y="5"/>
+                <Vertex x="2" y="5"/>
+            </Polygon>
+        </obstacles>
+        <mapSize>45</mapSize>
+    </environment>
+    <plannerSettings>
+        <resolutions>8 18 36 60 72 90 180 360</resolutions>
+        <start>
+            <Vertex x="-2.5" y="1.2" theta="0" thetaLb="0" thetaUb="6.28"/>
+        </start>
+        <goal>
+            <Vertex x="8" y="1.2" theta="0.78" thetaLb="0" thetaUb="6.28"/>
+        </goal>
+        <figPath>pathRes.png</figPath>
+        <considerSymmetry>1</considerSymmetry>
+    </plannerSettings>
+</root>

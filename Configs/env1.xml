@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <environment>
+        <robot>
+            <Polygon isObs="false">
+                <Vertex x="-3" y="0"/>
+                <Vertex x="-2" y="0"/>
+                <Vertex x="-2" y="2"/>
+                <Vertex x="-3" y="2"/>
+            </Polygon>
+        </robot>
+        <useBoundary>0</useBoundary>
+        <boundary>
+            <Polygon isObs="true">
+                <Vertex x="-40" y="-40"/>
+                <Vertex x="40" y="-40"/>
+                <Vertex x="40" y="40"/>
+                <Vertex x="-40" y="40"/>
+            </Polygon>
+        </boundary>
+        <obstacles>
+            <Polygon isObs="true" lower="true">
+                <Vertex x="-20" y="-2"/>
+                <Vertex x="-15" y="-2"/>
+                <Vertex x="-10" y="3"/>
+                <Vertex x="-5" y="3"/>
+                <Vertex x="0" y="-2"/>
+                <Vertex x="5" y="-2"/>
+                <Vertex x="10" y="-7"/>
+                <Vertex x="15" y="-7"/>
+                <Vertex x="20" y="-2"/>
+                <Vertex x="20" y="-40"/>
+                <Vertex x="-20" y="-40"/>
+            </Polygon>
+            <Polygon isObs="true" upper="true">
+                <Vertex x="-20" y="0.0"/>
+                <Vertex x="-16" y="0.0"/>
+                <Vertex x="-11" y="5.0"/>
+                <Vertex x="-4" y="5.0"/>
+                <Vertex x="1" y="0.0"/>
+                <Vertex x="6" y="0.0"/>
+                <Vertex x="11" y="-5"/>
+                <Vertex x="14" y="-5"/>
+                <Vertex x="20" y="1.0"/>
+                <Vertex x="20" y="40"/>
+                <Vertex x="-20" y="40"/>
+            </Polygon>
+        </obstacles>
+    </environment>
+    <plannerSettings>
+        <!--        <resolutions>8 18 36 60 72 90 180</resolutions>-->
+        <resolutions>18</resolutions>
+        <!--        <resolutions>360</resolutions>-->
+        <start>
+            <Vertex x="-23" y="1.5" theta="0" thetaLb="0" thetaUb="6.28"/>
+        </start>
+        <goal>
+            <Vertex x="23" y="5" theta="0" thetaLb="0" thetaUb="6.28"/>
+        </goal>
+        <figPath>pathRes.png</figPath>
+        <considerSymmetry>1</considerSymmetry>
+    </plannerSettings>
+</root>

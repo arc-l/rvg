@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <Vertex>
+        <x>1.11</x>
+        <y>2.22</y>
+        <theta>3.33</theta>
+        <thetaLb>0</thetaLb>
+        <thetaUb>6.28</thetaUb>
+    </Vertex>
+    <Vertex>
+        <x>4.44</x>
+        <y>5.55</y>
+    </Vertex>
+</root>

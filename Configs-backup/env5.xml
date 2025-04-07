@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <environment>
+        <robot>
+            <Polygon isObs="false">
+                <Vertex x="-2.8" y="0"/>
+                <Vertex x="-2.8" y="1.1"/>
+                <Vertex x="-3" y="1.1"/>
+                <Vertex x="-3" y="0.5"/>
+                <Vertex x="-5" y="0.5"/>
+                <Vertex x="-5" y="1"/>
+                <Vertex x="-5.2" y="1"/>
+                <Vertex x="-5.2" y="0"/>
+                <RotationCenter x="-4" y="0.25"/>
+            </Polygon>
+        </robot>
+        <obstacles>
+            <Polygon isObs="true">
+                <Vertex x="2" y="-1"/>
+                <Vertex x="2.5" y="-1"/>
+                <Vertex x="2.5" y="-6"/>
+                <Vertex x="2" y="-6"/>
+            </Polygon>
+            <Polygon isObs="true">
+                <Vertex x="2" y="0.0"/>
+                <Vertex x="2.5" y="0.0"/>
+                <Vertex x="2.5" y="6"/>
+                <Vertex x="2" y="6"/>
+            </Polygon>
+        </obstacles>
+        <mapSize>20</mapSize>
+    </environment>
+    <plannerSettings>
+        <resolutions>8 18 36 60 72 90 180 360</resolutions>
+        <!--        <resolutions>18</resolutions>-->
+        <!--        <resolutions>360</resolutions>-->
+        <start>
+            <Vertex x="-2.5" y="0" theta="0" thetaLb="0" thetaUb="6.28"/>
+        </start>
+        <goal>
+            <Vertex x="8" y="0" theta="0.78" thetaLb="0" thetaUb="6.28"/>
+        </goal>
+        <figPath>pathRes.png</figPath>
+        <considerSymmetry>1</considerSymmetry>
+    </plannerSettings>
+</root>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <environment>
+        <robot>
+            <Polygon isObs="false">
+                <Vertex x="-3" y="0" />
+                <Vertex x="-2" y="0" />
+                <Vertex x="-2" y="2" />
+                <Vertex x="-3" y="2" />
+            </Polygon>
+        </robot>
+        <useBoundary>1</useBoundary>
+        <boundary>
+            <Polygon isObs="true">
+                <Vertex x="-20" y="6" />
+                <Vertex x="-27" y="6" />
+                <Vertex x="-27" y="-50" />
+                <Vertex x="50" y="-50" />
+                <Vertex x="50" y="6" />
+                <Vertex x="42.5" y="6" />
+                <Vertex x="42.5" y="0.0" />
+                <Vertex x="40" y="0.0" />
+                <Vertex x="39" y="1.0" />
+                <Vertex x="39" y="6.0" />
+                <Vertex x="31.5" y="6.0" />
+                <Vertex x="31.5" y="1.0" />
+                <Vertex x="30.5" y="0.0" />
+                <Vertex x="28" y="0.0" />
+                <Vertex x="27" y="1.0" />
+                <Vertex x="27" y="6.0" />
+                <Vertex x="19.5" y="6.0" />
+                <Vertex x="19.5" y="1.0" />
+                <Vertex x="18.5" y="0.0" />
+                <Vertex x="16" y="0.0" />
+                <Vertex x="15" y="1.0" />
+                <Vertex x="15" y="6.0" />
+                <Vertex x="7.5" y="6.0" />
+                <Vertex x="7.5" y="1.0" />
+                <Vertex x="6.5" y="0.0" />
+                <Vertex x="4" y="0.0" />
+                <Vertex x="3" y="1.0" />
+                <Vertex x="3" y="6.0" />
+                <Vertex x="-4.5" y="6.0" />
+                <Vertex x="-4.5" y="1.0" />
+                <Vertex x="-5.5" y="0.0" />
+                <Vertex x="-8" y="0.0" />
+                <Vertex x="-9" y="1.0" />
+                <Vertex x="-9" y="6.0" />
+                <Vertex x="-16.5" y="6.0" />
+                <Vertex x="-16.5" y="1.0" />
+                <Vertex x="-17.5" y="0.0" />
+                <Vertex x="-20" y="0.0" />
+            </Polygon>
+        </boundary>
+        <obstacles>
+            <Polygon isObs="true" lower="true">
+                <Vertex x="-20" y="-1.5" />
+                <Vertex x="-15" y="-1.5" />
+                <Vertex x="-15" y="3.5" />
+                <Vertex x="-14" y="4.5" />
+                <Vertex x="-11.5" y="4.5" />
+                <Vertex x="-10.5" y="3.5" />
+                <Vertex x="-10.5" y="-1.5" />
+                <Vertex x="-3" y="-1.5" />
+                <Vertex x="-3" y="3.5" />
+                <Vertex x="-2" y="4.5" />
+                <Vertex x="0.5" y="4.5" />
+                <Vertex x="1.5" y="3.5" />
+                <Vertex x="1.5" y="-1.5" />
+                <Vertex x="9" y="-1.5" />
+                <Vertex x="9" y="3.5" />
+                <Vertex x="10" y="4.5" />
+                <Vertex x="12.5" y="4.5" />
+                <Vertex x="13.5" y="3.5" />
+                <Vertex x="13.5" y="-1.5" />
+                <Vertex x="21" y="-1.5" />
+                <Vertex x="21" y="3.5" />
+                <Vertex x="22" y="4.5" />
+                <Vertex x="24.5" y="4.5" />
+                <Vertex x="25.5" y="3.5" />
+                <Vertex x="25.5" y="-1.5" />
+                <Vertex x="33" y="-1.5" />
+                <Vertex x="33" y="3.5" />
+                <Vertex x="34" y="4.5" />
+                <Vertex x="36.5" y="4.5" />
+                <Vertex x="37.5" y="3.5" />
+                <Vertex x="37.5" y="-1.5" />
+                <Vertex x="42.5" y="-1.5" />
+                <Vertex x="42.5" y="-13.5" />
+                <Vertex x="40.0" y="-13.5" />
+                <Vertex x="39.0" y="-12.5" />
+                <Vertex x="39.0" y="-7.5" />
+                <Vertex x="31.5" y="-7.5" />
+                <Vertex x="31.5" y="-12.5" />
+                <Vertex x="30.5" y="-13.5" />
+                <Vertex x="16.0" y="-13.5" />
+                <Vertex x="15.0" y="-12.5" />
+                <Vertex x="15.0" y="-7.5" />
+                <Vertex x="7.5" y="-7.5" />
+                <Vertex x="7.5" y="-12.5" />
+                <Vertex x="6.5" y="-13.5" />
+                <Vertex x="-8.0" y="-13.5" />
+                <Vertex x="-9.0" y="-12.5" />
+                <Vertex x="-9.0" y="-7.5" />
+                <Vertex x="-16.5" y="-7.5" />
+                <Vertex x="-16.5" y="-12.5" />
+                <Vertex x="-17.5" y="-13.5" />
+                <Vertex x="-20" y="-13.5" />
+            </Polygon>
+
+            <Polygon isObs="true" lower="true">
+                <Vertex x="-20" y="-15" />
+                <Vertex x="-15" y="-15" />
+                <Vertex x="-15" y="-10" />
+                <Vertex x="-14" y="-9" />
+                <Vertex x="-11.5" y="-9" />
+                <Vertex x="-10.5" y="-10" />
+                <Vertex x="-10.5" y="-15" />
+                <Vertex x="9" y="-15" />
+                <Vertex x="9" y="-10" />
+                <Vertex x="10" y="-9" />
+                <Vertex x="12.5" y="-9" />
+                <Vertex x="13.5" y="-10" />
+                <Vertex x="13.5" y="-15" />
+                <Vertex x="33" y="-15" />
+                <Vertex x="33" y="-10" />
+                <Vertex x="34" y="-9" />
+                <Vertex x="36.5" y="-9" />
+                <Vertex x="37.5" y="-10" />
+                <Vertex x="37.5" y="-15" />
+                <Vertex x="42.5" y="-15" />
+                <Vertex x="42.5" y="-27" />
+                <Vertex x="16" y="-27" />
+                <Vertex x="15" y="-26" />
+                <Vertex x="15" y="-21" />
+                <Vertex x="7.5" y="-21" />
+                <Vertex x="7.5" y="-26" />
+                <Vertex x="6.5" y="-27" />
+                <Vertex x="-20" y="-27" />
+            </Polygon>
+
+            <Polygon isObs="true" lower="true">
+                <Vertex x="-20" y="-28.5" />
+                <Vertex x="9" y="-28.5" />
+                <Vertex x="9" y="-23.5" />
+                <Vertex x="10" y="-22.5" />
+                <Vertex x="12.5" y="-22.5" />
+                <Vertex x="13.5" y="-23.5" />
+                <Vertex x="13.5" y="-28.5" />
+                <Vertex x="42.5" y="-28.5" />
+                <Vertex x="42.5" y="-40" />
+                <Vertex x="-20" y="-40" />
+            </Polygon>
+        </obstacles>
+    </environment>
+    <plannerSettings>
+        <!--        <resolutions>8 18 36 60 72 90 180</resolutions>-->
+        <resolutions>18</resolutions>
+        <!--        <resolutions>360</resolutions>-->
+        <start>
+            <Vertex x="-22" y="0" theta="0" thetaLb="0" thetaUb="6.28" />
+        </start>
+        <goal>
+            <Vertex x="45" y="0" theta="0" thetaLb="0" thetaUb="6.28" />
+        </goal>
+        <figPath>pathRes.png</figPath>
+        <considerSymmetry>1</considerSymmetry>
+    </plannerSettings>
+</root>

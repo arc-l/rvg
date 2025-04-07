@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <Polygon>
+        <Vertex>
+            <x>1.11</x>
+            <y>2.22</y>
+            <theta>3.33</theta>
+            <thetaLb>0</thetaLb>
+            <thetaUb>6.28</thetaUb>
+        </Vertex>
+        <Vertex>
+            <x>4.44</x>
+            <y>5.55</y>
+        </Vertex>
+        <Vertex>
+            <x>0</x>
+            <y>0</y>
+        </Vertex>
+        <isObs>0</isObs>
+    </Polygon>
+    <Polygon>
+        <Vertex>
+            <x>7.11</x>
+            <y>8.22</y>
+            <theta>4.33</theta>
+            <thetaLb>0.21</thetaLb>
+            <thetaUb>5.28</thetaUb>
+        </Vertex>
+        <Vertex>
+            <x>7.44</x>
+            <y>7.55</y>
+        </Vertex>
+        <Vertex>
+            <x>0</x>
+            <y>0</y>
+        </Vertex>
+        <isObs>1</isObs>
+        <sortVertices>0</sortVertices>
+        <isGrown>1</isGrown>
+    </Polygon>
+</root>

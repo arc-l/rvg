@@ -1,0 +1,55 @@
+#include <Utils/Utils.h>
+#include <Utils/Timer.h>
+#include <Utils/Pragma.h>
+#include <VisibilityGraph/Polygon.h>
+#include <VisibilityGraph/VisibilityGraph.h>
+#include <VisibilityGraph/Utils.h>
+#include <OMPL/CollisionDetection.h>
+#include <OMPL/OMPLEnv.h>
+
+using namespace RotationalVisibilityGraph;
+using namespace Utils;
+using T = double;
+DECL_CGAL_CARTESIAN_TYPES_T
+DECL_CGAL_POLYGON_TYPES_T
+DECL_CGAL_VISIBILITY_GRAPH_TYPES_T
+
+int main(int argc, char *argv[]) {
+  if (argc < 2) throw std::runtime_error("No input file provided");
+  tinyxml2::XMLDocument pt;
+  pt.LoadFile(argv[1]);
+  Polygon<T> robot = getRobot<T>(pt);
+  std::vector<Polygon<T>> obstacles = getObstacles<T>(pt);
+  Polygon<T> map;
+  bool useBoundary = get<bool>(*pt.RootElement()->FirstChildElement("environment"), "useBoundary", false);
+  if (useBoundary) {
+    map = getBoundary<T>(pt);
+  } else {
+    int mapSize = get<int>(*pt.RootElement()->FirstChildElement("environment"), "mapSize", 100);
+    map = getMap<T>(mapSize);
+  }
+  const auto plannerSettings = pt.RootElement()->FirstChildElement("plannerSettings");
+  std::shared_ptr<Vertex<T>> start = getVertex<T>(*plannerSettings->FirstChildElement("start")->FirstChildElement("Vertex"));
+  std::shared_ptr<Vertex<T>> goal = getVertex<T>(*plannerSettings->FirstChildElement("goal")->FirstChildElement("Vertex"));
+  bool considerSymmetry = get<bool>(*plannerSettings, "considerSymmetry", true);
+  int resolution = 8;
+  int numThreads = 24;
+  print("Setup: ",
+        "Start",
+        *start,
+        "Goal",
+        *goal,
+        "Resolutions",
+        resolution,
+        "Consider Symmetry",
+        considerSymmetry);
+  std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
+  setPrecision<T>(3);
+  bool hashWithTheta = true;
+  bool fineApprox = false;
+  bool optimal = true;
+  bool verbose = true;
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, hashWithTheta, fineApprox, numThreads, optimal, verbose);
+  visibilityGraph.verticalDecomposition();
+  return 0;
+}

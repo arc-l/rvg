@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <dummyConfig>
+        <dummyConfig1>dummyConfig1</dummyConfig1>
+        <dummyConfig2>dummyConfig2</dummyConfig2>
+        <dummyConfig3>0 1 1</dummyConfig3>
+        <dummyConfig4>111</dummyConfig4>
+    </dummyConfig>
+</root>
