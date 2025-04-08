@@ -1,4 +1,6 @@
-# RotationalVisibilityGraph
+<h1 align="center">Asymptotically-Optimal Multi-Query Path Planning for Moving A Convex Polygon in 2D</h1>
+[Duo Zhang](https://duozhangrobotics.github.io/), Zihe Ye,  [Jingjin Yu](https://arc-l.github.io/group.html)
+The paper link [https://arxiv.org/pdf/2409.03920](https://arxiv.org/pdf/2409.03920) (ICRA 2025).
 
 ## Clone this repository with submodules
 ```bash
