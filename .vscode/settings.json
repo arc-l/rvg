@@ -11,7 +11,8 @@
     "cmake.configureSettings": {
         "PYTHON_EXECUTABLE": [
             // "/home/duo/miniforge3/envs/drag/bin/python",
-            "/Users/duo/miniforge3/envs/rvg/bin/python"
+            // "/Users/duo/miniforge3/envs/rvg/bin/python"
+            "/home/duo/miniforge3/envs/rvg/bin/python"
         ],
         "TRACY_ENABLE": "OFF",
     },

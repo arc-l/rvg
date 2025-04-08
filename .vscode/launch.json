@@ -11,7 +11,7 @@
                 "../Configs/env3.xml",
                 // "../scripts/manim_vis/manimConfig.xml",
                 "36",
-                "4",
+                "24",
                 "../Results/env3.gif"
             ],
             "stopAtEntry": false,

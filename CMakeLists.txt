@@ -42,7 +42,15 @@ IF (DEFINED PYTHON_EXECUTABLE)
     MESSAGE(STATUS "Python executable: ${PYTHON_EXECUTABLE}")
     ADD_DEFINITIONS(-DPYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}")
     GET_FILENAME_COMPONENT(Python_ROOT_DIR ${PYTHON_EXECUTABLE} DIRECTORY)
+    GET_FILENAME_COMPONENT(Python_ROOT_DIR ${Python_ROOT_DIR} DIRECTORY)  # One level up
+    SET(Python_ROOT_DIR "${Python_ROOT_DIR}" CACHE PATH "Root directory of Python")
+    SET(Python_EXECUTABLE "${PYTHON_EXECUTABLE}" CACHE FILEPATH "Python interpreter")
+
     FIND_PACKAGE(Python REQUIRED COMPONENTS Interpreter Development)
+    MESSAGE(STATUS "Python version: ${Python_VERSION}")
+    MESSAGE(STATUS "Python library: ${Python_LIBRARIES}")
+    MESSAGE(STATUS "Python include dirs: ${Python_INCLUDE_DIRS}")
+    message(STATUS "Python_ROOT_DIR: ${Python_ROOT_DIR}")
 ELSE (DEFINED PYTHON_EXECUTABLE)
     IF (POLICY CMP0094)  # https://cmake.org/cmake/help/latest/policy/CMP0094.html
         CMAKE_POLICY(SET CMP0094 NEW)  # FindPython should return the first matching Python
@@ -55,6 +63,10 @@ ELSE (DEFINED PYTHON_EXECUTABLE)
         SET(Python_FIND_FRAMEWORK "LAST")
     ENDIF ()
     FIND_PACKAGE(Python REQUIRED COMPONENTS Interpreter Development)
+    MESSAGE(STATUS "Python version: ${Python_VERSION}")
+    MESSAGE(STATUS "Python library: ${Python_LIBRARIES}")
+    MESSAGE(STATUS "Python include dirs: ${Python_INCLUDE_DIRS}")
+
     SET(PYTHON_EXECUTABLE ${Python_EXECUTABLE})
     ADD_DEFINITIONS(-DPYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}")
     MESSAGE(STATUS "Python executable: ${PYTHON_EXECUTABLE}")
