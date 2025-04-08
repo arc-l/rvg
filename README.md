@@ -10,7 +10,8 @@
 
 The paper link [https://arxiv.org/pdf/2409.03920](https://arxiv.org/pdf/2409.03920) (ICRA 2025).
 
-## Clone this repository with submodules
+## Installation
+### Clone this repository with submodules
 ```bash
 git clone --recurse-submodules https://github.com/arc-l/rvg.git 
 ```
@@ -20,7 +21,7 @@ If you have already cloned the repository, you can run the following command to 
 git submodule update --init --recursive
 ```
 
-## Configure python for RVG
+### Configure python for RVG
 In RVG, we use matplotlib to do all the visualization in the C++ code. There are two ways of setting up python for RVG:
 1. Setup the CMAKE variable `PYTHON_EXECUTABLE`
    If you have a specific python that you want to use, just run cmake with
@@ -40,26 +41,27 @@ In RVG, we use matplotlib to do all the visualization in the C++ code. There are
     ```
     Then you can simply run `cmake` without setting the `PYTHON_EXECUTABLE` because cmake will use the python in the conda environment by default.
 
-## Requirements
+### Requirements
 For Ubuntu
 ```bash
 sudo apt install libboost-all-dev  libgmp-dev  libmpfr-dev libtinyxml2-dev libeigen3-dev
 ```
+For Mac, use brew to install the corresponding libraries, and the C++ code should be able to run. The python-bindings for MacOS is still under development.
 
-## To build c++ library
+### To build c++ library
 ```bash
 mkdir build
 cd build
 cmake ..
 ```
 
-## To build python package
+### To build python package
 ```bash
 # activate the environment you want
 pip install -e .
 ```
 
-## To build the function annotation if you have built more functions
+### To build the function annotation if you have built more functions
 1. Install pybind11-stubgen first. 
     ```bash
     pip install pybind11-stubgen
@@ -68,5 +70,38 @@ pip install -e .
     ```bash
     pybind11-stubgen -o ./ rvg
     ```
-    This will generate a `rvg.pyi` file in the project folder so the function signitures can be found be python intellisense.
+    This will generate a `rvg.pyi` file in the project folder so the function signitures can be found be python intellisense. You will get some errors on the symbols/functions from other Third-Party which is not specified in pybind11. It won't affect the other stubs.
 
+## Usage
+### Run the code in Python
+Once RVG is installed, try to import it:
+```python
+from rvg import vertex, polygon, visibility_graph
+```
+Then you can create a vertex given its `x` and `y`
+```python
+v1 = vertex(0, 0)
+```
+You can also create a polygon given a list of vertices:
+```python
+p1 = polygon( [
+        vertex(0, 0),
+        vertex(2, 0),
+        vertex(2, 2),
+        vertex(0, 2)
+    ])
+```
+Then you can construct a RVG by:
+```python=
+vg = visibility_graph(robot=robot, # represented by a polygon
+                      border = border, # represented by a polygon
+                      obstacles = obstacles, # represented by a list of polygons 
+                      resolution=18, 
+                      considerSymmetry=True, 
+                      hashWithTheta=True, 
+                      numThreads=1, 
+                      verbose=False, 
+                      fineApprox=True)
+```
+Once you have installed RVG, you can
+### Run the code in C++
