@@ -9,6 +9,14 @@ If you have already cloned the repository, you can run the following command to 
 ```bash
 git submodule update --init --recursive
 ```
+## Virtual Environment (conda)
+
+To have a clean python environment, create a virtual environment and activate
+
+```bash
+conda create -n rvg python==3.9
+conda activate rvg
+```
 
 ## Requirements
 For Ubuntu
@@ -20,7 +28,7 @@ sudo apt install libboost-all-dev  libgmp-dev  libmpfr-dev libtinyxml2-dev qtbas
 ```bash
 mkdir build
 cd build
-cmake -DPYTHON_EXECUTABLE=$(which python) ..
+cmake ..
 ```
 
 ## To build python package
