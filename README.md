@@ -13,7 +13,7 @@ git submodule update --init --recursive
 ## Requirements
 For Ubuntu
 ```bash
-sudo apt install libboost-all-dev  libgmp-dev  libmpfr-dev libtinyxml2-dev qtbase5-dev 
+sudo apt install libboost-all-dev  libgmp-dev  libmpfr-dev libtinyxml2-dev qtbase5-dev libeigen3-dev
 ```
 
 ## To build c++ library
