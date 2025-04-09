@@ -34,7 +34,7 @@ void bind_vertex(py::module &m) {
       .def("getThetaUb", &VertexT::getThetaUb)
       .def("mergeThetaRange", &VertexT::mergeThetaRange)
       .def("getCoord", &VertexT::getCoord)
-      .def("getPoint", &VertexT::getPoint)
+      // .def("getPoint", &VertexT::getPoint)
       .def("dist", &VertexT::dist)
       .def("rotationalDist", &VertexT::rotationalDist)
       .def("hasTheta", &VertexT::hasTheta)

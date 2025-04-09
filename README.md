@@ -50,20 +50,25 @@ In RVG, we use matplotlib to do all the visualization in the C++ code. There are
     Then you can simply run `cmake` without setting the `PYTHON_EXECUTABLE` because cmake will use the python in the conda environment by default.
 
 
-### To build c++ library
-```bash
-mkdir build
-cd build
-cmake ..
-```
-
 ### To build python package
 ```bash
 # activate the environment you want
 pip install -e .
 ```
 
-### To build the function annotation if you have built more functions
+### To build the C++ code
+There are a few CMake variables that can be configured:
+1. `PYTHON_EXECUTABLE`: see [here](#configure-python-for-rvg)
+2. `TRACY_ENABLE`: To use [tracy](https://github.com/wolfpld/tracy) to profile the performance
+3. `OMPL_ENABLE`: OMPL will be dowloaded and installed, if you want to run comparisons between sampling based motion planner with RVG
+```
+mkdir build
+cd build
+cmake -D<settings of variables> ..
+make -j24
+```
+
+### To build the function annotation for python if you have built more functions with Pybind11
 1. Install pybind11-stubgen first. 
     ```bash
     pip install pybind11-stubgen
@@ -105,9 +110,6 @@ vg = visibility_graph(robot=robot, # represented by a polygon
                       verbose=False, # show running details
                       fineApprox=True # Use a finer approximation of the rotation range
                       )
-path = vg.shortestPath(start, goal) # s
+path = vg.shortestPath(start, goal) # search for the shortest path
 ```
-
-### Run the code in C++
-There are a few CMake variables that can be configured:
-1. `PYTHON_EXECUTABLE`: see [Configuring PYTHON_EXECUTABLE](#configure-python-for-rvg)
+For more detailed examples, please see [here](https://github.com/arc-l/rvg/tree/main/python-example).

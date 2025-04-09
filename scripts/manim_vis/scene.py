@@ -2,6 +2,7 @@ from manim import *
 from manim.scene.three_d_scene import ThreeDScene
 from manim_voiceover import VoiceoverScene
 from manim_voiceover.services.gtts import GTTSService
+from manim_voiceover.services.openai import OpenAIService
 import rvg
 import os
 
@@ -33,10 +34,8 @@ class RVG(VoiceoverScene, ThreeDScene):
             resolution=8, 
             considerSymmetry=True, 
             hashWithTheta=True, 
-            simplifiedGeometry=False, 
             fineApprox=False, 
             numThreads=1, 
-            incremental=False, 
             optimal=False, 
             verbose=False
             )
@@ -56,6 +55,7 @@ class RVG(VoiceoverScene, ThreeDScene):
 
         # manim setup
         self.set_speech_service(GTTSService())
+        # self.set_speech_service(OpenAIService())
         map = Square(5)
         map.set_fill(GREY_E, opacity=0.8)
         obstacle = Square(1.5)
