@@ -10,10 +10,10 @@
 Put 2-3 examples (gif) or rvg running: one in 
 
 ## Table of Contents
-- Introduction(#intro)
--- [What Does a Rotation-Stacked Visibility Graph (RVG) Do?](#rvg)
--- [Comparisons with SOTA SE(2) Rigid Body Planners](#compare)
--- [Additional Examples](#examples)
+- [Introduction](#intro)
+  - [What Does a Rotation-Stacked Visibility Graph (RVG) Do?](#rvg)
+  - [Comparisons with SOTA SE(2) Rigid Body Planners](#compare)
+  - [Additional Examples](#examples)
 - [Installation and Example Usage](#install)
 - [Citation](#citation)
 
