@@ -2,11 +2,10 @@
 
 <a href="https://duozhangrobotics.github.io/" target="_blank"><nobr>Duo Zhang</nobr></a> &emsp;
 <nobr>Zihe Ye</nobr> &emsp;
-<a href="https://arc-l.github.io/group.html" target="_blank"><nobr>Jingjin Yu</nobr></a>
+<a href="https://arc-l.github.io/group.html" target="_blank"><nobr>Jingjin Yu</nobr></a> &emsp; (ICRA 2025)
 
 
-The paper link [https://arxiv.org/pdf/2409.03920](https://arxiv.org/pdf/2409.03920) (ICRA 2025).
-
+[![Static Badge](https://img.shields.io/badge/RVG-arXiv-blue )](https://arxiv.org/pdf/2409.03920)
 
 https://github.com/user-attachments/assets/71e543a1-9535-4a94-8db5-5ecd59227703
 
