@@ -91,17 +91,19 @@ p1 = polygon( [
         vertex(0, 2)
     ])
 ```
-Then you can construct a RVG by:
+Then you can construct a RVG and find the shortest path from `start(vertex)` to `goal(vertex)`:
 ```python=
 vg = visibility_graph(robot=robot, # represented by a polygon
                       border = border, # represented by a polygon
                       obstacles = obstacles, # represented by a list of polygons 
                       resolution=18, 
-                      considerSymmetry=True, 
+                      considerSymmetry=True, # whether to consider the symmetry of the robot geometry
                       hashWithTheta=True, 
-                      numThreads=1, 
-                      verbose=False, 
-                      fineApprox=True)
+                      numThreads=1,  # number of cores for parallelization
+                      verbose=False, # show running details
+                      fineApprox=True # Use a finer approximation of the rotation range
+                      )
+path = vg.shortestPath(start, goal) # s
 ```
 Once you have installed RVG, you can
 ### Run the code in C++
