@@ -23,7 +23,7 @@ git submodule update --init --recursive
 
 ### Configure python for RVG
 In RVG, we use matplotlib to do all the visualization in the C++ code. There are two ways of setting up python for RVG:
-1. Setup the CMAKE variable `PYTHON_EXECUTABLE`
+1. Setup the CMAKE variable `PYTHON_EXECUTABLE` <a name="first-item"></a>
    If you have a specific python that you want to use, just run cmake with
    ```bash
     cmake -DPYTHON_EXECUTABLE=<path-to-your-python>
@@ -105,5 +105,7 @@ vg = visibility_graph(robot=robot, # represented by a polygon
                       )
 path = vg.shortestPath(start, goal) # s
 ```
-Once you have installed RVG, you can
+
 ### Run the code in C++
+There are a few CMake variables that can be configured:
+1. `PYTHON_EXECUTABLE`: see [Configuring PYTHON_EXECUTABLE](#first_item)
