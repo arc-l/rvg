@@ -11,6 +11,10 @@
 The paper link [https://arxiv.org/pdf/2409.03920](https://arxiv.org/pdf/2409.03920) (ICRA 2025).
 
 
+https://github.com/user-attachments/assets/71e543a1-9535-4a94-8db5-5ecd59227703
+
+
+
 ## Installation
 ### Clone this repository with submodules
 ```bash
@@ -41,7 +45,11 @@ In RVG, we use matplotlib to do all the visualization in the C++ code. There are
    cmake -DPYTHON_EXECUTABLE=$(which python)
    ```
 2. Virtual Environment (**Recommended**)
-    To have a clean python environment, create a virtual environment and activate
+    To have a clean python environment, create a
+
+https://github.com/user-attachments/assets/5948e0ff-252d-46ea-9b63-699d5e7fa5a9
+
+ virtual environment and activate
     ```bash
     conda create -n rvg python==3.9 numpy matplotlib # matplotlib is for visualizing the solutions and environments.
     conda install -c conda-forge cpython # for different versions of libpython
