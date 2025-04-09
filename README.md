@@ -10,6 +10,7 @@
 
 The paper link [https://arxiv.org/pdf/2409.03920](https://arxiv.org/pdf/2409.03920) (ICRA 2025).
 
+
 ## Installation
 ### Clone this repository with submodules
 ```bash
@@ -21,9 +22,16 @@ If you have already cloned the repository, you can run the following command to 
 git submodule update --init --recursive
 ```
 
+### Requirements
+For Ubuntu
+```bash
+sudo apt install libboost-all-dev  libgmp-dev  libmpfr-dev libtinyxml2-dev libeigen3-dev
+```
+For Mac, use brew to install the corresponding libraries, and the C++ code should be able to run. The python-bindings for MacOS is still under development.
+
 ### Configure python for RVG
 In RVG, we use matplotlib to do all the visualization in the C++ code. There are two ways of setting up python for RVG:
-1. Setup the CMAKE variable `PYTHON_EXECUTABLE` <a name="first-item"></a>
+1. Setup the CMAKE variable `PYTHON_EXECUTABLE` 
    If you have a specific python that you want to use, just run cmake with
    ```bash
     cmake -DPYTHON_EXECUTABLE=<path-to-your-python>
@@ -41,12 +49,6 @@ In RVG, we use matplotlib to do all the visualization in the C++ code. There are
     ```
     Then you can simply run `cmake` without setting the `PYTHON_EXECUTABLE` because cmake will use the python in the conda environment by default.
 
-### Requirements
-For Ubuntu
-```bash
-sudo apt install libboost-all-dev  libgmp-dev  libmpfr-dev libtinyxml2-dev libeigen3-dev
-```
-For Mac, use brew to install the corresponding libraries, and the C++ code should be able to run. The python-bindings for MacOS is still under development.
 
 ### To build c++ library
 ```bash
