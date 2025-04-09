@@ -7,6 +7,18 @@
 
 [![Static Badge](https://img.shields.io/badge/RVG-arXiv-blue )](https://arxiv.org/pdf/2409.03920)
 
+Put 2-3 examples (gif) or rvg running: one in 
+
+## Table of Contents
+- [What does rotation-stacked visibility graphs (RVGs) do?](#intro)
+- Comparisons with SOTA SE(2) rigid body planners 
+- [Installation and usage examples](# Installation
+- [Citation](#citation)
+
+# <a name="intro"></a>What does a rotation-stacked visibility graph (RVG) do?  
+
+
+
 https://github.com/user-attachments/assets/71e543a1-9535-4a94-8db5-5ecd59227703
 
 
@@ -121,3 +133,16 @@ vg = visibility_graph(robot=robot, # represented by a polygon
 path = vg.shortestPath(start, goal) # search for the shortest path
 ```
 For more detailed examples, please see [here](https://github.com/arc-l/rvg/tree/main/python-example).
+
+
+## <a name="citation"></a>Citation
+If you find this project helpful for your research, please consider citing the following BibTeX entry.
+```BibTex
+@inproceedings{ZhaYeYu25ICRA,
+author = {Duo Zhang and Zihe Ye and Jingjin Yu},
+title = {Asymptotically-Optimal Multi-Query Path Planning for a Polygonal Robot},
+booktitle={IEEE International Conference on Robotics and Automation},
+year={2025}}
+```
+
+
