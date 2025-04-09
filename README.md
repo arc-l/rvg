@@ -7,7 +7,7 @@
 
 [![YouTube](https://badges.aleen42.com/src/youtube.svg)](https://youtu.be/) [![Static Badge](https://img.shields.io/badge/RVG-arXiv-blue )](https://arxiv.org/pdf/2409.03920)
 
-Put 2-3 examples (gif) or rvg running: one in 
+Put 3 examples (animated gif) of rvg running: one in a relatively simple environment, one with many obstacles, and one with a non-convex robot. 
 
 ## Table of Contents
 - [Introduction](#intro)
