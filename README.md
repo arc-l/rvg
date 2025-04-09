@@ -145,10 +145,10 @@ For more detailed examples, please see [here](https://github.com/arc-l/rvg/tree/
 If you find this project helpful for your research, please consider citing the following BibTeX entry.
 ```BibTex
 @inproceedings{ZhaYeYu25ICRA,
-author = {Duo Zhang and Zihe Ye and Jingjin Yu},
-title = {Asymptotically-Optimal Multi-Query Path Planning for a Polygonal Robot},
-booktitle={IEEE International Conference on Robotics and Automation},
-year={2025}}
+    author = {Duo Zhang and Zihe Ye and Jingjin Yu},
+    title = {Asymptotically-Optimal Multi-Query Path Planning for a Polygonal Robot},
+    booktitle={IEEE International Conference on Robotics and Automation},
+    year={2025}}
 ```
 
 
