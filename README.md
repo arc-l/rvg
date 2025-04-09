@@ -10,13 +10,19 @@
 Put 2-3 examples (gif) or rvg running: one in 
 
 ## Table of Contents
-- [What does rotation-stacked visibility graphs (RVGs) do?](#intro)
-- Comparisons with SOTA SE(2) rigid body planners 
-- [Installation and usage examples](# Installation
+- Introduction(#intro)
+-- [What Does a Rotation-Stacked Visibility Graph (RVG) Do?](#rvg)
+-- [Comparisons with SOTA SE(2) Rigid Body Planners](#compare)
+-- [Additional Examples](#examples)
+- [Installation and Example Usage](#install)
 - [Citation](#citation)
 
-# <a name="intro"></a>What does a rotation-stacked visibility graph (RVG) do?  
+## <a name="intro"></a>Introduction
+### <a name="rvg"></a>What does a rotation-stacked visibility graph (RVG) do?  
 
+### <a name="compare"></a>Comparisons with SOTA SE(2) Rigid Body Planners
+
+### <a name="examples"></a>Additional Examples
 
 
 https://github.com/user-attachments/assets/71e543a1-9535-4a94-8db5-5ecd59227703
@@ -27,7 +33,7 @@ https://github.com/user-attachments/assets/e8292aab-cb14-4794-8171-dd2f7ae271db
 
 
 
-## Installation
+## <a name="install"></a>Installation and Example Usage
 ### Clone this repository with submodules
 ```bash
 git clone --recurse-submodules https://github.com/arc-l/rvg.git 
