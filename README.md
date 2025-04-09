@@ -110,4 +110,4 @@ path = vg.shortestPath(start, goal) # s
 
 ### Run the code in C++
 There are a few CMake variables that can be configured:
-1. `PYTHON_EXECUTABLE`: see [Configuring PYTHON_EXECUTABLE](#first_item)
+1. `PYTHON_EXECUTABLE`: see [Configuring PYTHON_EXECUTABLE](#configure-python-for-rvg)
