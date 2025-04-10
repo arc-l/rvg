@@ -27,7 +27,9 @@
 
 ## <a name="intro"></a>Introduction
 ### <a name="rvg"></a>What does a rotation-stacked visibility graph (RVG) do?  
-RVG constructs a layered visibility graph over multiple discrete orientations, allowing efficient, high-quality path planning for polygonal robots with both translation and rotation in 2D environments. It maintains completeness and asymptotic optimality while enabling rapid queries across diverse planning scenarios.
+RVG constructs a layered visibility graph over multiple discrete orientations, allowing efficient, high-quality path planning for polygonal robots with both translation and rotation in 2D environments. It maintains completeness and asymptotic optimality while enabling rapid queries across diverse planning scenarios. The video below illustrates how RVG works. 
+
+https://github.com/user-attachments/assets/e8292aab-cb14-4794-8171-dd2f7ae271db
 
 ### <a name="compare"></a>Comparisons with SOTA SE(2) Rigid Body Planners
 RVG, as a multi-query method dedicated to path planning for rigid bodies in SE(2), outperforms sampling-based planners in such settings, producing shorter paths with significantly lower planning times. Below, we observe that RVG does better in efficiency and optimality for ten typical problem instances similar to the example on the right above.
@@ -71,15 +73,6 @@ RVG can produce different solutions based on the relative weighting of translati
       width="45%" />
   </p>
   </div>
-
-
-https://github.com/user-attachments/assets/71e543a1-9535-4a94-8db5-5ecd59227703
-
-
-https://github.com/user-attachments/assets/e8292aab-cb14-4794-8171-dd2f7ae271db
-
-
-
 
 ## <a name="install"></a>Installation and Example Usage
 ### Clone this repository with submodules
