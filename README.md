@@ -43,7 +43,7 @@ Given RVG’s time budget, sampling-based methods often produce longer paths, wi
   </div>
   
 ### <a name="examples"></a>Additional Examples
-- RVG dealing with non-convex geometries
+RVG works with rigid bodies that are non-convex: 
   <div align="center">
   <p float="left">
     <img src=
@@ -54,7 +54,7 @@ Given RVG’s time budget, sampling-based methods often produce longer paths, wi
       width="45%" />
   </p>
   </div>
-- RVG is capable of producing different solutions based on the relative weighting of translation and rotation during the search process.
+RVG can produce different solutions based on the relative weighting of translation and rotation during the search process.
   <div align="center">
   <p float="left">
     <img src=
