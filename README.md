@@ -21,8 +21,6 @@
   - [Comparisons with SOTA SE(2) Rigid Body Planners](#compare)
   - [Additional Examples](#examples)
 - [Installation and Example Usage](#install)
-  - [C++]()
-  - [Python]()
 - [Citation](#citation)
 
 ## <a name="intro"></a>Introduction
@@ -75,6 +73,9 @@ RVG can produce different solutions based on the relative weighting of translati
   </div>
 
 ## <a name="install"></a>Installation and Example Usage
+
+We provide C++ implementation of RVG with python bindings. Give it a try!
+
 ### Clone this repository with submodules
 ```bash
 git clone --recurse-submodules https://github.com/arc-l/rvg.git 
