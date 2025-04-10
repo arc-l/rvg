@@ -8,6 +8,11 @@
 [![YouTube](https://badges.aleen42.com/src/youtube.svg)](https://youtu.be/) [![Static Badge](https://img.shields.io/badge/RVG-arXiv-blue )](https://arxiv.org/pdf/2409.03920)
 
 Put 3 examples (animated gif) of rvg running: one in a relatively simple environment, one with many obstacles, and one with a non-convex robot. 
+![manimConfig](https://github.com/user-attachments/assets/0b46a551-bf74-4ce5-9040-dca3c36ded4b)
+
+![RVGfixedStartAndGoalSmall5_AllPathDemos](https://github.com/user-attachments/assets/eb82c2a6-7ed6-4a30-9d6f-de3fa15b7f7e)
+
+![RVGfixedStartAndGoalHardSmall5_AllPathDemos](https://github.com/user-attachments/assets/be612d7f-c188-4326-aedd-0f81aa277a04)
 
 ## Table of Contents
 - [Introduction](#intro)
