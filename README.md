@@ -7,11 +7,11 @@
 
 [![YouTube](https://badges.aleen42.com/src/youtube.svg)](https://youtu.be/) [![Static Badge](https://img.shields.io/badge/RVG-arXiv-blue )](https://arxiv.org/pdf/2409.03920)
 
-<p float="center">
-  <img src="https://github.com/user-attachments/assets/0b46a551-bf74-4ce5-9040-dca3c36ded4b" width="30%" />
-  <img src="https://github.com/user-attachments/assets/eb82c2a6-7ed6-4a30-9d6f-de3fa15b7f7e" width="30%" />
-  <img src="https://github.com/user-attachments/assets/be612d7f-c188-4326-aedd-0f81aa277a04" width="30%" />
-</p>
+<div style="text-align: center;">
+  <img src="https://github.com/user-attachments/assets/0b46a551-bf74-4ce5-9040-dca3c36ded4b" style="width: 30%; display: inline-block;" />
+  <img src="https://github.com/user-attachments/assets/eb82c2a6-7ed6-4a30-9d6f-de3fa15b7f7e" style="width: 30%; display: inline-block;" />
+  <img src="https://github.com/user-attachments/assets/be612d7f-c188-4326-aedd-0f81aa277a04" style="width: 30%; display: inline-block;" />
+</div>
 
 ## Table of Contents
 - [Introduction](#intro)
