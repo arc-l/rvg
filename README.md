@@ -9,7 +9,7 @@
 
 <div align="center">
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/ee9ec0a4-6ca6-401d-a9cb-382bc864adf2" width="30%" />
+  <img src="https://github.com/user-attachments/assets/ad62b570-e4dd-4854-ab40-2bdfb43a1818" width="30%" />
   <img src="https://github.com/user-attachments/assets/5a092d9f-583f-4b50-ac1b-6ad1290a553a" width="30%" />
   <img src="https://github.com/user-attachments/assets/110dd7d3-0de2-4bd9-8e55-c0b13f61f0cd" width="30%" />
 </p>
