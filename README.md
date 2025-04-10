@@ -27,7 +27,7 @@
 
 ## <a name="intro"></a>Introduction
 ### <a name="rvg"></a>What does a rotation-stacked visibility graph (RVG) do?  
-RVG constructs a layered visibility graph over multiple discrete orientations, allowing efficient, high-quality path planning for polygonal robots with both translation and rotation in 2D environments. It maintains completeness and asymptotic optimality while enabling rapid queries across diverse planning scenarios. The video below illustrates how RVG works. 
+RVG constructs a layered visibility graph over multiple discrete orientations, allowing efficient, high-quality path planning for polygonal robots with both translation and rotation in 2D environments. It maintains completeness and asymptotic optimality while enabling rapid queries across diverse planning scenarios. The video below (with narrations) illustrates how RVG works. 
 
 https://github.com/user-attachments/assets/e8292aab-cb14-4794-8171-dd2f7ae271db
 
@@ -35,7 +35,7 @@ https://github.com/user-attachments/assets/e8292aab-cb14-4794-8171-dd2f7ae271db
 RVG, as a multi-query method dedicated to path planning for rigid bodies in SE(2), outperforms sampling-based planners in such settings, producing shorter paths with significantly lower planning times. Below, we observe that RVG does better in efficiency and optimality for ten typical problem instances similar to the example on the right above.
 ![comparison_together](https://github.com/user-attachments/assets/7d2d459e-5ced-488b-a054-98cae8f0f26c)
 
-Given RVG’s time budget, sampling-based methods often produce longer paths, with cost ratios exceeding 1.0. This further corroborates RVG’s superior solution quality under the same compute.
+Given RVG’s time budget, sampling-based methods often produce longer paths, with cost ratios exceeding 1.0. This further corroborates RVG’s superior solution quality under the same amount of compute.
     <div align="center">
     <p float="left">
     <img src=
