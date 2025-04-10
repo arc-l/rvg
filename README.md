@@ -30,7 +30,17 @@
 RVG constructs a layered visibility graph over multiple discrete orientations, allowing efficient, high-quality path planning for polygonal robots with both translation and rotation in 2D environments. It maintains completeness and asymptotic optimality while enabling rapid queries across diverse planning scenarios.
 
 ### <a name="compare"></a>Comparisons with SOTA SE(2) Rigid Body Planners
-RVG demonstrates significant improvements over state-of-the-art SE(2) planners, offering faster computation and shorter paths — particularly in complex environments where precise maneuvering is required. Benchmarks show robust performance gains in both planning time and path cost.
+1. RVG outperforms sampling-based planners by producing shorter paths with significantly lower planning times, highlighting its efficiency and solution quality in SE(2) spaces.
+![comparison_together](https://github.com/user-attachments/assets/7d2d459e-5ced-488b-a054-98cae8f0f26c)
+2. Given RVG’s time budget, sampling-based methods often produce longer paths, with cost ratios exceeding 1.0—highlighting RVG’s superior solution quality under the same computational constraints.
+    <div align="center">
+    <p float="left">
+    <img src=
+      "https://github.com/user-attachments/assets/09e63f81-a89a-4f2a-a1b2-e97df4f5c867"
+      width="45%" />
+    </p>
+  </div>
+  
 ### <a name="examples"></a>Additional Examples
 - RVG dealing with non-convex geometries
   <div align="center">
@@ -100,11 +110,7 @@ In RVG, we use matplotlib to do all the visualization in the C++ code. There are
    cmake -DPYTHON_EXECUTABLE=$(which python)
    ```
 2. Virtual Environment (**Recommended**)
-    To have a clean python environment, create a
-
-https://github.com/user-attachments/assets/5948e0ff-252d-46ea-9b63-699d5e7fa5a9
-
- virtual environment and activate
+    To have a clean python environment, create a virtual environment and activate
     ```bash
     conda create -n rvg python==3.9 numpy matplotlib # matplotlib is for visualizing the solutions and environments.
     conda install -c conda-forge cpython # for different versions of libpython
