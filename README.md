@@ -32,12 +32,34 @@ RVG constructs a layered visibility graph over multiple discrete orientations, a
 ### <a name="compare"></a>Comparisons with SOTA SE(2) Rigid Body Planners
 RVG demonstrates significant improvements over state-of-the-art SE(2) planners, offering faster computation and shorter paths — particularly in complex environments where precise maneuvering is required. Benchmarks show robust performance gains in both planning time and path cost.
 ### <a name="examples"></a>Additional Examples
-<div align="center">
-<p float="left">
-  <img src="https://github.com/user-attachments/assets/c2239184-de8a-4a9e-aa32-11d4e3ccfdae" width="30%" />
-  <img src="https://github.com/user-attachments/assets/fb196e46-af34-4cd1-9a8f-d797062ffe30" width="30%" />
-</p>
-</div>
+- RVG dealing with non-convex geometries
+  <div align="center">
+  <p float="left">
+    <img src=
+      "https://github.com/user-attachments/assets/567d7675-561f-4a3d-ae1c-d47713370128"
+      width="45%" />
+    <img src=
+      "https://github.com/user-attachments/assets/1225cd51-1996-4cf4-953c-3e00bbb623b8"
+      width="45%" />
+  </p>
+  </div>
+- RVG is capable of producing different solutions based on the relative weighting of translation and rotation during the search process.
+  <div align="center">
+  <p float="left">
+    <img src=
+      "https://github.com/user-attachments/assets/040a7b34-5e9e-4d0c-aed4-2a7dd7cee587"
+      width="45%" />
+    <img src=
+      "https://github.com/user-attachments/assets/190e84ec-8a3e-4f83-ac2c-be2240138627"
+      width="45%" />
+    <img src=
+      "https://github.com/user-attachments/assets/ab5e146e-ae8d-424e-ba43-2a6d173356f5"
+      width="45%" />
+      <img src=
+      "https://github.com/user-attachments/assets/bf9f0740-16fc-490c-ab49-afe5199717b3"
+      width="45%" />
+  </p>
+  </div>
 
 
 https://github.com/user-attachments/assets/71e543a1-9535-4a94-8db5-5ecd59227703
