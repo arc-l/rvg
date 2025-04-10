@@ -32,9 +32,12 @@ RVG constructs a layered visibility graph over multiple discrete orientations, a
 ### <a name="compare"></a>Comparisons with SOTA SE(2) Rigid Body Planners
 RVG demonstrates significant improvements over state-of-the-art SE(2) planners, offering faster computation and shorter paths — particularly in complex environments where precise maneuvering is required. Benchmarks show robust performance gains in both planning time and path cost.
 ### <a name="examples"></a>Additional Examples
-![pacman](https://github.com/user-attachments/assets/c2239184-de8a-4a9e-aa32-11d4e3ccfdae)
-![corridor](https://github.com/user-attachments/assets/fb196e46-af34-4cd1-9a8f-d797062ffe30)
-
+<div align="center">
+<p float="left">
+  <img src="https://github.com/user-attachments/assets/c2239184-de8a-4a9e-aa32-11d4e3ccfdae" width="30%" />
+  <img src="https://github.com/user-attachments/assets/fb196e46-af34-4cd1-9a8f-d797062ffe30" width="30%" />
+</p>
+</div>
 
 
 https://github.com/user-attachments/assets/71e543a1-9535-4a94-8db5-5ecd59227703
