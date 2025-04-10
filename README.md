@@ -30,14 +30,15 @@
 RVG constructs a layered visibility graph over multiple discrete orientations, allowing efficient, high-quality path planning for polygonal robots with both translation and rotation in 2D environments. It maintains completeness and asymptotic optimality while enabling rapid queries across diverse planning scenarios.
 
 ### <a name="compare"></a>Comparisons with SOTA SE(2) Rigid Body Planners
-1. RVG outperforms sampling-based planners by producing shorter paths with significantly lower planning times, highlighting its efficiency and solution quality in SE(2) spaces.
+RVG, as a multi-query method dedicated to path planning for rigid bodies in SE(2), outperforms sampling-based planners in such settings, producing shorter paths with significantly lower planning times. Below, we observe that RVG does better in efficiency and optimality for ten typical problem instances similar to the example on the right above.
 ![comparison_together](https://github.com/user-attachments/assets/7d2d459e-5ced-488b-a054-98cae8f0f26c)
-2. Given RVG’s time budget, sampling-based methods often produce longer paths, with cost ratios exceeding 1.0—highlighting RVG’s superior solution quality under the same computational constraints.
+
+Given RVG’s time budget, sampling-based methods often produce longer paths, with cost ratios exceeding 1.0. This further corroborates RVG’s superior solution quality under the same compute.
     <div align="center">
     <p float="left">
     <img src=
       "https://github.com/user-attachments/assets/09e63f81-a89a-4f2a-a1b2-e97df4f5c867"
-      width="45%" />
+      width="90%" />
     </p>
   </div>
   
