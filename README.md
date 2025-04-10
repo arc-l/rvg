@@ -25,6 +25,9 @@ Put 3 examples (animated gif) of rvg running: one in a relatively simple environ
 ### <a name="compare"></a>Comparisons with SOTA SE(2) Rigid Body Planners
 
 ### <a name="examples"></a>Additional Examples
+![pacman](https://github.com/user-attachments/assets/c2239184-de8a-4a9e-aa32-11d4e3ccfdae)
+![corridor](https://github.com/user-attachments/assets/fb196e46-af34-4cd1-9a8f-d797062ffe30)
+
 
 
 https://github.com/user-attachments/assets/71e543a1-9535-4a94-8db5-5ecd59227703
