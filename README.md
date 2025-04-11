@@ -151,19 +151,33 @@ from rvg import vertex, polygon, visibility_graph
 ```
 Then you can create a vertex given its `x` and `y`
 ```python
-v1 = vertex(0, 0)
+v = vertex(x=0, y=0)
 ```
-Since the vertex in RVG is in the SE(2) space, you can specify its rotation `theta`, the rotation range `[theta_lb, theta_ub]` and the roundUp range `roundUpTheta` - this is generally `2pi`. (Note: `roundUpTheta` is used when the robot)
+Since the vertex in RVG is in the SE(2) space, you can specify its rotation `theta` and the rotation range `[theta_lb, theta_ub]`. 
+```python
+v = vertex(x=0, y=0, theta_lb=0, theta_ub=2*np.pi, theta=0)
+```
+You can change everything field if you want:
+```python
+v.setTheta(theta)
+v.setBounds(theta_lb, theta_ub)
+v.setPos(x, y)
+```
 You can also create a polygon given a list of vertices:
 ```python
-p1 = polygon( [
-        vertex(0, 0),
-        vertex(2, 0),
-        vertex(2, 2),
-        vertex(0, 2)
-    ])
+p = polygon( vertices=[
+      vertex(0, 0),
+      vertex(2, 0),
+      vertex(2, 2),
+      vertex(0, 2)
+    ], sortVertices=False)
 ```
-Then you can construct a RVG and find the shortest path from `start(vertex)` to `goal(vertex)`:
+If you have random vertices, you can set `sortVertices` to `True` to sort them in the counterclockwise order. If your vertices are already sorted, you can ignore `sortVertices` - its default value is False.
+If you want to set a specific rotation center rather its default centroid, especially when the robot is non-convex, you can use another constructor:
+```python
+p = polygon( vertices=vertices, center=center, sortVertices=False)
+```
+Then you can construct a RVG:
 ```python
 vg = rvg(robot=robot, # represented by a polygon
          border = border, # represented by a polygon
@@ -173,9 +187,82 @@ vg = rvg(robot=robot, # represented by a polygon
          verbose=False, # show running details
          fineApprox=True # Use a finer approximation of the rotation range
          )
-path = vg.shortestPath(start, goal) # search for the shortest path
 ```
+and then set the weights on translation and rotation. The default value is 1.0 for translation and 0.0 for rotation.
+```python
+vg.setWeight(euclideanWeight=1.0, rotationalWeight=0.1)
+```
+Finally, you can find the shortest path from `start(vertex)` to `goal(vertex)`
+```python
+path = vg.shortestPath(start=start, goal=goal, interpolationDensity=10) 
+```
+The `interpolationDensity` is used to linearly interpolate the solution, the default value is `0`.
 For more detailed examples, please see [here](https://github.com/arc-l/rvg/tree/main/python-example).
+
+### Configuration files
+Except setting everything in your code, you can also set up the environment in a configuration file. Here's an example of the configuration file:
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+  <environment>
+    <robot>
+      <Polygon isObs="false">
+        <Vertex x="-3" y="0"/>
+        <Vertex x="-2" y="0"/>
+        <Vertex x="-2" y="2"/>
+        <Vertex x="-3" y="2"/>
+      </Polygon>
+    </robot>
+    <useBoundary>1</useBoundary>
+    <boundary>
+      <Polygon isObs="true">
+        <Vertex x="-5" y="-0.2"/>
+        <Vertex x="10" y="-0.2"/>
+        <Vertex x="10" y="8"/>
+        <Vertex x="-5" y="8"/>
+      </Polygon>
+    </boundary>
+    <obstacles>
+      <Polygon isObs="true">
+        <Vertex x="2" y="1"/>
+        <Vertex x="4" y="1"/>
+        <Vertex x="4" y="5"/>
+        <Vertex x="2" y="5"/>
+      </Polygon>
+    </obstacles>
+    <mapSize>45</mapSize>
+  </environment>
+
+  <plannerSettings>
+    <start>
+      <Vertex x="-2.5" y="1.2" theta="0" thetaLb="0" thetaUb="6.28"/>
+    </start>
+    <goal>
+      <Vertex x="8" y="1.2" theta="0.78" thetaLb="0" thetaUb="6.28"/>
+    </goal>
+  </plannerSettings>
+</root>
+```
+#### Breakdown
+| Tag              | Description |
+|------------------|-------------|
+| `<robot>`        | Polygon defining the robot's shape. |
+| `<useBoundary>`  | Set to 1 to use the custom boundary. |
+| `<boundary>`     | World boundary polygon. |
+| `<obstacles>`    | List of obstacle polygons. |
+| `<mapSize>`      | Used when `useBoundary=0` to create a default square map. |
+| `<start>`        | Start state `Vertex`, including x, y, θ, and angular bounds. |
+| `<goal>`         | Goal state `Vertex`, including x, y, θ, and angular bounds. |
+
+After you have the configuration file and it's `path`, you can read everything from it by:
+```python
+robot = rvg.get_robot(path)
+boundary = rvg.get_boundary(path)
+obstacles = rvg.get_obstacles(path)
+start = rvg.get_start(path)
+goal = rvg.get_goal(path)
+```
+Feel free to add more fields into the configuration file and use them!
 
 
 ## <a name="citation"></a>Citation
