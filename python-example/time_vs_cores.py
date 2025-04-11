@@ -14,14 +14,13 @@ if __name__ == "__main__":
     total_time = []
     for num_threads in range(1, 24):
         vg = rvg.rvg(robot=robot,
-                                    border=boundary,
-                                    obstacles=obstacles,
-                                    resolution=36,
-                                    numThreads=num_threads,
-                                    verbose=False,
-                                    fineApprox=False,
-                                    optimal=True,
-                                    considerSymmetry=True
+                    border=boundary,
+                    obstacles=obstacles,
+                    resolution=36,
+                    numThreads=num_threads,
+                    verbose=False,
+                    fineApprox=False,
+                    optimal=True
         )
         path = vg.shortestPath(start, goal)
         total_time.append(vg.getTotalTime())

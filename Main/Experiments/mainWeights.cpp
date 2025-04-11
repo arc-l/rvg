@@ -31,22 +31,20 @@ int main(int argc, char *argv[]) {
   const auto plannerSettings = pt.RootElement()->FirstChildElement("plannerSettings");
   const auto start = getVertex<T>(*plannerSettings->FirstChildElement("start")->FirstChildElement("Vertex"));
   const auto goal = getVertex<T>(*plannerSettings->FirstChildElement("goal")->FirstChildElement("Vertex"));
-  bool considerSymmetry = get<bool>(*plannerSettings, "considerSymmetry", true);
   print("Setup: ",
         "Start",
         start,
         "Goal",
         goal,
         "Resolutions",
-        resolution,
-        "Consider Symmetry",
-        considerSymmetry);
+        resolution
+        );
   std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
   setPrecision<T>(3);
   bool fineApprox = false;
   bool verbose = true;
   int numThreads = 1;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, fineApprox, numThreads, verbose);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, fineApprox, numThreads, verbose);
   std::vector<T> euclideanWeights = {1.0, 0.5, 0.48, 0.0};
   std::vector<T> rotationalWeights = {0.0, 0.5, 0.52, 1.0};
   for (size_t i = 0; i < euclideanWeights.size(); i++) {

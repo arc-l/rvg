@@ -52,7 +52,7 @@ int main() {
   std::shared_ptr<Vertex<T>> startPtr = std::make_shared<Vertex<T>>(start);
   std::shared_ptr<Vertex<T>> goalPtr = std::make_shared<Vertex<T>>(goal);
   for (int resolution : resolutions) {
-    VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, true, false, false, false, 16);
+    VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, false, false, false, 16);
     visibilityGraph.shortestPath(startPtr, goalPtr);
   }
   return 0;

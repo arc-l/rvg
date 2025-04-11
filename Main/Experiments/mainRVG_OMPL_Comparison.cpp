@@ -35,7 +35,6 @@ int main(int argc, char *argv[]) {
   const auto plannerSettings = pt.RootElement()->FirstChildElement("plannerSettings");
   auto start = getVertex<T>(*plannerSettings->FirstChildElement("start")->FirstChildElement("Vertex"));
   auto goal = getVertex<T>(*plannerSettings->FirstChildElement("goal")->FirstChildElement("Vertex"));
-  bool considerSymmetry = get<bool>(*plannerSettings, "considerSymmetry", true);
   print("Setup: ",
         "Start",
         start,
@@ -44,15 +43,14 @@ int main(int argc, char *argv[]) {
         "Resolutions",
         resolution,
         "Draw Graph",
-        figPath,
-        "Consider Symmetry",
-        considerSymmetry);
+        figPath
+        );
   T distsRVG, rvgBuildTime, rvgSearchTime;
   setPrecision<T>(3);
   bool incremental = false;
   bool simpilfiedGeometry = true;
   int numThreads = 16;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, simpilfiedGeometry, numThreads, incremental);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, simpilfiedGeometry, numThreads, incremental);
 //  visibilityGraph.plotLayers("");
   visibilityGraph.setWeight(1.0, 0.);
   std::string obsPath = figPath.substr(0, figPath.find_last_of('.')) + "_obs.txt";

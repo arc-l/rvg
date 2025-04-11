@@ -36,7 +36,6 @@ template <typename T>
 VisibilityGraph<T>::VisibilityGraph(const Polygon<T> &robot,
                                     const Polygon<T> &border,
                                     const std::vector<Polygon<T>> &obstacles,
-                                    bool considerSymmetry,
                                     bool fineApprox, int numThreads,
                                     bool verbose)
     : _realRobot(robot),
@@ -58,18 +57,14 @@ template <typename T>
 VisibilityGraph<T>::VisibilityGraph(const Polygon<T> &robot,
                                     const Polygon<T> &border,
                                     const std::vector<Polygon<T>> &obstacles,
-                                    int resolution, bool considerSymmetry,
+                                    int resolution, 
                                     bool fineApprox,
                                     int numThreads, bool optimal, bool verbose)
-    : VisibilityGraph(robot, border, obstacles, considerSymmetry,
-                      fineApprox, numThreads, verbose){
+    : VisibilityGraph(robot, border, obstacles, fineApprox, numThreads, verbose){
   _resolution=resolution;
   _optimal= optimal; 
-  if (considerSymmetry)
-    _resolutionSymmetryCheck();
-  else
-    _roundUpTheta = 2 * PI;
 
+  _resolutionSymmetryCheck();
   _layerVertices.resize(_isSymmetric ? _symmetricCycle : _resolution);
   Utils::Timer timer(_verbose);
   _buildLayers();

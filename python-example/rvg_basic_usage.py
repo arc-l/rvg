@@ -66,7 +66,7 @@ if __name__ == "__main__":
     plt.plot(robot.getX(), robot.getY(), 'b-o')
     plt.show()
 
-    vg = rvg(robot=robot, border = border, obstacles = obstacles, resolution=18, considerSymmetry=True, numThreads=1, verbose=False, fineApprox=True)
+    vg = rvg(robot=robot, border = border, obstacles = obstacles, resolution=18, numThreads=1, verbose=False, fineApprox=True)
     vg.setWeight(euclideanWeight=1.0, rotationalWeight=0.1)
     path = vg.shortestPath(start, goal)
     vg.draw("test.png", True, True, True, True)

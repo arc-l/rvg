@@ -29,7 +29,6 @@ int main(int argc, char *argv[]) {
   const auto plannerSettings = pt.RootElement()->FirstChildElement("plannerSettings");
   std::shared_ptr<Vertex<T>> start = getVertex<T>(*plannerSettings->FirstChildElement("start")->FirstChildElement("Vertex"));
   std::shared_ptr<Vertex<T>> goal = getVertex<T>(*plannerSettings->FirstChildElement("goal")->FirstChildElement("Vertex"));
-  bool considerSymmetry = get<bool>(*plannerSettings, "considerSymmetry", true);
   int resolution = 8;
   int numThreads = 24;
   print("Setup: ",
@@ -38,15 +37,14 @@ int main(int argc, char *argv[]) {
         "Goal",
         *goal,
         "Resolutions",
-        resolution,
-        "Consider Symmetry",
-        considerSymmetry);
+        resolution
+        );
   std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
   setPrecision<T>(3);
   bool fineApprox = false;
   bool optimal = true;
   bool verbose = true;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, fineApprox, numThreads, optimal, verbose);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, fineApprox, numThreads, optimal, verbose);
   visibilityGraph.verticalDecomposition();
   return 0;
 }

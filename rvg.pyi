@@ -138,7 +138,7 @@ class polygon:
     def translate(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat) -> None:
         ...
 class rvg:
-    def __init__(self, robot: polygon, border: polygon, obstacles: list[polygon], resolution: typing.SupportsInt, considerSymmetry: bool, fineApprox: bool, numThreads: typing.SupportsInt, optimal: bool = False, verbose: bool = False) -> None:
+    def __init__(self, robot: polygon, border: polygon, obstacles: list[polygon], resolution: typing.SupportsInt, fineApprox: bool, numThreads: typing.SupportsInt, optimal: bool = False, verbose: bool = False) -> None:
         """
         Constructs a VisibilityGraph with the specified parameters.
         """

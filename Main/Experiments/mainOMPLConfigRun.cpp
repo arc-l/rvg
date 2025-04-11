@@ -43,16 +43,14 @@ int main(int argc, char *argv[]) {
   if (goal->getTheta() > PI) {
     goal->setTheta(goal->getTheta() - 2 * PI);
   }
-  bool considerSymmetry = get<bool>(*plannerSettings, "considerSymmetry", true);
   print("Setup: ",
         "Start",
         start,
         "Goal",
         goal,
         "Draw Graph",
-        figPath,
-        "Consider Symmetry",
-        considerSymmetry);
+        figPath
+        );
   setPrecision<T>(3);
   Env<T>::SolverType solverType;
   if (plannerType == "RRTStar") solverType = Env<T>::SolverType::RRTStar;

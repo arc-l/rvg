@@ -35,7 +35,6 @@ int main(int argc, char *argv[]) {
   const auto plannerSettings = pt.RootElement()->FirstChildElement("plannerSettings");
   const auto start = getVertex<T>(*plannerSettings->FirstChildElement("start")->FirstChildElement("Vertex"));
   const auto goal = getVertex<T>(*plannerSettings->FirstChildElement("goal")->FirstChildElement("Vertex"));
-  bool considerSymmetry = get<bool>(*plannerSettings, "considerSymmetry", true);
   print("Setup: ",
         "Start",
         start,
@@ -44,14 +43,13 @@ int main(int argc, char *argv[]) {
         "Resolutions",
         resolution,
         "Draw Graph",
-        figPath,
-        "Consider Symmetry",
-        considerSymmetry);
+        figPath
+        );
   std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
   setPrecision<T>(3);
   bool fineApprox = false;
   bool verbose = true;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, fineApprox, numThreads, verbose);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, fineApprox, numThreads, verbose);
   std::string pythonScript;
   PYTHON_IMPORTS_3D(pythonScript)
   pythonScript += visibilityGraph.drawLayers3D("obs3d");

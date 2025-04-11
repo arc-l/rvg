@@ -83,9 +83,8 @@ int main(int argc, char *argv[]) {
     for (int resolution : resolutions) {
       bool incremental = true;
       bool simpilfiedGeometry = true;
-      bool considerSymmetry = true;
       int numThreads = 16;
-      VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, simpilfiedGeometry, numThreads, incremental);
+      VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, simpilfiedGeometry, numThreads, incremental);
       visibilityGraph.shortestPath(startPtr, goalPtr);
       T pathLength = visibilityGraph.getPathLength();
       T totalTime = visibilityGraph.getTotalTime();
