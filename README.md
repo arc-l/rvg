@@ -147,7 +147,7 @@ make -j24
 ### Run the code in Python
 Once RVG is installed, try to import it:
 ```python
-from rvg import vertex, polygon, visibility_graph
+from rvg import vertex, polygon, rvg 
 ```
 Then you can create a vertex given its `x` and `y`
 ```python
