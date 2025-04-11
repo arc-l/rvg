@@ -165,7 +165,7 @@ v.setPos(x, y)
 ```
 You can also create a polygon given a list of vertices:
 ```python
-p = polygon( vertices=[
+p = polygon(vertices=[
       vertex(0, 0),
       vertex(2, 0),
       vertex(2, 2),
@@ -175,7 +175,7 @@ p = polygon( vertices=[
 If you have random vertices, you can set `sortVertices` to `True` to sort them in the counterclockwise order. If your vertices are already sorted, you can ignore `sortVertices` - its default value is False.
 If you want to set a specific rotation center rather its default centroid, especially when the robot is non-convex, you can use another constructor:
 ```python
-p = polygon( vertices=vertices, center=center, sortVertices=False)
+p = polygon(vertices=vertices, center=center, sortVertices=False)
 ```
 Then you can construct a RVG:
 ```python
