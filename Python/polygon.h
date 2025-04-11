@@ -16,14 +16,15 @@ void bind_polygon(py::module &m) {
 
   py::class_<PolygonT>(m, "polygon")
       .def(py::init<>())  // Default constructor
-      .def(py::init<const std::vector<Vertex<T>> &, bool, const Vertex<T> &>(),
+      .def(py::init<const std::vector<Vertex<T>> &, const Vertex<T> &, bool>(), 
            py::arg("vertices"),
-           py::arg("sortVertices"),
-           py::arg("center"))
+           py::arg("center"),
+           py::arg("sortVertices")=false
+           )
 
       .def(py::init<const std::vector<Vertex<T>> &, bool>(),
            py::arg("vertices"),
-           py::arg("sortVertices"))
+           py::arg("sortVertices")=false)
 
       // .def(py::init<const PolygonT &>())
       // .def(py::init<const typename PolygonT::Polygon_2 &>())

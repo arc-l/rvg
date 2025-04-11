@@ -24,7 +24,7 @@ Polygon<T>::Polygon(const std::vector<Vertex<T>> &vertices, bool sortVertices) :
 }
 
 template<typename T>
-Polygon<T>::Polygon(const std::vector<Vertex<T>> &vertices, bool sortVertices, const Vertex<T> &center):Polygon(vertices, sortVertices) {
+Polygon<T>::Polygon(const std::vector<Vertex<T>> &vertices, const Vertex<T> &center, bool sortVertices):Polygon(vertices, sortVertices) {
   _centroid = center;
 }
 

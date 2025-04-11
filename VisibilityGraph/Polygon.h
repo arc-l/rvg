@@ -21,7 +21,7 @@ class Polygon {
   DECL_CGAL_CARTESIAN_TYPES_T
   DECL_CGAL_POLYGON_TYPES_T
   Polygon();
-  Polygon(const std::vector<Vertex<T>> &vertices,  bool sortVertices, const Vertex<T> &center);
+  Polygon(const std::vector<Vertex<T>> &vertices, const Vertex<T> &center,  bool sortVertices);
   Polygon(const std::vector<Vertex<T>> &vertices,  bool sortVertices);
   Polygon(const Polygon<T> &other);
   Polygon(const Polygon_2 &polygon);

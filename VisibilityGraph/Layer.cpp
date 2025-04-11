@@ -89,7 +89,7 @@ Polygon<T> Layer<T>::_underestimate(const Polygon<T> &_robot, const Vertex<T>& c
   for (std::size_t i : out) {
     vertices.push_back(Vertex<T>(CGAL::to_double(points[i].x()), CGAL::to_double(points[i].y())));
   }
-  return Polygon<T>(vertices, false, _robot.getCentroid());
+  return Polygon<T>(vertices, _robot.getCentroid(), false);
 }
 
 template<typename T>
@@ -157,7 +157,7 @@ Polygon<T> Layer<T>::_overestimate(const Polygon<T> &_robot, const Vertex<T>& ce
     Utils::writeStringToFile<T>(pythonScript, "overestimate.py");
     Utils::runPythonScriptAndRemove<T>("overestimate.py");
 #endif
-  return Polygon<T>(vertices, false, _robot.getCentroid());
+  return Polygon<T>(vertices, _robot.getCentroid(), false);
 
 }
 

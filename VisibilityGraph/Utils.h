@@ -60,7 +60,7 @@ Polygon<T> getPolygon(const tinyxml2::XMLElement &element) {
   const tinyxml2::XMLElement *rotationalCenter = element.FirstChildElement("RotationCenter");
   if(rotationalCenter){
     std::shared_ptr<Vertex<T>> center = getVertex<T>(*rotationalCenter);
-    return Polygon<T>(vertices, sortVertices, *center);
+    return Polygon<T>(vertices, *center, sortVertices);
   }
   return Polygon<T>(vertices, sortVertices);
 }
