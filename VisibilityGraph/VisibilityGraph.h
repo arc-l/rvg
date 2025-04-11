@@ -26,7 +26,6 @@ class VisibilityGraph {
       const Polygon<T> &border,
       const std::vector<Polygon<T>> &obstacles,
       bool considerSymmetry,
-      bool hasWithTheta,
       bool fineApprox,
       int numThreads,
       bool verbose = false
@@ -37,7 +36,6 @@ class VisibilityGraph {
       const std::vector<Polygon<T>> &obstacles,
       int resolution,
       bool considerSymmetry,
-      bool hasWithTheta,
       bool fineApprox,
       int numThreads,
       bool optimal = false,
@@ -83,7 +81,6 @@ class VisibilityGraph {
   int _symmetricCycle;
   int _numThreads;
   bool _isSymmetric;
-  bool _hashWithTheta;
   T _roundUpTheta;
   void _interpolation(int density);
   void _unwrapPath();

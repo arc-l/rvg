@@ -40,7 +40,7 @@ std::shared_ptr<Vertex<T>> getVertex(const tinyxml2::XMLElement &element) {
     T thetaLb, thetaUb;
     element.QueryAttribute("thetaLb", &thetaLb);
     element.QueryAttribute("thetaUb", &thetaUb);
-    return std::make_shared<Vertex<T>>(x, y, thetaLb, thetaUb, theta, 2*PI, true);
+    return std::make_shared<Vertex<T>>(x, y, thetaLb, thetaUb, theta, 2*PI);
   }
 }
 

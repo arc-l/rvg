@@ -49,11 +49,10 @@ int main(int argc, char *argv[]) {
         considerSymmetry);
   T distsRVG, rvgBuildTime, rvgSearchTime;
   setPrecision<T>(3);
-  bool hashWithTheta = true;
   bool incremental = false;
   bool simpilfiedGeometry = true;
   int numThreads = 16;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, hashWithTheta, simpilfiedGeometry, numThreads, incremental);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, simpilfiedGeometry, numThreads, incremental);
 //  visibilityGraph.plotLayers("");
   visibilityGraph.setWeight(1.0, 0.);
   std::string obsPath = figPath.substr(0, figPath.find_last_of('.')) + "_obs.txt";

@@ -49,10 +49,9 @@ int main(int argc, char *argv[]) {
         considerSymmetry);
   std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
   setPrecision<T>(3);
-  bool hashWithTheta = true;
   bool fineApprox = false;
   bool verbose = true;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, hashWithTheta, fineApprox, numThreads, verbose);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, fineApprox, numThreads, verbose);
   std::string pythonScript;
   PYTHON_IMPORTS_3D(pythonScript)
   pythonScript += visibilityGraph.drawLayers3D("obs3d");

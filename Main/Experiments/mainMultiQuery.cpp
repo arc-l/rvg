@@ -43,12 +43,11 @@ int main() {
   Polygon<T> map = mapGenerator->getBorder();
 
   int resolution = 18;
-  bool hashWithTheta = true;
   bool incremental = false;
   bool simpilfiedGeometry = true;
   bool considerSymmetry = true;
   int numThreads = 16;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, hashWithTheta, simpilfiedGeometry, numThreads, incremental);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, simpilfiedGeometry, numThreads, incremental);
   visibilityGraph.setWeight(1.0, 0.);
   T buildTime = visibilityGraph.getBuildTime();
   T totoalQueryTime = 0;

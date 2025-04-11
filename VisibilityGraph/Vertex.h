@@ -24,7 +24,7 @@ class Vertex {
   };
 
   DECL_CGAL_CARTESIAN_TYPES_T
-  Vertex(T x, T y, T theta_lb, T theta_ub, T theta, T roundUpTheta, bool hasWithTheta);
+  Vertex(T x, T y, T theta_lb, T theta_ub, T theta, T roundUpTheta);
   Vertex(T x, T y);
   Vertex();
   Vertex(const Vertex<T> &vertex);
@@ -65,7 +65,6 @@ class Vertex {
   T rotationalDist(const Vertex<T> &other) const;
   T distanceToEdge(const Vertex<T>& a, const Vertex<T>& b) const;
   [[nodiscard]] bool hasTheta() const;
-  [[nodiscard]] bool hashWithTheta() const;
 
  private:
   T _x;

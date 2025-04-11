@@ -43,11 +43,10 @@ int main(int argc, char *argv[]) {
         considerSymmetry);
   std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
   setPrecision<T>(3);
-  bool hashWithTheta = true;
   bool fineApprox = false;
   bool optimal = true;
   bool verbose = true;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, hashWithTheta, fineApprox, numThreads, optimal, verbose);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, fineApprox, numThreads, optimal, verbose);
   visibilityGraph.verticalDecomposition();
   return 0;
 }

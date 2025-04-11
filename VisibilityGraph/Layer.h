@@ -24,7 +24,6 @@ class Layer {
         T theta_ub,
         T roundUpTheta,
         bool fineApprox,
-        bool hashWithTheta,
         bool simplifiedGeometry
   );
   Layer(const Layer<T> &layer);
@@ -68,7 +67,6 @@ class Layer {
  private:
   bool _fineApprox;
   bool _simplifiedGeometry;
-  bool _hashWithTheta;
   bool _hasHoles;
   bool _borderIsHole;
   bool _infeasible;

@@ -81,12 +81,11 @@ int main(int argc, char *argv[]) {
   } else if (plannerType == "RVG") {
     std::vector<int> resolutions = {9, 18, 36, 60, 72, 90, 180, 360};
     for (int resolution : resolutions) {
-      bool hashWithTheta = true;
       bool incremental = true;
       bool simpilfiedGeometry = true;
       bool considerSymmetry = true;
       int numThreads = 16;
-      VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, hashWithTheta, simpilfiedGeometry, numThreads, incremental);
+      VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, considerSymmetry, simpilfiedGeometry, numThreads, incremental);
       visibilityGraph.shortestPath(startPtr, goalPtr);
       T pathLength = visibilityGraph.getPathLength();
       T totalTime = visibilityGraph.getTotalTime();

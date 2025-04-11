@@ -10,8 +10,8 @@ Vertex<T>::Vertex() : _x(0), _y(0) {
 }
 
 template<typename T>
-Vertex<T>::Vertex(T x, T y, T theta_lb, T theta_ub, T theta, T roundUpTheta, bool hasWithTheta)
-    : _x(x), _y(y), _thetaLb(theta_lb), _thetaUb(theta_ub), _theta(theta), _roundUpTheta(roundUpTheta), _hashWithTheta(hasWithTheta) {
+Vertex<T>::Vertex(T x, T y, T theta_lb, T theta_ub, T theta, T roundUpTheta)
+    : _x(x), _y(y), _thetaLb(theta_lb), _thetaUb(theta_ub), _theta(theta), _roundUpTheta(roundUpTheta), _hashWithTheta(true) {
   _point = Point_2(x, y);
 }
 
@@ -172,7 +172,7 @@ Vertex<T> Vertex<T>::mergeThetaRange(const Vertex<T> &other) const {
     Utils::print(other);
     throw std::runtime_error("No overlap between two vertices");
   }
-  return Vertex<T>(_x, _y, newLb, newUb, (newLb < newUb ? (newLb + newUb) / 2. : 0), roundUp, _hashWithTheta);
+  return Vertex<T>(_x, _y, newLb, newUb, (newLb < newUb ? (newLb + newUb) / 2. : 0), roundUp);
 }
 
 template<typename T>
@@ -309,11 +309,6 @@ T Vertex<T>::rotationalDist(const Vertex<T> &other) const {
   T theta2 = other._theta.value();
   T diff = std::abs(theta1 - theta2);
   return diff;
-}
-
-template<typename T>
-bool Vertex<T>::hashWithTheta() const {
-  return _hashWithTheta;
 }
 
 template <typename T>

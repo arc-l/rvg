@@ -223,8 +223,7 @@ Vertex<T> MapGenerator<T>::_getLegalConfiguration() {
       0,
       2 * PI,
       _randomReal(0, 2 * PI),
-      2 * PI,
-      true
+      2 * PI
   );
   while (!_isLegalConfiguration(vertex)) {
     vertex = Vertex<T>(
@@ -233,8 +232,7 @@ Vertex<T> MapGenerator<T>::_getLegalConfiguration() {
         0,
         2 * PI,
         _randomReal(0, 2 * PI),
-        2 * PI,
-        true
+        2 * PI
     );
   }
   return vertex;
@@ -317,8 +315,8 @@ void MapGenerator<T>::generateFixedStartAndGoalMap(const Vertex<T> &start, const
 template<typename T>
 void MapGenerator<T>::generateFixedStartAndGoalMap() {
   // start and goal are fixed to be at the top left and bottom right corners
-  Vertex<T> start(-_mapSize / 2. + _marginSize, _mapSize / 2. - _marginSize, 0, 0, 0, 2 * PI, true);
-  Vertex<T> goal(_mapSize / 2. - _marginSize, -_mapSize / 2. + _marginSize, 0, 0, 0, 2 * PI, true);
+  Vertex<T> start(-_mapSize / 2. + _marginSize, _mapSize / 2. - _marginSize, 0, 0, 0, 2 * PI);
+  Vertex<T> goal(_mapSize / 2. - _marginSize, -_mapSize / 2. + _marginSize, 0, 0, 0, 2 * PI);
   Utils::print("start=", start);
   Utils::print("goal=", goal);
   generateFixedStartAndGoalMap(start, goal);

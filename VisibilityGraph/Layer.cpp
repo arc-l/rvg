@@ -19,14 +19,12 @@ Layer<T>::Layer(T theta_lb,
                 T theta_ub,
                 T roundUpTheta,
                 bool fineApprox,
-                bool hashWithTheta,
                 bool simplifiedGeometry
 )
     : _theta_lb(theta_lb),
       _theta_ub(theta_ub),
       _roundUpTheta(roundUpTheta),
       _fineApprox(fineApprox),
-      _hashWithTheta(hashWithTheta),
       _simplifiedGeometry(simplifiedGeometry) {
         _infeasible = false;
       }
@@ -35,7 +33,6 @@ template<typename T>
 Layer<T>::Layer(const Layer<T> &layer)
     : _fineApprox(layer._fineApprox),
       _simplifiedGeometry(layer._simplifiedGeometry),
-      _hashWithTheta(layer._hashWithTheta),
       _theta_lb(layer._theta_lb),
       _theta_ub(layer._theta_ub),
       _roundUpTheta(layer._roundUpTheta) {
@@ -482,8 +479,7 @@ void Layer<T>::_connectVisibleVertices() {
         _theta_lb,
         _theta_ub,
         (_theta_ub + _theta_lb) / 2.,
-        _roundUpTheta,
-        _hashWithTheta
+        _roundUpTheta
     );
     std::pair<Point_2, Point_2> neighbor1 = _getNeighbor(v);
 
@@ -510,8 +506,7 @@ void Layer<T>::_connectVisibleVertices() {
             _theta_lb,
             _theta_ub,
             (_theta_ub + _theta_lb) / 2.,
-            _roundUpTheta,
-            _hashWithTheta
+            _roundUpTheta
         );
         _neighborCache.insert({*v1, neighbor1});
         _neighborCache.insert({*v2, neighbor2});
@@ -545,8 +540,7 @@ void Layer<T>::_connectVisibleVertices() {
         _theta_lb,
         _theta_ub,
         (_theta_ub + _theta_lb) / 2.,
-        _roundUpTheta,
-        _hashWithTheta
+        _roundUpTheta
     );
     std::pair<Point_2, Point_2> neighbor1 = _getNeighbor(v);
 
@@ -573,8 +567,7 @@ void Layer<T>::_connectVisibleVertices() {
             _theta_lb,
             _theta_ub,
             (_theta_ub + _theta_lb) / 2.,
-            _roundUpTheta,
-            _hashWithTheta
+            _roundUpTheta
         );
         _visiblePolygonCache.insert({*v1, Utils::arrangementToPolygon<T>(visibleArea)});
         _neighborCache.insert({*v1, neighbor1});
@@ -850,7 +843,7 @@ std::unordered_map<Vertex<T>, Polygon<T>, typename Vertex<T>::Hash> Layer<T>::ge
 
 template<typename T>
 Polygon<T> Layer<T>::getVisibleAreaPolygon(T x, T y) const{
-  Vertex<T> v(x, y, _theta_lb, _theta_ub, (_theta_lb + _theta_ub) / 2., _roundUpTheta, _hashWithTheta);
+  Vertex<T> v(x, y, _theta_lb, _theta_ub, (_theta_lb + _theta_ub) / 2., _roundUpTheta);
   Polygon<T> polygon(_visiblePolygonCache.at(v));
   return polygon;
 }
