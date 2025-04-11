@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     total_time = []
     for num_threads in range(1, 24):
-        vg = rvg.visibility_graph(robot=robot,
+        vg = rvg.rvg(robot=robot,
                                     border=boundary,
                                     obstacles=obstacles,
                                     resolution=36,

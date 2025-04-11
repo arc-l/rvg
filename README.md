@@ -164,16 +164,16 @@ p1 = polygon( [
 ```
 Then you can construct a RVG and find the shortest path from `start(vertex)` to `goal(vertex)`:
 ```python=
-vg = visibility_graph(robot=robot, # represented by a polygon
-                      border = border, # represented by a polygon
-                      obstacles = obstacles, # represented by a list of polygons 
-                      resolution=18, 
-                      considerSymmetry=True, # whether to consider the symmetry of the robot geometry
-                      hashWithTheta=True, 
-                      numThreads=1,  # number of cores for parallelization
-                      verbose=False, # show running details
-                      fineApprox=True # Use a finer approximation of the rotation range
-                      )
+vg = rvg(robot=robot, # represented by a polygon
+         border = border, # represented by a polygon
+         obstacles = obstacles, # represented by a list of polygons 
+         resolution=18, 
+         considerSymmetry=True, # whether to consider the symmetry of the robot geometry
+         hashWithTheta=True, 
+         numThreads=1,  # number of cores for parallelization
+         verbose=False, # show running details
+         fineApprox=True # Use a finer approximation of the rotation range
+         )
 path = vg.shortestPath(start, goal) # search for the shortest path
 ```
 For more detailed examples, please see [here](https://github.com/arc-l/rvg/tree/main/python-example).

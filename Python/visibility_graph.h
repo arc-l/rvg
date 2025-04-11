@@ -23,7 +23,7 @@ void bind_visibility_graph(py::module &m) {
                  return "TwoTuple(" + std::to_string(tuple.first) + ", " + std::to_string(tuple.second) + ")";
              });
 
-    py::class_<VisibilityGraph<T>>(m, "visibility_graph")
+    py::class_<VisibilityGraph<T>>(m, "rvg")
         // Constructor with exception handling
         .def(py::init([](const Polygon<T> &robot,
                          const Polygon<T> &border,
