@@ -43,16 +43,11 @@
         <mapSize>15</mapSize>
     </environment>
     <plannerSettings>
-        <resolutions>8 18 36 60 72 90 180 360</resolutions>
-        <!--        <resolutions>18</resolutions>-->
-        <!--        <resolutions>360</resolutions>-->
         <start>
             <Vertex x="-2.5" y="0" theta="3.14" thetaLb="3.14" thetaUb="3.14"/>
         </start>
         <goal>
             <Vertex x="5" y="0" theta="0.78" thetaLb="0.78" thetaUb="0.78"/>
         </goal>
-        <figPath>pathRes.png</figPath>
-        <considerSymmetry>1</considerSymmetry>
     </plannerSettings>
 </root>

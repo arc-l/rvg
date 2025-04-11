@@ -32,7 +32,5 @@
         <goal>
             <Vertex x="0.5" y="-10" theta="3.14" thetaLb="0" thetaUb="6.28"/>
         </goal>
-        <figPath>pathRes.png</figPath>
-        <considerSymmetry>1</considerSymmetry>
     </plannerSettings>
 </root>

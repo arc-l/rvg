@@ -168,8 +168,6 @@ vg = rvg(robot=robot, # represented by a polygon
          border = border, # represented by a polygon
          obstacles = obstacles, # represented by a list of polygons 
          resolution=18, 
-         considerSymmetry=True, # whether to consider the symmetry of the robot geometry
-         hashWithTheta=True, 
          numThreads=1,  # number of cores for parallelization
          verbose=False, # show running details
          fineApprox=True # Use a finer approximation of the rotation range

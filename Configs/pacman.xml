@@ -26,11 +26,6 @@
             </Polygon>
         </boundary>
         <obstacles>
-            <!-- <Polygon isObs="true">
-                <Vertex x="2.5" y="-1"/>
-                <Vertex x="3.5" y="-1"/>
-                <Vertex x="3" y="-0.134"/>
-            </Polygon> -->
             <Polygon isObs="true">
                 <!-- Spike from below -->
                 <Vertex x="-5" y="-4"/>
@@ -61,14 +56,11 @@
         <mapSize>45</mapSize>
     </environment>
     <plannerSettings>
-        <resolutions>8 18 36 60 72 90 180 360</resolutions>
         <start>
             <Vertex x="-4" y="0" theta="0" thetaLb="0" thetaUb="6.28"/>
         </start>
         <goal>
             <Vertex x="6" y="0" theta="0.78" thetaLb="0" thetaUb="6.28"/>
         </goal>
-        <figPath>pathRes.png</figPath>
-        <considerSymmetry>1</considerSymmetry>
     </plannerSettings>
 </root>

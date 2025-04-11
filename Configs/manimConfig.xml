@@ -10,22 +10,6 @@
             </Polygon>
         </robot>
         <useBoundary>0</useBoundary>
-        <!-- <boundary>
-            <Polygon isObs="false">
-                <Vertex x="-10" y="-10"/>
-                <Vertex x="-5" y="-10"/>
-                <Vertex x="-5" y="-4"/>
-                <Vertex x="0" y="-4"/>
-                <Vertex x="0" y="-10"/>
-                <Vertex x="10" y="-10"/>
-                <Vertex x="10" y="10"/>
-                <Vertex x="5" y="10"/>
-                <Vertex x="5" y="4"/>
-                <Vertex x="0" y="4"/>
-                <Vertex x="0" y="10"/>
-                <Vertex x="-10" y="10"/>
-            </Polygon>
-        </boundary> -->
         <obstacles>
             <Polygon isObs="true">
                 <Vertex x="-0.75" y="-0.75"/>
@@ -37,16 +21,11 @@
         <mapSize>20</mapSize>
     </environment>
     <plannerSettings>
-        <resolutions>8 18 36 60 72 90 180 360</resolutions>
-        <!--        <resolutions>18</resolutions>-->
-        <!--        <resolutions>360</resolutions>-->
         <start>
             <Vertex x="-2" y="0" theta="0" thetaLb="0" thetaUb="6.28"/>
         </start>
         <goal>
             <Vertex x="2" y="0" theta="0.78" thetaLb="0" thetaUb="6.28"/>
         </goal>
-        <figPath>pathRes.png</figPath>
-        <considerSymmetry>1</considerSymmetry>
     </plannerSettings>
 </root>
