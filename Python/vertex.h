@@ -17,8 +17,8 @@ void bind_vertex(py::module &m) {
   py::class_<VertexT, std::shared_ptr<VertexT>>(m, "vertex")
       .def(py::init<>())  // Default constructor
       .def(py::init<T, T>())  // Constructor with x, y
-      .def(py::init<T, T, T, T, T, T, bool>(),
-          py::arg("x"), py::arg("y"), py::arg("theta_lb"), py::arg("theta_ub"), py::arg("theta"), py::arg("roundUpTheta"), py::arg("hashWithTheta"),
+      .def(py::init<T, T, T, T, T, T>(),
+          py::arg("x"), py::arg("y"), py::arg("theta_lb"), py::arg("theta_ub"), py::arg("theta"), py::arg("roundUpTheta"), 
           "Constructor with all parameters" 
           )  // Constructor with all params
 
@@ -38,7 +38,6 @@ void bind_vertex(py::module &m) {
       .def("dist", &VertexT::dist)
       .def("rotationalDist", &VertexT::rotationalDist)
       .def("hasTheta", &VertexT::hasTheta)
-      .def("hashWithTheta", &VertexT::hashWithTheta)
 
           // Operators
       .def("__eq__", &VertexT::operator==)

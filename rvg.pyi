@@ -9,7 +9,7 @@ class Layer:
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, roundUpTheta: typing.SupportsFloat, fineApprox: bool, hashWithTheta: bool, simplifiedGeometry: bool) -> None:
+    def __init__(self, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, roundUpTheta: typing.SupportsFloat, fineApprox: bool, simplifiedGeometry: bool) -> None:
         ...
     @typing.overload
     def __init__(self, layer: Layer) -> None:
@@ -150,7 +150,7 @@ class vertex:
     def __init__(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat) -> None:
         ...
     @typing.overload
-    def __init__(self, x: typing.SupportsFloat, y: typing.SupportsFloat, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, theta: typing.SupportsFloat, roundUpTheta: typing.SupportsFloat, hashWithTheta: bool) -> None:
+    def __init__(self, x: typing.SupportsFloat, y: typing.SupportsFloat, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, theta: typing.SupportsFloat, roundUpTheta: typing.SupportsFloat) -> None:
         """
         Constructor with all parameters
         """
@@ -178,8 +178,6 @@ class vertex:
         ...
     def hash(self) -> int:
         ...
-    def hashWithTheta(self) -> bool:
-        ...
     def mergeThetaRange(self, arg0: vertex) -> vertex:
         ...
     def rotationalDist(self, arg0: vertex) -> float:
@@ -191,7 +189,7 @@ class vertex:
     def setTheta(self, arg0: typing.SupportsFloat) -> None:
         ...
 class visibility_graph:
-    def __init__(self, robot: polygon, border: polygon, obstacles: list[polygon], resolution: typing.SupportsInt, considerSymmetry: bool, hashWithTheta: bool, fineApprox: bool, numThreads: typing.SupportsInt, optimal: bool = False, verbose: bool = False) -> None:
+    def __init__(self, robot: polygon, border: polygon, obstacles: list[polygon], resolution: typing.SupportsInt, considerSymmetry: bool, fineApprox: bool, numThreads: typing.SupportsInt, optimal: bool = False, verbose: bool = False) -> None:
         """
         Constructs a VisibilityGraph with the specified parameters.
         """

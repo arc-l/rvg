@@ -30,13 +30,12 @@ void bind_visibility_graph(py::module &m) {
                          const std::vector<Polygon<T>> &obstacles,
                          int resolution,
                          bool considerSymmetry,
-                         bool hashWithTheta,
                          bool fineApprox,
                          int numThreads,
                          bool optimal = false,
                          bool verbose = false) {
             try {
-                return new VisibilityGraph<T>(robot, border, obstacles, resolution, considerSymmetry, hashWithTheta, fineApprox, numThreads, optimal, verbose);
+                return new VisibilityGraph<T>(robot, border, obstacles, resolution, considerSymmetry, fineApprox, numThreads, optimal, verbose);
             } catch (const std::exception &e) {
                 PyErr_SetString(PyExc_RuntimeError, e.what());
                 throw py::error_already_set();
@@ -47,7 +46,6 @@ void bind_visibility_graph(py::module &m) {
         py::arg("obstacles"),
         py::arg("resolution"),
         py::arg("considerSymmetry"),
-        py::arg("hashWithTheta"),
         py::arg("fineApprox"),
         py::arg("numThreads"),
         py::arg("optimal") = false,

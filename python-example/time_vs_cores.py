@@ -21,8 +21,7 @@ if __name__ == "__main__":
                                     verbose=False,
                                     fineApprox=False,
                                     optimal=True,
-                                    considerSymmetry=True,
-                                    hashWithTheta=True
+                                    considerSymmetry=True
         )
         path = vg.shortestPath(start, goal)
         total_time.append(vg.getTotalTime())
