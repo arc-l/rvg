@@ -6,7 +6,7 @@ using namespace RotationalVisibilityGraph;
 using namespace RotationalVisibilityGraph::Utils;
 
 int main() {
-  Vertex<float> vertex(1., 1., 0., 2. * PI, 0, 2 * PI);
+  Vertex<float> vertex(1., 1., 0., 2. * PI, 0);
   print(vertex);
   Vertex<double> vertex1(0, 0);
   print(vertex1);

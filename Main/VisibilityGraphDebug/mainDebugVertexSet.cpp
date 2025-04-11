@@ -8,10 +8,10 @@ typedef double T;
 DECL_CGAL_CARTESIAN_TYPES_T
 
 int main() {
-  Vertex<T> vertex(1., 1., 0., 2. * PI, 0., 2*PI);
+  Vertex<T> vertex(1., 1., 0., 2. * PI, 0.);
   Vertex<T> vertex1(1., 1.);
-  Vertex<T> vertex2(1., 1., PI, 2. * PI, PI, 2*PI);
-  Vertex<T> vertex3(1, 1, PI, 2. * PI, PI, 2*PI);
+  Vertex<T> vertex2(1., 1., PI, 2. * PI, PI);
+  Vertex<T> vertex3(1, 1, PI, 2. * PI, PI);
   std::unordered_set<Vertex<T>, Vertex<T>::Hash> set;
   print(set.size());
   set.insert(vertex);

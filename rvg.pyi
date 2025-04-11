@@ -9,7 +9,7 @@ class Layer:
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, roundUpTheta: typing.SupportsFloat, fineApprox: bool, simplifiedGeometry: bool) -> None:
+    def __init__(self, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, fineApprox: bool, simplifiedGeometry: bool) -> None:
         ...
     @typing.overload
     def __init__(self, layer: Layer) -> None:
@@ -187,7 +187,7 @@ class vertex:
     def __init__(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat) -> None:
         ...
     @typing.overload
-    def __init__(self, x: typing.SupportsFloat, y: typing.SupportsFloat, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, theta: typing.SupportsFloat, roundUpTheta: typing.SupportsFloat) -> None:
+    def __init__(self, x: typing.SupportsFloat, y: typing.SupportsFloat, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, theta: typing.SupportsFloat) -> None:
         """
         Constructor with all parameters
         """
@@ -214,8 +214,6 @@ class vertex:
     def hasTheta(self) -> bool:
         ...
     def hash(self) -> int:
-        ...
-    def mergeThetaRange(self, arg0: vertex) -> vertex:
         ...
     def rotationalDist(self, arg0: vertex) -> float:
         ...

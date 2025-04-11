@@ -87,7 +87,7 @@ void VisibilityGraph<T>::_buildLayers() {
       TRACY_DO(ZoneScopedN("Build Layer Loop");)
       T first = i * 2 * M_PI / _resolution;
       T second = (i + 1) * 2 * M_PI / _resolution;
-      Layer<T> layer(first, second, _roundUpTheta, _fineApprox, false);
+      Layer<T> layer(first, second, _fineApprox, false);
       layer.buildVisibilityGraph(_robot, _border, _obstacles);
       OMP_CRITICAL_ {
         _layers[i] = layer;
@@ -108,7 +108,7 @@ void VisibilityGraph<T>::_buildLayers() {
     for (int i = 0; i < _resolution; i++) {
       T first = i * 2 * M_PI / _resolution;
       T second = (i + 1) * 2 * M_PI / _resolution;
-      Layer<T> layer(first, second, _roundUpTheta, _fineApprox, false);
+      Layer<T> layer(first, second, _fineApprox, false);
       layer.buildVisibilityGraph(_robot, _border, _obstacles);
       OMP_CRITICAL_ {
         _layers[i] = layer;
@@ -378,8 +378,8 @@ void VisibilityGraph<T>::_addStartAndGoal(std::shared_ptr<Vertex<T>> start, std:
     const T &thetaUb = layer.getThetaUb();
     startLegalVec[i] = layer.legalConfig(*start);
     goalLegalVec[i] = layer.legalConfig(*goal);
-    std::shared_ptr<Vertex<T>> startInLayer = std::make_shared<Vertex<T>>(start->getX(), start->getY(), _layers[i].getThetaLb(), _layers[i].getThetaUb(), (_layers[i].getThetaUb()+_layers[i].getThetaLb())/2., _roundUpTheta);
-    std::shared_ptr<Vertex<T>> goalInLayer = std::make_shared<Vertex<T>>(goal->getX(), goal->getY(), _layers[i].getThetaLb(), _layers[i].getThetaUb(), (_layers[i].getThetaUb()+_layers[i].getThetaLb())/2., _roundUpTheta);
+    std::shared_ptr<Vertex<T>> startInLayer = std::make_shared<Vertex<T>>(start->getX(), start->getY(), _layers[i].getThetaLb(), _layers[i].getThetaUb(), (_layers[i].getThetaUb()+_layers[i].getThetaLb())/2.);
+    std::shared_ptr<Vertex<T>> goalInLayer = std::make_shared<Vertex<T>>(goal->getX(), goal->getY(), _layers[i].getThetaLb(), _layers[i].getThetaUb(), (_layers[i].getThetaUb()+_layers[i].getThetaLb())/2.);
     startInLayerVec[i] = startInLayer;
     goalInLayerVec[i] = goalInLayer;
     if(thetaLb <= start->getTheta() && start->getTheta() <= thetaUb){
@@ -492,7 +492,7 @@ void VisibilityGraph<T>::_addStartAndGoal(std::shared_ptr<Vertex<T>> start, std:
                 std::make_shared<Vertex<T>>(
                     CGAL::to_double(p.x()), CGAL::to_double(p.y()),
                     layer.getThetaLb(), layer.getThetaUb(),
-                    (layer.getThetaLb() + layer.getThetaUb()) / 2., _roundUpTheta);
+                    (layer.getThetaLb() + layer.getThetaUb()) / 2.);
             OMP_CRITICAL_ { 
               _graph.addEdge(vertexInLayerVec[i], visibleVertex);
             }
@@ -832,7 +832,7 @@ void VisibilityGraph<T>::_interpolation(int density) {
       T y = start.getY() + j * dy;
       T theta = start.getTheta() + j * dTheta;
       interpolatedPath.emplace_back(x, y, start.getThetaLb(),
-                                    start.getThetaUb(), theta, _roundUpTheta);
+                                    start.getThetaUb(), theta);
     }
   }
   interpolatedPath.push_back(_sol.back());

@@ -54,8 +54,8 @@ if __name__ == "__main__":
     obstacles = [polygon_upper, polygon_lower]
 
 
-    start = vertex(-5, 0, 0, 2 * np.pi, 0, 2 * np.pi)
-    goal = vertex(5, 0, 0, 2 * np.pi, 0, 2 * np.pi)
+    start = vertex(-5, 0, 0, 2 * np.pi, 0)
+    goal = vertex(5, 0, 0, 2 * np.pi, 0)
 
     plt.plot(polygon_upper.getX(), polygon_upper.getY(), 'r-o')
     plt.plot(polygon_lower.getX(), polygon_lower.getY(), 'r-o')

@@ -6,12 +6,11 @@ template<typename T>
 Vertex<T>::Vertex() : _x(0), _y(0) {
   _point = Point_2(0, 0);
   _hashWithTheta = false;
-  _roundUpTheta = 2 * PI;
 }
 
 template<typename T>
-Vertex<T>::Vertex(T x, T y, T theta_lb, T theta_ub, T theta, T roundUpTheta)
-    : _x(x), _y(y), _thetaLb(theta_lb), _thetaUb(theta_ub), _theta(theta), _roundUpTheta(roundUpTheta), _hashWithTheta(true) {
+Vertex<T>::Vertex(T x, T y, T theta_lb, T theta_ub, T theta)
+    : _x(x), _y(y), _thetaLb(theta_lb), _thetaUb(theta_ub), _theta(theta), _hashWithTheta(true) {
   _point = Point_2(x, y);
 }
 
@@ -19,7 +18,6 @@ template<typename T>
 Vertex<T>::Vertex(T x, T y) : _x(x), _y(y) {
   _point = Point_2(x, y);
   _hashWithTheta = false;
-  _roundUpTheta = 2 * PI;
 }
 
 template<typename T>
@@ -29,7 +27,6 @@ Vertex<T>::Vertex(const Vertex<T> &vertex) {
   _thetaLb = vertex._thetaLb;
   _thetaUb = vertex._thetaUb;
   _theta = vertex._theta;
-  _roundUpTheta = vertex._roundUpTheta;
   _point = Point_2(_x, _y);
   _hashWithTheta = vertex._hashWithTheta;
 }
@@ -95,12 +92,14 @@ Vertex<T> Vertex<T>::operator+(const Vertex<T> &rhs) const {
 template<typename T>
 void Vertex<T>::setTheta(T theta) {
   _theta = theta;
+  _hashWithTheta = true;
 }
 
 template<typename T>
 void Vertex<T>::setBounds(T theta_lb, T theta_ub) {
   _thetaLb = theta_lb;
   _thetaUb = theta_ub;
+  _hashWithTheta = true;
 }
 
 template<typename T>
@@ -153,26 +152,6 @@ T Vertex<T>::dist(const Vertex<T> &other) const {
 template<typename T>
 bool Vertex<T>::hasTheta() const {
   return _theta.has_value();
-}
-
-template<typename T>
-Vertex<T> Vertex<T>::mergeThetaRange(const Vertex<T> &other) const {
-  // check if overlapping, _thetaUb could be less than _thetaLb because the value is wrapped around when it reaches _roundUpTheta
-  // add roundUp if needed
-  T lb1 = _thetaLb.value();
-  T ub1 = _thetaUb.value();
-  T lb2 = other._thetaLb.value();
-  T ub2 = other._thetaUb.value();
-  T roundUp = _roundUpTheta.value();
-  T newLb, newUb;
-  bool overlap = _overlapInterval(lb1, ub1, lb2, ub2, roundUp, newLb, newUb);
-  if (!overlap) {
-    Utils::print("No overlap between ");
-    Utils::print(*this);
-    Utils::print(other);
-    throw std::runtime_error("No overlap between two vertices");
-  }
-  return Vertex<T>(_x, _y, newLb, newUb, (newLb < newUb ? (newLb + newUb) / 2. : 0), roundUp);
 }
 
 template<typename T>

@@ -24,7 +24,7 @@ class Vertex {
   };
 
   DECL_CGAL_CARTESIAN_TYPES_T
-  Vertex(T x, T y, T theta_lb, T theta_ub, T theta, T roundUpTheta);
+  Vertex(T x, T y, T theta_lb, T theta_ub, T theta);
   Vertex(T x, T y);
   Vertex();
   Vertex(const Vertex<T> &vertex);
@@ -43,9 +43,6 @@ class Vertex {
     }
     if (vertex._thetaUb.has_value()) {
       os << " theta_ub:" << vertex._thetaUb.value();
-    }
-    if(vertex._roundUpTheta.has_value()) {
-      os << " roundUpTheta:" << vertex._roundUpTheta.value();
     }
     os << ")";
     return os;
@@ -73,7 +70,6 @@ class Vertex {
   std::optional<T> _thetaLb;
   std::optional<T> _thetaUb;
   std::optional<T> _theta;
-  std::optional<T> _roundUpTheta;
   bool _hashWithTheta;
   bool _overlapInterval(T lb1, T ub1, T lb2, T ub2, T cycle, T &newLb, T& newUb) const;
 

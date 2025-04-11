@@ -153,6 +153,7 @@ Then you can create a vertex given its `x` and `y`
 ```python
 v1 = vertex(0, 0)
 ```
+Since the vertex in RVG is in the SE(2) space, you can specify its rotation `theta`, the rotation range `[theta_lb, theta_ub]` and the roundUp range `roundUpTheta` - this is generally `2pi`. (Note: `roundUpTheta` is used when the robot)
 You can also create a polygon given a list of vertices:
 ```python
 p1 = polygon( [
@@ -163,7 +164,7 @@ p1 = polygon( [
     ])
 ```
 Then you can construct a RVG and find the shortest path from `start(vertex)` to `goal(vertex)`:
-```python=
+```python
 vg = rvg(robot=robot, # represented by a polygon
          border = border, # represented by a polygon
          obstacles = obstacles, # represented by a list of polygons 

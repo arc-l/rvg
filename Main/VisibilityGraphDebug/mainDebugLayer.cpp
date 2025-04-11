@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   bool fineApprox = false;
   for (int i = 0; i < resolution; i++) {
     Graph<T> graph;
-    Layer<T> layer = Layer<T>(2 * PI * i / resolution, 2 * PI * (i + 1) / resolution, 2 * PI, fineApprox, false);
+    Layer<T> layer = Layer<T>(2 * PI * i / resolution, 2 * PI * (i + 1) / resolution, fineApprox, false);
     layer.buildVisibilityGraph(robot, map, obstacles);
     std::vector<Vertex_const_handle> vertexHandles = layer.getVertexHandles();
     graph.addEdges(layer.getEdges());

@@ -22,7 +22,6 @@ class Layer {
   Layer();
   Layer(T theta_lb,
         T theta_ub,
-        T roundUpTheta,
         bool fineApprox,
         bool simplifiedGeometry
   );
@@ -70,7 +69,7 @@ class Layer {
   bool _hasHoles;
   bool _borderIsHole;
   bool _infeasible;
-  T _theta_lb, _theta_ub, _roundUpTheta;
+  T _theta_lb, _theta_ub;
   std::shared_ptr<VQ> _vq, _holeVQ;
   std::vector<Vertex<T>> _vertices;
   std::vector<Point_2> _points, _holePoints;

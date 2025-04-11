@@ -17,8 +17,8 @@ void bind_vertex(py::module &m) {
   py::class_<VertexT, std::shared_ptr<VertexT>>(m, "vertex")
       .def(py::init<>())  // Default constructor
       .def(py::init<T, T>())  // Constructor with x, y
-      .def(py::init<T, T, T, T, T, T>(),
-          py::arg("x"), py::arg("y"), py::arg("theta_lb"), py::arg("theta_ub"), py::arg("theta"), py::arg("roundUpTheta"), 
+      .def(py::init<T, T, T, T, T>(),
+          py::arg("x"), py::arg("y"), py::arg("theta_lb"), py::arg("theta_ub"), py::arg("theta"), 
           "Constructor with all parameters" 
           )  // Constructor with all params
 
@@ -32,7 +32,6 @@ void bind_vertex(py::module &m) {
       .def("getTheta", &VertexT::getTheta)
       .def("getThetaLb", &VertexT::getThetaLb)
       .def("getThetaUb", &VertexT::getThetaUb)
-      .def("mergeThetaRange", &VertexT::mergeThetaRange)
       .def("getCoord", &VertexT::getCoord)
       // .def("getPoint", &VertexT::getPoint)
       .def("dist", &VertexT::dist)

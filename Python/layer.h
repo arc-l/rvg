@@ -19,11 +19,10 @@ void bind_layer(py::module &m) {
         .def(py::init<>())
         .def(py::init([](T theta_lb, 
                          T theta_ub, 
-                         T roundUpTheta, 
                          bool fineApprox, 
                          bool simplifiedGeometry) {
             try{
-                return new Layer<T>(theta_lb, theta_ub, roundUpTheta, fineApprox, simplifiedGeometry);
+                return new Layer<T>(theta_lb, theta_ub, fineApprox, simplifiedGeometry);
             } catch (const std::exception &e) {
                 PyErr_SetString(PyExc_RuntimeError, e.what());
                 throw py::error_already_set();
@@ -31,7 +30,6 @@ void bind_layer(py::module &m) {
         }),
              py::arg("theta_lb"), 
              py::arg("theta_ub"), 
-             py::arg("roundUpTheta"),
              py::arg("fineApprox"), 
              py::arg("simplifiedGeometry")
              )

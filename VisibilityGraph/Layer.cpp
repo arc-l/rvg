@@ -17,13 +17,11 @@ Layer<T>::Layer() = default;
 template<typename T>
 Layer<T>::Layer(T theta_lb,
                 T theta_ub,
-                T roundUpTheta,
                 bool fineApprox,
                 bool simplifiedGeometry
 )
     : _theta_lb(theta_lb),
       _theta_ub(theta_ub),
-      _roundUpTheta(roundUpTheta),
       _fineApprox(fineApprox),
       _simplifiedGeometry(simplifiedGeometry) {
         _infeasible = false;
@@ -34,8 +32,8 @@ Layer<T>::Layer(const Layer<T> &layer)
     : _fineApprox(layer._fineApprox),
       _simplifiedGeometry(layer._simplifiedGeometry),
       _theta_lb(layer._theta_lb),
-      _theta_ub(layer._theta_ub),
-      _roundUpTheta(layer._roundUpTheta) {
+      _theta_ub(layer._theta_ub)
+   {
   _robotBBox = layer._robotBBox;
   _robotBBoxInverted = layer._robotBBoxInverted;
   _shrunkBorder = layer._shrunkBorder;
@@ -478,8 +476,7 @@ void Layer<T>::_connectVisibleVertices() {
         CGAL::to_double(v->point().y()),
         _theta_lb,
         _theta_ub,
-        (_theta_ub + _theta_lb) / 2.,
-        _roundUpTheta
+        (_theta_ub + _theta_lb) / 2.
     );
     std::pair<Point_2, Point_2> neighbor1 = _getNeighbor(v);
 
@@ -505,8 +502,7 @@ void Layer<T>::_connectVisibleVertices() {
             CGAL::to_double(p->point().y()),
             _theta_lb,
             _theta_ub,
-            (_theta_ub + _theta_lb) / 2.,
-            _roundUpTheta
+            (_theta_ub + _theta_lb) / 2.
         );
         _neighborCache.insert({*v1, neighbor1});
         _neighborCache.insert({*v2, neighbor2});
@@ -539,8 +535,7 @@ void Layer<T>::_connectVisibleVertices() {
         CGAL::to_double(v->point().y()),
         _theta_lb,
         _theta_ub,
-        (_theta_ub + _theta_lb) / 2.,
-        _roundUpTheta
+        (_theta_ub + _theta_lb) / 2.
     );
     std::pair<Point_2, Point_2> neighbor1 = _getNeighbor(v);
 
@@ -566,8 +561,7 @@ void Layer<T>::_connectVisibleVertices() {
             CGAL::to_double(p->point().y()),
             _theta_lb,
             _theta_ub,
-            (_theta_ub + _theta_lb) / 2.,
-            _roundUpTheta
+            (_theta_ub + _theta_lb) / 2.
         );
         _visiblePolygonCache.insert({*v1, Utils::arrangementToPolygon<T>(visibleArea)});
         _neighborCache.insert({*v1, neighbor1});
@@ -843,7 +837,7 @@ std::unordered_map<Vertex<T>, Polygon<T>, typename Vertex<T>::Hash> Layer<T>::ge
 
 template<typename T>
 Polygon<T> Layer<T>::getVisibleAreaPolygon(T x, T y) const{
-  Vertex<T> v(x, y, _theta_lb, _theta_ub, (_theta_lb + _theta_ub) / 2., _roundUpTheta);
+  Vertex<T> v(x, y, _theta_lb, _theta_ub, (_theta_lb + _theta_ub) / 2.);
   Polygon<T> polygon(_visiblePolygonCache.at(v));
   return polygon;
 }
