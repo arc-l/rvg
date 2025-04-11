@@ -200,7 +200,7 @@ The `interpolationDensity` is used to linearly interpolate the solution, the def
 For more detailed examples, please see [here](https://github.com/arc-l/rvg/tree/main/python-example).
 
 ### Configuration files
-Except setting everything in your code, you can also set up the environment in a configuration file. Here's an example of the configuration file:
+Except setting up everything in your code, you can also set up the environment in a configuration file. Here's an example of the configuration file:
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <root>
