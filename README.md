@@ -1,11 +1,9 @@
-## Asymptotically-Optimal Multi-Query Path Planning for Moving A Convex Polygon in 2D
+## Asymptotically-Optimal Multi-Query Path Planning for Moving A Convex Polygon in 2D [![YouTube](https://badges.aleen42.com/src/youtube.svg)](https://youtu.be/iH7PsPNSOAY) [![Static Badge](https://img.shields.io/badge/RVG-arXiv-blue )](https://arxiv.org/pdf/2409.03920)
+
 
 <a href="https://duozhangrobotics.github.io/" target="_blank"><nobr>Duo Zhang</nobr></a> &emsp;
 <nobr>Zihe Ye</nobr> &emsp;
 <a href="https://arc-l.github.io/group.html" target="_blank"><nobr>Jingjin Yu</nobr></a> &emsp; (Accepted to [ICRA 2025](https://2025.ieee-icra.org/))
-
-
-[![YouTube](https://badges.aleen42.com/src/youtube.svg)](https://youtu.be/iH7PsPNSOAY) [![Static Badge](https://img.shields.io/badge/RVG-arXiv-blue )](https://arxiv.org/pdf/2409.03920)
 
 <div align="center">
 <p float="left">
