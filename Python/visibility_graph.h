@@ -67,7 +67,7 @@ void bind_visibility_graph(py::module &m) {
                 PyErr_SetString(PyExc_RuntimeError, e.what());
                 throw py::error_already_set();
             }
-        }, py::arg("start"), py::arg("end"), py::arg("interpolationDensity") = 0, py::arg("unwrap") = true)
+        }, py::arg("start"), py::arg("goal"), py::arg("interpolationDensity") = 0, py::arg("unwrap") = true)
 
         .def("getPathLength", [](const VisibilityGraph<T> &self) {
             try {
