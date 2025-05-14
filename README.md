@@ -105,7 +105,7 @@ In RVG, we use matplotlib to do all the visualization in the C++ code. There are
 2. Virtual Environment (**Recommended**)
     To have a clean python environment, create a virtual environment and activate
     ```bash
-    conda create -n rvg python==3.9 numpy matplotlib # matplotlib is for visualizing the solutions and environments.
+    conda create -n rvg python==3.10 numpy matplotlib # matplotlib is for visualizing the solutions and environments.
     conda install -c conda-forge cpython # for different versions of libpython
     conda activate rvg
     ```
