@@ -6,7 +6,7 @@ if [ ! -d "../Results" ]; then
 fi
 
 mapType="fixedStartAndGoal"
-difficulty=""
+difficulty="Hard"
 size="Small"
 resolution=36
 threads=24

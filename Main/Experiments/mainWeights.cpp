@@ -4,8 +4,6 @@
 #include <VisibilityGraph/Polygon.h>
 #include <VisibilityGraph/VisibilityGraph.h>
 #include <VisibilityGraph/Utils.h>
-#include <OMPL/CollisionDetection.h>
-#include <OMPL/OMPLEnv.h>
 
 using namespace RotationalVisibilityGraph;
 using namespace Utils;
@@ -18,7 +16,7 @@ int main(int argc, char *argv[]) {
   tinyxml2::XMLDocument pt;
   pt.LoadFile("../Configs/env3.xml");
   Polygon<T> robot = getRobot<T>(pt);
-  int resolution = 36;
+  int resolution = 72;
   std::vector<Polygon<T>> obstacles = getObstacles<T>(pt);
   Polygon<T> map;
   bool useBoundary = get<bool>(*pt.RootElement()->FirstChildElement("environment"), "useBoundary", false);
@@ -33,9 +31,9 @@ int main(int argc, char *argv[]) {
   const auto goal = getVertex<T>(*plannerSettings->FirstChildElement("goal")->FirstChildElement("Vertex"));
   print("Setup: ",
         "Start",
-        start,
+        *start,
         "Goal",
-        goal,
+        *goal,
         "Resolutions",
         resolution
         );
@@ -55,7 +53,8 @@ int main(int argc, char *argv[]) {
     visibilityGraph.setWeight(euclideanWeight, rotationalWeight);
     visibilityGraph.shortestPath(start, goal, 5);
     // visibilityGraph.draw(figPath, true, true, true);
-    visibilityGraph.animation(gifPath, false);
+    visibilityGraph.draw(figPath, false, true, false, false, -1);
+    // visibilityGraph.animation(gifPath, false);
     T pathLength = visibilityGraph.getPathLength();
     distsRVG.push_back(pathLength);
     rvgBuildTime.push_back(visibilityGraph.getBuildTime());

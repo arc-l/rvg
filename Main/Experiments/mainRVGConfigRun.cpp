@@ -45,12 +45,12 @@ int main(int argc, char *argv[]) {
         );
   std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
   setPrecision<T>(3);
-  bool fineApprox = false;
+  bool fineApprox = true;
   bool optimal = true;
   bool verbose = true;
   VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, fineApprox, numThreads, optimal, verbose);
   const auto &layers = visibilityGraph.getLayers();
-  visibilityGraph.setWeight(1.0, 0.0);
+  visibilityGraph.setWeight(1.0, 0.1);
   visibilityGraph.shortestPath(start, goal, 0);
   T pathLength = visibilityGraph.getPathLength();
   // T totalTime = visibilityGraph.getTotalTime();
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   // visibilityGraph.animation(figPath, false);
   // change the figPath's extension to .png
   figPath = figPath.substr(0, figPath.find_last_of('.')) + ".png";
-  visibilityGraph.draw(figPath, false, true, true, false);
+  visibilityGraph.draw(figPath, false, true, false, false, -1);
   // visibilityGraph.draw3D(false);
   return 0;
 

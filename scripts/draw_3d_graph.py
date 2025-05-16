@@ -21,13 +21,11 @@ if __name__ == "__main__":
     # start = rvg.vertex(x=1.324905, y=2.277335, theta=2.286381, theta_lb=0, theta_ub=2*np.pi, roundUpTheta=np.pi, hashWithTheta=True)
     # goal = rvg.vertex(x=1.729068, y=-0.5058769, theta=3.473205, theta_lb=0, theta_ub=2*np.pi, roundUpTheta=np.pi, hashWithTheta=True)
     num_threads = 24
-    vg = rvg.visibility_graph(robot = robot, 
+    vg = rvg.rvg(robot = robot, 
                               border = boundary, 
                               obstacles = obstacles, 
                               numThreads=num_threads, 
                               resolution=180, 
-                              considerSymmetry=True, 
-                              hashWithTheta=True, 
                               fineApprox=False, 
                               optimal=True, 
                               verbose=False)

@@ -474,7 +474,7 @@ std::string Polygon<T>::draw(const std::string &type, bool dashed) const {
   pythonScript += "])\n";
   std::string dash = dashed ? "-" : "";
   if (type == "obs")
-    pythonScript += "ax.plot(obs[:, 0], obs[:, 1], '-" + dash + "o', color='darkcyan', markersize=2.0, linewidth=1.0)\n";
+    pythonScript += "ax.plot(obs[:, 0], obs[:, 1], '-" + dash + "o', color='darkcyan', markersize=0.5, linewidth=1.0)\n";
   else if (type == "start")
     pythonScript += "ax.plot(obs[:, 0], obs[:, 1], '-" + dash + "o', color='deeppink', markersize=2.0, linewidth=1.0)\n";
   else if (type == "start_fill")
@@ -484,7 +484,7 @@ std::string Polygon<T>::draw(const std::string &type, bool dashed) const {
   else if (type == "goal_fill")
     pythonScript += "ax.fill(obs[:, 0], obs[:, 1], '-" + dash + "o', color='darkviolet')\n";
   else if (type == "path")
-    pythonScript += "ax.plot(obs[:, 0], obs[:, 1], '-" + dash + "o', color='navy', markersize=2.0, linewidth=1.0, alpha=0.5)\n";
+    pythonScript += "ax.plot(obs[:, 0], obs[:, 1], '-" + dash + "o', color='navy', markersize=0.5, linewidth=0.5, alpha=0.5)\n";
   else if (type == "path_fill")
     pythonScript += "ax.fill(obs[:, 0], obs[:, 1], '-" + dash + "o', color='navy', alpha=0.5)\n";
   else if (type == "hole")

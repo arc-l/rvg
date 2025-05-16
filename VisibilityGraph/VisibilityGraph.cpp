@@ -590,7 +590,7 @@ void VisibilityGraph<T>::setWeight(T euclideanWeight, T rotationalWeight) {
 
 template <typename T>
 void VisibilityGraph<T>::draw(const std::string &figPath, bool title, bool path,
-                              bool graph, bool show) {
+                              bool graph, bool show, int wayPoints) {
   if (figPath.empty()) return;
   // #define SEMI_ALGEBRAIC_SET
   std::string pythonScript;
@@ -647,9 +647,17 @@ void VisibilityGraph<T>::draw(const std::string &figPath, bool title, bool path,
         "ax.plot(path[:, 0], path[:, 1], '-o', color='navy', "
         "markersize=1.0, linewidth=1.0)\n";
     // robot along the path
-    if (_sol.size() >= 2) {
-      for (size_t nodeNum = 1; nodeNum < _sol.size() - 1; nodeNum++) {
-        const auto &vertex = _sol[nodeNum];
+    std::vector<Vertex<T>> tempSol;
+    for(int i = 1; i < _sol.size(); i++){
+      if(_sol[i].getX() != _sol[i-1].getX() || _sol[i].getY() != _sol[i-1].getY()){
+        tempSol.push_back(_sol[i]);
+      }
+    }
+    if (tempSol.size() >= 2) {
+      int numWayPoints = wayPoints != -1 ? (tempSol.size()-1) / wayPoints : 1;
+      if (numWayPoints == 0) numWayPoints = 1;
+      for (size_t nodeNum = 1; nodeNum < tempSol.size() - 1; nodeNum+=numWayPoints) {
+        const auto &vertex = tempSol[nodeNum];
         Polygon<T> tmpRobot = _realRobot.moveToCopy(
             vertex.getX(), vertex.getY(), vertex.getTheta());
         pythonScript += tmpRobot.draw("path");

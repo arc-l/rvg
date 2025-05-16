@@ -146,7 +146,7 @@ script += "from PIL import Image\n";\
 script += "import os\n";         \
 script += "plt.rcParams['font.family'] = 'serif'\n";\
 script += "plt.rcParams['font.serif'] = ['Times New Roman']\n"; \
-script += "fig, ax = plt.subplots(dpi=100)\n";\
+script += "fig, ax = plt.subplots(dpi=500)\n";\
 script += "ax.set_facecolor('gainsboro')\n";\
 script += "plt.axis('equal')\n";
 

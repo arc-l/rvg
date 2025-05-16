@@ -48,7 +48,7 @@ class VisibilityGraph {
   T getSearchTime() const;
   const std::vector<Layer<T>> &getLayers() const; 
   ~VisibilityGraph() = default;
-  void draw(const std::string &figPath, bool title=true, bool path=true, bool graph=true, bool show=false);
+  void draw(const std::string &figPath, bool title=true, bool path=true, bool graph=true, bool show=false, int wayPoints=-1);
   void drawLayers3D(const std::string &figPath, const std::string& type, bool show);
   void drawVisibleAreas() const;
   std::string drawLayers3D(const std::string& type) const;
