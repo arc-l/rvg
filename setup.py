@@ -43,6 +43,9 @@ class CMakeBuild(build_ext):
         # Can be set with Conda-Build, for example.
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
 
+        # Environment used for CMake configure/build subprocesses.
+        cmake_env = os.environ.copy()
+
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
         # EXAMPLE_VERSION_INFO shows you how to pass a value into the C++ code
         # from Python.
@@ -59,14 +62,43 @@ class CMakeBuild(build_ext):
         cmake_args += [f"-DENABLE_OPENMP={enable_openmp}"]
 
         # On macOS:
-        # - OpenMP ON  -> use Homebrew GCC toolchain (gomp/libstdc++).
-        # - OpenMP OFF -> use Apple Clang toolchain (no OpenMP runtime dependency).
+        # - OpenMP ON  -> selectable via RVG_OPENMP_TOOLCHAIN:
+        #                "clang" (default) or "gcc"
+        # - OpenMP OFF -> Apple Clang toolchain (no OpenMP runtime dependency).
         if sys.platform == "darwin":
             if enable_openmp == "ON":
-                cmake_args += [
-                    "-DCMAKE_C_COMPILER=/opt/homebrew/bin/gcc-11",
-                    "-DCMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-11",
-                ]
+                default_openmp_toolchain = "clang"
+                openmp_toolchain = os.environ.get("RVG_OPENMP_TOOLCHAIN", default_openmp_toolchain).lower()
+                if openmp_toolchain == "clang":
+                    libomp_header = Path("/opt/homebrew/opt/libomp/include/omp.h")
+                    libomp_lib = Path("/opt/homebrew/opt/libomp/lib/libomp.dylib")
+                    if not libomp_header.exists() or not libomp_lib.exists():
+                        raise RuntimeError(
+                            "RVG_OPENMP_TOOLCHAIN=clang requires Homebrew libomp, but it was not found at "
+                            "/opt/homebrew/opt/libomp. Install it with `brew install libomp`, or use "
+                            "`RVG_OPENMP_TOOLCHAIN=gcc`."
+                        )
+                    cmake_args += [
+                        "-DCMAKE_C_COMPILER=/usr/bin/clang",
+                        "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
+                        "-DOPENMP_CXX_FLAG=-Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include",
+                        "-DOPENMP_EXE_LIB=/opt/homebrew/opt/libomp/lib/libomp.dylib",
+                        "-DOPENMP_LINK_FLAGS=-Wl,-rpath,/opt/homebrew/opt/libomp/lib",
+                    ]
+                    # Auto-provide Homebrew libomp flags so users do not need to export them manually.
+                    cppflags = cmake_env.get("CPPFLAGS", "")
+                    ldflags = cmake_env.get("LDFLAGS", "")
+                    libomp_cpp = "-I/opt/homebrew/opt/libomp/include"
+                    libomp_ld = "-L/opt/homebrew/opt/libomp/lib"
+                    if libomp_cpp not in cppflags:
+                        cmake_env["CPPFLAGS"] = (cppflags + " " + libomp_cpp).strip()
+                    if libomp_ld not in ldflags:
+                        cmake_env["LDFLAGS"] = (ldflags + " " + libomp_ld).strip()
+                else:
+                    cmake_args += [
+                        "-DCMAKE_C_COMPILER=/opt/homebrew/bin/gcc-11",
+                        "-DCMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-11",
+                    ]
             else:
                 cmake_args += [
                     "-DCMAKE_C_COMPILER=/usr/bin/clang",
@@ -119,10 +151,10 @@ class CMakeBuild(build_ext):
             build_temp.mkdir(parents=True)
 
         subprocess.run(
-            ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True
+            ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True, env=cmake_env
         )
         subprocess.run(
-            ["cmake", "--build", ".", *build_args], cwd=build_temp, check=True
+            ["cmake", "--build", ".", *build_args], cwd=build_temp, check=True, env=cmake_env
         )
 
 
