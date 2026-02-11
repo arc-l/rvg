@@ -12,7 +12,9 @@
 #include <string>
 #include <algorithm>
 #include <fstream>
+#if defined(_OPENMP)
 #include <omp.h>
+#endif
 
 namespace RotationalVisibilityGraph::Utils {
 

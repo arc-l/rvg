@@ -49,10 +49,29 @@ class CMakeBuild(build_ext):
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
+            "-DPYBIND11_FINDPYTHON=ON",
             f"-DVISIBILITY_QUERY=TEV", # setup the algorithm to do visibility check. Default is Triangle expansion visibility check
             f"-DPYTHON_BINDINGS=ON", # turn on the option to build the python bindings
+            "-DBUILD_EXECUTABLES=OFF",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
+        enable_openmp = os.environ.get("RVG_ENABLE_OPENMP", "ON").upper()
+        cmake_args += [f"-DENABLE_OPENMP={enable_openmp}"]
+
+        # On macOS:
+        # - OpenMP ON  -> use Homebrew GCC toolchain (gomp/libstdc++).
+        # - OpenMP OFF -> use Apple Clang toolchain (no OpenMP runtime dependency).
+        if sys.platform == "darwin":
+            if enable_openmp == "ON":
+                cmake_args += [
+                    "-DCMAKE_C_COMPILER=/opt/homebrew/bin/gcc-11",
+                    "-DCMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-11",
+                ]
+            else:
+                cmake_args += [
+                    "-DCMAKE_C_COMPILER=/usr/bin/clang",
+                    "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
+                ]
         build_args = ["--verbose", "-j 24"]
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
@@ -90,7 +109,12 @@ class CMakeBuild(build_ext):
                 # CMake 3.12+ only.
                 build_args += [f"-j{self.parallel}"]
 
-        build_temp = Path(self.build_temp) / ext.name
+        # Use a stable build directory so repeated `pip install -e .` runs are incremental.
+        # Can be overridden with RVG_PIP_BUILD_DIR.
+        default_build_root = Path.cwd() / "build" / "pip-cmake"
+        build_root = Path(os.environ.get("RVG_PIP_BUILD_DIR", str(default_build_root)))
+        build_key = f"{ext.name}-{cfg}-openmp-{enable_openmp.lower()}"
+        build_temp = build_root / build_key
         if not build_temp.exists():
             build_temp.mkdir(parents=True)
 

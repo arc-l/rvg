@@ -139,6 +139,11 @@ app.exec();
 #define OMP_BARRIER_
 #endif
 
+#ifdef NO_OPENMP
+#define omp_get_max_threads() 1
+#define omp_get_thread_num() 0
+#endif
+
 #define PYTHON_IMPORTS(script) \
 script += "import numpy as np\n";\
 script += "import matplotlib.pyplot as plt\n";\
@@ -172,4 +177,3 @@ script += "plt.axis('off')\n";
 #endif
 
 #endif //ROTATIONALVISIBILITYGRAPH_UTILS_PRAGMA_H_
-

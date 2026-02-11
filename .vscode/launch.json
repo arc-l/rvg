@@ -8,11 +8,11 @@
             // Resolved by CMake Tools:
             "program": "${command:cmake.buildDirectory}/mainRVGConfigRun",
             "args": [
-                "../Configs/corridor.xml",
-                // "../scripts/manim_vis/manimConfig.xml",
-                "72",
-                "24",
-                "../Results/corridor.gif"
+                // "../Configs/corridor.xml",
+                "../scripts/manim_vis/manimConfig.xml",
+                "18",
+                "1",
+                "../Results/test.gif"
             ],
             "stopAtEntry": false,
             "cwd": "${command:cmake.buildDirectory}",
@@ -30,6 +30,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -67,6 +71,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -101,6 +109,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -132,6 +144,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -163,6 +179,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -194,6 +214,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -228,6 +252,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -259,6 +287,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -290,6 +322,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -321,6 +357,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -357,6 +397,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -389,6 +433,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -421,6 +469,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -453,6 +505,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -486,6 +542,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -523,6 +583,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -556,6 +620,10 @@
             ],
             "externalConsole": false,
             "MIMode": "gdb",
+            "osx": {
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Users/duo/.vscode/extensions/ms-vscode.cpptools-1.30.5-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
