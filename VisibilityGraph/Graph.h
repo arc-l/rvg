@@ -20,6 +20,7 @@ class Graph {
   Graph();
   void addEdge(std::shared_ptr<Vertex<T>> v1, std::shared_ptr<Vertex<T>> v2);
   void addEdges(const std::vector<std::pair<std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>> &edges);
+  void mergeGraph(const Graph<T> &other);
   const std::unordered_set<std::shared_ptr<Vertex<T>>, SharedPtrVertexHash, SharedPtrVertexEqual> &getNeighbors(std::shared_ptr<Vertex<T>> v) const;
   const std::unordered_map<std::shared_ptr<Vertex<T>>, std::unordered_set<std::shared_ptr<Vertex<T>>, SharedPtrVertexHash, SharedPtrVertexEqual>, SharedPtrVertexHash, SharedPtrVertexEqual> &getAdjacencyList() const;
   const std::unordered_set<Edge<T>, typename Edge<T>::Hash> &getEdges() const;

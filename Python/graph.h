@@ -20,6 +20,7 @@ void bind_graph(py::module &m) {
       .def(py::init<>())
       .def("addEdge", &GraphT::addEdge, py::arg("v1"), py::arg("v2"))
       .def("addEdges", &GraphT::addEdges, py::arg("edges"))
+      .def("mergeGraph", &GraphT::mergeGraph, py::arg("other"))
       .def("getNeighbors",
            [](const GraphT &self, const VertexPtr &v) {
              std::vector<VertexPtr> neighbors;

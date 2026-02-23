@@ -1055,6 +1055,16 @@ std::vector<std::shared_ptr<Vertex<T>>> VisibilityGraph<T>::getGraphVertices() c
   return graphVertices;
 }
 
+template<typename T>
+Graph<T> &VisibilityGraph<T>::getGraph() {
+  return _graph;
+}
+
+template<typename T>
+const Graph<T> &VisibilityGraph<T>::getGraph() const {
+  return _graph;
+}
+
 template class VisibilityGraph<double>;
 template class VisibilityGraph<float>;
 }  // namespace RotationalVisibilityGraph

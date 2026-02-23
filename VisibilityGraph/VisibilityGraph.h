@@ -63,6 +63,8 @@ class VisibilityGraph {
   typedef typename Vertex<T>::SharedPtrVertexHash SharedPtrVertexHash;
   typedef typename Vertex<T>::SharedPtrVertexEqual SharedPtrVertexEqual;
   std::vector<std::shared_ptr<Vertex<T>>> getGraphVertices() const;
+  Graph<T> &getGraph();
+  const Graph<T> &getGraph() const;
   
 
  protected:

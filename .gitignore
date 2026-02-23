@@ -39,9 +39,10 @@ Results_*/
 Results/
 scripts/path*.py
 scripts/*.png
-scripts/manim_vis/__pycache__/
+__pycache__/
+**/__pycache__/
+*.py[cod]
 scripts/manim_vis/media/
 .cache/
 rvg.egg-info/
 Configs-backup
-

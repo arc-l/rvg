@@ -248,6 +248,17 @@ void Graph<T>::addEdges(const std::vector<std::pair<std::shared_ptr<Vertex<T>>, 
 }
 
 template<typename T>
+void Graph<T>::mergeGraph(const Graph<T> &other) {
+  for (const auto &entry : other.getAdjacencyList()) {
+    const auto &v = entry.first;
+    const auto &neighbors = entry.second;
+    for (const auto &neighbor : neighbors) {
+      addEdge(v, neighbor);
+    }
+  }
+}
+
+template<typename T>
 void Graph<T>::buildEdges(){
   for (const auto &vertex : _vertices) {
     const auto & neighbors = _adjacencyList.at(vertex);

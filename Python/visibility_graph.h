@@ -188,6 +188,9 @@ void bind_visibility_graph(py::module &m) {
                 throw py::error_already_set();
             }
         })
+        .def("getGraph",
+             py::overload_cast<>(&VisibilityGraph<T>::getGraph),
+             py::return_value_policy::reference_internal)
         ;
         
 }
