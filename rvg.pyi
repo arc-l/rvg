@@ -206,7 +206,8 @@ class rvg:
     def verticalDecomposition(self) -> list[polygon]:
         ...
 class vertex:
-    __hash__: typing.ClassVar[None] = None
+    def __hash__(self) -> int:
+        ...
     def __add__(self, arg0: vertex) -> vertex:
         ...
     def __eq__(self, arg0: vertex) -> bool:

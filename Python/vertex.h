@@ -41,6 +41,9 @@ void bind_vertex(py::module &m) {
           // Operators
       .def("__eq__", &VertexT::operator==)
       .def("__ne__", &VertexT::operator!=)
+      .def("__hash__", [](const VertexT &vertex) {
+        return static_cast<py::ssize_t>(vertex.hash());
+      })
       .def("__lt__", &VertexT::operator<)
       .def("__add__", &VertexT::operator+)
 
