@@ -65,6 +65,7 @@ class VisibilityGraph {
   std::vector<std::shared_ptr<Vertex<T>>> getGraphVertices() const;
   Graph<T> &getGraph();
   const Graph<T> &getGraph() const;
+  void _addStartAndGoal(std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal);
   
 
  protected:
@@ -86,7 +87,6 @@ class VisibilityGraph {
   void _unwrapPath();
   virtual void _resolutionSymmetryCheck();
   [[nodiscard]] std::string _drawSetup() const;
-  void _addStartAndGoal(std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal);
 
  private:
   int _resolution;

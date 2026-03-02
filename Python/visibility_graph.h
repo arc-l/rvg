@@ -68,6 +68,14 @@ void bind_visibility_graph(py::module &m) {
                 throw py::error_already_set();
             }
         }, py::arg("start"), py::arg("goal"), py::arg("interpolationDensity") = 0, py::arg("unwrap") = true)
+        .def("addStartAndGoal", [](VisibilityGraph<T> &self, std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal) {
+            try {
+                self._addStartAndGoal(start, goal);
+            } catch (const std::exception &e) {
+                PyErr_SetString(PyExc_RuntimeError, e.what());
+                throw py::error_already_set();
+            }
+        }, py::arg("start"), py::arg("goal"))
 
         .def("getPathLength", [](const VisibilityGraph<T> &self) {
             try {
