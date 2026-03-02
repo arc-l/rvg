@@ -76,6 +76,14 @@ void bind_visibility_graph(py::module &m) {
                 throw py::error_already_set();
             }
         }, py::arg("start"), py::arg("goal"))
+        .def("addVertex", [](VisibilityGraph<T> &self, std::shared_ptr<Vertex<T>> vertex) {
+            try {
+                return self.addVertex(vertex);
+            } catch (const std::exception &e) {
+                PyErr_SetString(PyExc_RuntimeError, e.what());
+                throw py::error_already_set();
+            }
+        }, py::arg("vertex"))
 
         .def("getPathLength", [](const VisibilityGraph<T> &self) {
             try {

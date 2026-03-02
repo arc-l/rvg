@@ -65,6 +65,7 @@ class VisibilityGraph {
   std::vector<std::shared_ptr<Vertex<T>>> getGraphVertices() const;
   Graph<T> &getGraph();
   const Graph<T> &getGraph() const;
+  bool addVertex(std::shared_ptr<Vertex<T>> vertex);
   void _addStartAndGoal(std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal);
   
 

@@ -360,6 +360,103 @@ void VisibilityGraph<T>::_connectLayersParallelizedVertices() {
 }
 
 template <typename T>
+bool VisibilityGraph<T>::addVertex(std::shared_ptr<Vertex<T>> vertex) {
+  std::vector<bool> legalVec(_layers.size(), false);
+  std::vector<Polygon_2> visibleAreaVec(_layers.size());
+  std::vector<std::shared_ptr<Vertex<T>>> vertexInLayerVec(_layers.size(), nullptr);
+  size_t layerIndex = 0;
+  bool foundLayer = false;
+
+  for (size_t i = 0; i < _layers.size(); i++) {
+    const Layer<T> &layer = _layers[i];
+    const T &thetaLb = layer.getThetaLb();
+    const T &thetaUb = layer.getThetaUb();
+    legalVec[i] = layer.legalConfig(*vertex);
+    std::shared_ptr<Vertex<T>> vertexInLayer = std::make_shared<Vertex<T>>(
+        vertex->getX(), vertex->getY(), thetaLb, thetaUb, (thetaUb + thetaLb) / 2.);
+    vertexInLayerVec[i] = vertexInLayer;
+
+    if (thetaLb <= vertex->getTheta() && vertex->getTheta() <= thetaUb) {
+      layerIndex = i;
+      foundLayer = true;
+      if (!legalVec[i]) {
+        return false;
+      }
+      _graph.addEdge(vertex, vertexInLayer);
+    }
+    if (legalVec[i]) {
+      std::shared_ptr<Arrangement_2> visibleArea = layer.getVisibleArea(*vertex);
+      if (visibleArea) {
+        visibleAreaVec[i] = Utils::arrangementToPolygon<T>(*visibleArea);
+      }
+    }
+  }
+
+  if (!foundLayer) {
+    return false;
+  }
+
+  bool allAvailable = true;
+  int forwardStopIndex = static_cast<int>(layerIndex);
+  int backwardStopIndex = static_cast<int>(layerIndex);
+  const int numLayers = static_cast<int>(_layers.size());
+  for (int i = 0; i < numLayers; i++) {
+    int currIndex = (static_cast<int>(layerIndex) + i) % numLayers;
+    int prevIndex = (static_cast<int>(layerIndex) + i - 1 + numLayers) % numLayers;
+    if (legalVec[currIndex]) {
+      std::shared_ptr<Vertex<T>> currVertexInLayer = vertexInLayerVec[currIndex];
+      std::shared_ptr<Vertex<T>> prevVertexInLayer = vertexInLayerVec[prevIndex];
+      _graph.addEdge(prevVertexInLayer, currVertexInLayer);
+    } else {
+      allAvailable = false;
+      forwardStopIndex = currIndex;
+      break;
+    }
+  }
+  if (!allAvailable) {
+    for (int i = 1; i < numLayers; i++) {
+      int currIndex = (static_cast<int>(layerIndex) - i + numLayers) % numLayers;
+      int prevIndex = (static_cast<int>(layerIndex) - i + 1 + numLayers) % numLayers;
+      if (legalVec[currIndex]) {
+        std::shared_ptr<Vertex<T>> currVertexInLayer = vertexInLayerVec[currIndex];
+        std::shared_ptr<Vertex<T>> prevVertexInLayer = vertexInLayerVec[prevIndex];
+        _graph.addEdge(prevVertexInLayer, currVertexInLayer);
+      } else {
+        backwardStopIndex = currIndex;
+        break;
+      }
+    }
+    for (int i = forwardStopIndex; i != backwardStopIndex; i = (i + 1) % numLayers) {
+      legalVec[i] = false;
+    }
+  }
+
+  for (size_t i = 0; i < _layers.size(); i++) {
+    const Layer<T> &layer = _layers[i];
+    if (!layer.isFeasible()) {
+      if (_verbose) Utils::print("Layer ", i, " is not feasible, skipping");
+      continue;
+    }
+    if (!legalVec[i]) {
+      continue;
+    }
+    const auto &vertices = _layerVertices[i];
+    std::vector<TwoTuple> verticesVector(vertices.begin(), vertices.end());
+    for (size_t j = 0; j < verticesVector.size(); j++) {
+      const auto &validV = verticesVector[j];
+      const auto &p = _layers[validV.first].getPoint(validV.second);
+      if (IN_POLYGON(p, visibleAreaVec[i]) || ON_EDGE(p, visibleAreaVec[i])) {
+        std::shared_ptr<Vertex<T>> visibleVertex = std::make_shared<Vertex<T>>(
+            CGAL::to_double(p.x()), CGAL::to_double(p.y()), layer.getThetaLb(),
+            layer.getThetaUb(), (layer.getThetaLb() + layer.getThetaUb()) / 2.);
+        _graph.addEdge(vertexInLayerVec[i], visibleVertex);
+      }
+    }
+  }
+  return true;
+}
+
+template <typename T>
 void VisibilityGraph<T>::_addStartAndGoal(std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal){
   bool directConnection = false; 
   std::vector<bool> startLegalVec(_layers.size(), false);
