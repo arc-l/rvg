@@ -115,7 +115,7 @@ In RVG, we use matplotlib to do all the visualization in the C++ code. There are
 ### To build python package
 ```bash
 # activate the environment you want
-pip install -e .
+pip install .
 ```
 
 ### To build the C++ code
