@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -18,6 +19,34 @@ class CMakeExtension(Extension):
 
 
 class CMakeBuild(build_ext):
+    def _clear_stale_cmake_cache(self, build_temp: Path, sourcedir: str) -> None:
+        cache_file = build_temp / "CMakeCache.txt"
+        cache_dir = build_temp / "CMakeFiles"
+        force_reconfigure = os.environ.get("RVG_FORCE_CMAKE_RECONFIGURE", "").lower() in {
+            "1",
+            "true",
+            "on",
+            "yes",
+        }
+
+        if force_reconfigure:
+            if cache_file.exists():
+                cache_file.unlink()
+            if cache_dir.exists():
+                shutil.rmtree(cache_dir)
+            return
+
+        if not cache_file.exists():
+            return
+
+        cache_text = cache_file.read_text(errors="ignore")
+        match = re.search(r"^CMAKE_HOME_DIRECTORY:INTERNAL=(.*)$", cache_text, re.MULTILINE)
+
+        if match and Path(match.group(1)).resolve() != Path(sourcedir).resolve():
+            cache_file.unlink()
+            if cache_dir.exists():
+                shutil.rmtree(cache_dir)
+
     def build_extension(self, ext: CMakeExtension) -> None:
         try:
             out = subprocess.check_output(['cmake', '--version'])
@@ -93,6 +122,7 @@ class CMakeBuild(build_ext):
         build_temp = Path(self.build_temp) / ext.name
         if not build_temp.exists():
             build_temp.mkdir(parents=True)
+        self._clear_stale_cmake_cache(build_temp, ext.sourcedir)
 
         subprocess.run(
             ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True
