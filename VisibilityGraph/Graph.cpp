@@ -3,13 +3,26 @@
 
 namespace RotationalVisibilityGraph {
 template<typename T>
-Graph<T>::Graph() = default;
+Graph<T>::Graph() : _euclideanWeight(1), _rotationalWeight(0), _rotationCycle(2 * PI) {}
 
 template<typename T>
 void Graph<T>::setWeight(T euclideanWeight, T rotationalWeight) {
   _euclideanWeight = euclideanWeight;
   _rotationalWeight = rotationalWeight;
   // _maxDist = _maxRotation = 0.0;
+}
+
+template<typename T>
+void Graph<T>::setRotationCycle(T rotationCycle) {
+  _rotationCycle = rotationCycle;
+}
+
+template<typename T>
+T Graph<T>::rotationalDistance(const Vertex<T> &v1, const Vertex<T> &v2) const {
+  T diff = std::abs(v1.getTheta() - v2.getTheta());
+  if (_rotationCycle <= 0) return diff;
+  diff = std::fmod(diff, _rotationCycle);
+  return std::min(diff, _rotationCycle - diff);
 }
 
 template<typename T>
@@ -85,7 +98,7 @@ std::vector<Vertex<T>> Graph<T>::shortestPath(std::shared_ptr<Vertex<T>> start, 
       break;
     }
     for (const auto &v : _adjacencyList.at(u)) {
-      T w = _euclideanWeight * u->dist(*v) + _rotationalWeight * u->rotationalDist(*v);
+      T w = _euclideanWeight * u->dist(*v) + _rotationalWeight * rotationalDistance(*u, *v);
       if (dist[u] + w < dist[v]) {
         dist[v] = dist[u] + w;
         pq.push({dist[v], v});

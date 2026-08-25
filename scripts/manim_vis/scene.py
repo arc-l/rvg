@@ -27,13 +27,11 @@ class RVG(VoiceoverScene, ThreeDScene):
         rvg_obstacles = rvg.get_obstacles(path)
         rvg_start = rvg.get_start(path)
         rvg_goal = rvg.get_goal(path)
-        vg = rvg.visibility_graph(
+        vg = rvg.rvg(
             robot=rvg_robot, 
             border=rvg_boundary, 
             obstacles=rvg_obstacles, 
             resolution=8, 
-            considerSymmetry=True, 
-            hashWithTheta=True, 
             fineApprox=False, 
             numThreads=1, 
             optimal=False, 
@@ -55,7 +53,7 @@ class RVG(VoiceoverScene, ThreeDScene):
 
         # manim setup
         self.set_speech_service(GTTSService())
-        # self.set_speech_service(OpenAIService())
+        # self.set_speech_service(OpenAIService(transcription_model=None))
         map = Square(5)
         map.set_fill(GREY_E, opacity=0.8)
         obstacle = Square(1.5)
@@ -376,7 +374,7 @@ class RVG(VoiceoverScene, ThreeDScene):
             )
         
         with self.voiceover(text="Since A is in the free space of layer 2, \
-                            we can add A to layer 2 as A prime so it can be checked with layer 3") as tracker:
+                            we can add A to layer 2 as ei prime so it can be checked with layer 3") as tracker:
             a_prime = Tex(r"A'", font_size=40)
             self.add_fixed_in_frame_mobjects(a_prime)
             a_prime.move_to([1.24, 1.2, 0])
@@ -692,4 +690,3 @@ class RVG(VoiceoverScene, ThreeDScene):
                 else:
                     angle = sol_i.getTheta() -  sol[i-1].getTheta()
                 self.play(robot.animate.move_to([sol_i.getX(), sol_i.getY(), 0]).rotate(angle), run_time=0.1)
-

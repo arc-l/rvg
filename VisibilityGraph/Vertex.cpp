@@ -287,7 +287,9 @@ T Vertex<T>::rotationalDist(const Vertex<T> &other) const {
   T theta1 = _theta.value();
   T theta2 = other._theta.value();
   T diff = std::abs(theta1 - theta2);
-  return diff;
+  T cycle = 2 * PI;
+  diff = std::fmod(diff, cycle);
+  return std::min(diff, cycle - diff);
 }
 
 template <typename T>

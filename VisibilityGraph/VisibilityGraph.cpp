@@ -65,6 +65,7 @@ VisibilityGraph<T>::VisibilityGraph(const Polygon<T> &robot,
   _optimal= optimal; 
 
   _resolutionSymmetryCheck();
+  _graph.setRotationCycle(_roundUpTheta);
   _layerVertices.resize(_isSymmetric ? _symmetricCycle : _resolution);
   Utils::Timer timer(_verbose);
   _buildLayers();
@@ -529,7 +530,9 @@ std::vector<Vertex<T>> VisibilityGraph<T>::shortestPath(std::shared_ptr<Vertex<T
     T totalRotation = 0;
     for (size_t i = 0; i < _sol.size() - 1; i++) {
       pathLength += Edge(_sol[i], _sol[i + 1]).length();
-      totalRotation += _sol[i].rotationalDist(_sol[i + 1]);
+      T diff = std::abs(_sol[i].getTheta() - _sol[i + 1].getTheta());
+      diff = std::fmod(diff, _roundUpTheta);
+      totalRotation += std::min(diff, _roundUpTheta - diff);
     }
     _pathLength = pathLength;
     _totalRotation = totalRotation;
@@ -724,7 +727,7 @@ void VisibilityGraph<T>::animation(const std::string &figPath, bool title) {
     const auto &vertex = _sol[i];
     Polygon<T> tmpRobot =
         _realRobot.moveToCopy(vertex.getX(), vertex.getY(), vertex.getTheta());
-    pythonScript += tmpRobot.draw("path");
+    pythonScript += tmpRobot.draw("path_fill");
     if (title)
       pythonScript +=
           "plt.title(f'Resolution=" + std::to_string(_resolution) +
@@ -779,11 +782,11 @@ std::string VisibilityGraph<T>::_drawSetup() const {
   // start and goal
   if(_start.hasTheta()){
     Polygon<T> tmpRobot = _realRobot.moveToCopy(_start.getX(), _start.getY(), _start.getTheta());
-    pythonScript += tmpRobot.draw("start");
+    pythonScript += tmpRobot.draw("start_fill");
   }
   if(_goal.hasTheta()){
     Polygon<T> tmpRobot = _realRobot.moveToCopy(_goal.getX(), _goal.getY(), _goal.getTheta());
-    pythonScript += tmpRobot.draw("goal");
+    pythonScript += tmpRobot.draw("goal_fill");
   }
   return pythonScript;
 }
@@ -824,21 +827,30 @@ T VisibilityGraph<T>::getTotalRotation() const {
 template <typename T>
 void VisibilityGraph<T>::_interpolation(int density) {
   std::vector<Vertex<T>> interpolatedPath;
+  const T linearSpeed = 1.0;
+  const T angularSpeed = 4.0;
+  const T samplesPerSecond = std::max(1, density);
   for (size_t i = 0; i < _sol.size() - 1; i++) {
     const auto &start = _sol[i];
     const auto &goal = _sol[i + 1];
-    T dx = (goal.getX() - start.getX()) / density;
-    T dy = (goal.getY() - start.getY()) / density;
-    T dTheta = 0;
-    // check if the angle is in the range of [0, 2*PI/resolution] and
-    // [2*PI-2*PI/resolution, 2*PI] else if(goal.getTheta()-start.getTheta() <
-    // -2*PI/_resolution)
-    dTheta = (goal.getTheta() - start.getTheta()) / density;
+    T deltaX = goal.getX() - start.getX();
+    T deltaY = goal.getY() - start.getY();
+    T deltaTheta = std::fmod(goal.getTheta() - start.getTheta(), _roundUpTheta);
+    if (deltaTheta > _roundUpTheta / 2.) {
+      deltaTheta -= _roundUpTheta;
+    } else if (deltaTheta < -_roundUpTheta / 2.) {
+      deltaTheta += _roundUpTheta;
+    }
 
-    for (int j = 0; j < density; j++) {
-      T x = start.getX() + j * dx;
-      T y = start.getY() + j * dy;
-      T theta = start.getTheta() + j * dTheta;
+    T linearTime = std::sqrt(deltaX * deltaX + deltaY * deltaY) / linearSpeed;
+    T angularTime = std::abs(deltaTheta) / angularSpeed;
+    int steps = std::max(1, static_cast<int>(std::ceil(std::max(linearTime, angularTime) * samplesPerSecond)));
+
+    for (int j = 0; j < steps; j++) {
+      T t = static_cast<T>(j) / steps;
+      T x = start.getX() + t * deltaX;
+      T y = start.getY() + t * deltaY;
+      T theta = start.getTheta() + t * deltaTheta;
       interpolatedPath.emplace_back(x, y, start.getThetaLb(),
                                     start.getThetaUb(), theta);
     }
@@ -853,6 +865,7 @@ void VisibilityGraph<T>::_unwrapPath() {
     auto &start = _sol[i];
     auto &goal = _sol[i + 1];
     T dTheta = goal.getTheta() - start.getTheta();
+    dTheta = std::fmod(dTheta, _roundUpTheta);
     if (dTheta > _roundUpTheta / 2.) {
       dTheta -= _roundUpTheta;
     } else if (dTheta < -_roundUpTheta / 2.) {

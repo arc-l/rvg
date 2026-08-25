@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, fineApprox, numThreads, optimal, verbose);
   const auto &layers = visibilityGraph.getLayers();
   visibilityGraph.setWeight(1.0, 0.1);
-  visibilityGraph.shortestPath(start, goal, 0);
+  visibilityGraph.shortestPath(start, goal, 5, true);
   T pathLength = visibilityGraph.getPathLength();
   // T totalTime = visibilityGraph.getTotalTime();
   distsRVG.push_back(pathLength);
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
   // visibilityGraph.drawVisibleAreas();
 //  visibilityGraph.debugMaxPropagation();
   if(figPath.empty()) return 0;
-  // visibilityGraph.animation(figPath, false);
+  visibilityGraph.animation(figPath, false);
   // change the figPath's extension to .png
   figPath = figPath.substr(0, figPath.find_last_of('.')) + ".png";
   visibilityGraph.draw(figPath, false, true, false, false, -1);

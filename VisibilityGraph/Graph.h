@@ -26,6 +26,7 @@ class Graph {
   const std::unordered_set<std::shared_ptr<Vertex<T>>, SharedPtrVertexHash, SharedPtrVertexEqual> &getVertices() const;
   int size() const;
   void setWeight(T euclideanWeight, T rotationalWeight);
+  void setRotationCycle(T rotationCycle);
   std::vector<Vertex<T>> shortestPath(std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal, bool verbose) const;
 //  bool writeGraph(const std::string &filename) const;
   int numConnectedComponents() const;
@@ -36,7 +37,8 @@ class Graph {
   ~Graph() = default;
 
  private:
-  T _euclideanWeight, _rotationalWeight;
+  T _euclideanWeight, _rotationalWeight, _rotationCycle;
+  T rotationalDistance(const Vertex<T> &v1, const Vertex<T> &v2) const;
   std::unordered_map<std::shared_ptr<Vertex<T>>, 
                     std::unordered_set<std::shared_ptr<Vertex<T>>, 
                     SharedPtrVertexHash, 
