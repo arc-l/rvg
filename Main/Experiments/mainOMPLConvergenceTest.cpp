@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <Utils/Utils.h>
 #include <Utils/Timer.h>
 #include <Utils/Pragma.h>
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]) {
     goal.setTheta(goal.getTheta() - 2 * PI);
   }
   std::vector<T> tolerance = {2, 1.5, 1.3, 1.2, 1.1, 1.05, 1.02, 1.01};
-  setPrecision<T>(3);
+  std::cout << std::fixed << std::setprecision(3);
   Env<T>::SolverType solverType;
   if (plannerType == "RRTStar") solverType = Env<T>::SolverType::RRTStar;
   else if (plannerType == "AITStar") solverType = Env<T>::SolverType::AITStar;

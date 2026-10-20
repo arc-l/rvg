@@ -2,8 +2,17 @@
 #define ROTATIONALVISIBILITYGRAPH_VISIBILITYGRAPH_VISIBILITYGRAPH_H_
 
 #include <VisibilityGraph/Layer.h>
+#include <VisibilityGraph/VertexPropagation.h>
 
 namespace RotationalVisibilityGraph {
+
+struct VisibilityGraphConstructionStatistics {
+  double layerBuildMilliseconds = 0;
+  double nativeMaterializationMilliseconds = 0;
+  double propagationMilliseconds = 0;
+  double finalizationMilliseconds = 0;
+  double totalMilliseconds = 0;
+};
 template<typename T>
 class VisibilityGraph {
  public:
@@ -25,19 +34,19 @@ class VisibilityGraph {
       const Polygon<T> &robot,
       const Polygon<T> &border,
       const std::vector<Polygon<T>> &obstacles,
-      bool fineApprox,
       int numThreads,
-      bool verbose = false
+      bool verbose = false,
+      VertexPropagationBackend propagationBackend = VertexPropagationBackend::Auto
   );
   VisibilityGraph(
       const Polygon<T> &robot,
       const Polygon<T> &border,
       const std::vector<Polygon<T>> &obstacles,
       int resolution,
-      bool fineApprox,
       int numThreads,
       bool optimal = false,
-      bool verbose = false
+      bool verbose = false,
+      VertexPropagationBackend propagationBackend = VertexPropagationBackend::Auto
   );
   void setWeight(T euclideanWeight, T rotationalWeight);
   virtual std::vector<Vertex<T>> shortestPath(std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> end, int interpolationDensity=0, bool unwrap=true);
@@ -46,16 +55,17 @@ class VisibilityGraph {
   T getTotalTime() const;
   T getBuildTime() const;
   T getSearchTime() const;
-  const std::vector<Layer<T>> &getLayers() const; 
+  const VertexPropagationStatistics &getVertexPropagationStatistics() const;
+  const VisibilityGraphConstructionStatistics &
+  getConstructionStatistics() const;
+  const std::vector<Layer<T>> &getLayers() const;
   ~VisibilityGraph() = default;
   void draw(const std::string &figPath, bool title=true, bool path=true, bool graph=true, bool show=false, int wayPoints=-1);
   void drawLayers3D(const std::string &figPath, const std::string& type, bool show);
   void drawVisibleAreas() const;
   std::string drawLayers3D(const std::string& type) const;
   void animation(const std::string& figPath, bool title=true);
-  void drawSetup() const;
   std::string draw3D(bool graph) const;
-  void debugMaxPropagation();
   std::vector<std::vector<std::pair<std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>>> getEdgeLayersForward() const;
   std::vector<std::vector<std::pair<std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>>> getEdgeLayersBackward() const;
   std::vector<std::shared_ptr<Vertex<T>>> getAdjacentVertices(std::shared_ptr<Vertex<T>> v) const;
@@ -67,10 +77,8 @@ class VisibilityGraph {
   const Graph<T> &getGraph() const;
   bool addVertex(std::shared_ptr<Vertex<T>> vertex);
   void _addStartAndGoal(std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal);
-  
 
  protected:
-  bool _fineApprox;
   bool _verbose;
   std::vector<Layer<T>> _layers;
   Polygon<T> _robot, _border, _realRobot;
@@ -90,13 +98,16 @@ class VisibilityGraph {
   [[nodiscard]] std::string _drawSetup() const;
 
  private:
-  int _resolution;
   bool _optimal;
+  int _resolution;
+  VertexPropagationBackend _propagationBackend;
+  VertexPropagationStatistics _propagationStatistics;
+  VisibilityGraphConstructionStatistics _constructionStatistics;
   std::vector<std::unordered_set<TwoTuple, TwoTupleHash>> _layerVertices;
   std::vector<std::vector<std::pair<std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>>> _edgeLayersForward, _edgeLayersBackward;
   void _buildLayers();
   void _connectLayers();
-  void _connectLayersParallelizedVertices();
+  void _connectLayersFixedPoint();
 };
 }
 

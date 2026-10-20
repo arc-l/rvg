@@ -20,7 +20,6 @@ if __name__ == "__main__":
                               resolution=36, 
                               considerSymmetry=True, 
                               hashWithTheta=True, 
-                              fineApprox=False, 
                               optimal=True, 
                               verbose=False)
     

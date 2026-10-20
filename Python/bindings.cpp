@@ -5,10 +5,6 @@
 #include <Python/graph.h>
 #include <Python/utils.h>
 
-int add(int i, int j) {
-  return i + j;
-}
-
 PYBIND11_MODULE(rvg, m) {
   RotationalVisibilityGraph::init_vertex(m);
   RotationalVisibilityGraph::init_polygon(m);
@@ -16,6 +12,6 @@ PYBIND11_MODULE(rvg, m) {
   RotationalVisibilityGraph::init_graph(m);
   RotationalVisibilityGraph::init_visibility_graph(m);
   RotationalVisibilityGraph::Utils::init_utils(m);
-  m.doc() = "pybind11 example plugin"; // optional module docstring
-  m.def("add", &add, "A function that adds two numbers");
+  m.doc() = "Rotation-stacked visibility graphs for polygonal motion planning.";
+  m.attr("__version__") = "0.1.0";
 }

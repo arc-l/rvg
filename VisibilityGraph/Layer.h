@@ -22,7 +22,6 @@ class Layer {
   Layer();
   Layer(T theta_lb,
         T theta_ub,
-        bool fineApprox,
         bool simplifiedGeometry
   );
   Layer(const Layer<T> &layer);
@@ -32,17 +31,11 @@ class Layer {
   [[nodiscard]] const std::vector<Point_2> &getPoints() const;
   [[nodiscard]] const Point_2 &getPoint(int index) const;
   [[nodiscard]] const Vertex<T> &getVertex(int index) const;
-  [[nodiscard]] const std::vector<Vertex_const_handle> getVertexHandles() const;
-  [[nodiscard]] const Vertex_const_handle &getVertexHandle(int index) const;
   [[nodiscard]] const std::vector<Polygon_2> &getGrownObs() const;
   [[nodiscard]] std::vector<Polygon<T>> getGrownObsRVGPolygon() const;
-  [[nodiscard]] const Arrangement_2 &getEnv() const;
-  [[nodiscard]] const Arrangement_2 &getHoleEnv() const;
   [[nodiscard]] const std::vector<Polygon_2> &getHoles() const;
   [[nodiscard]] std::vector<Polygon<T>> getHolesPolygon() const;
   [[nodiscard]] const Polygon<T> &getShrinkedBorder() const;
-  [[nodiscard]] std::shared_ptr<VQ> getVQ() const;
-  [[nodiscard]] std::shared_ptr<VQ> getHoleVQ() const;
   [[nodiscard]] bool hasHoles() const;
   [[nodiscard]] bool borderIsHole() const;
   const std::unordered_map<Vertex<T>, Polygon_2, typename Vertex<T>::Hash> getVisibleAreaCache() const;
@@ -51,33 +44,36 @@ class Layer {
   std::string draw(bool curr) const;
   std::string drawVisibleAreas(int cnt) const;
   std::string drawVisibleAreas() const;
-  void drawRobotBB(const Polygon<T> & robot) const;
   bool legalConfig(const Vertex<T> &v) const;
   std::shared_ptr<Arrangement_2> getVisibleArea(const Vertex<T> &v) const;
   std::unordered_map<Vertex<T>, Polygon<T>, typename Vertex<T>::Hash> getVisibleAreaPolygons() const;
   Polygon<T> getVisibleAreaPolygon(T x, T y) const;
   const std::vector<std::pair<std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>> &getEdges() const;
-  const std::pair<Point_2, Point_2> &getNeighbor(const Vertex<T> &v) const;
+  std::pair<Point_2, Point_2> getNeighbor(const Vertex<T> &v) const;
   bool isVertexOnHole(const Vertex<T> &vertex) const;
   bool isFeasible() const;
   const Polygon<T> &getRobotBBox() const;
   Polygon<T> getRobotBBoxInverted() const;
 
  private:
-  bool _fineApprox;
-  bool _simplifiedGeometry;
-  bool _hasHoles;
-  bool _borderIsHole;
-  bool _infeasible;
-  T _theta_lb, _theta_ub;
+  bool _simplifiedGeometry = false;
+  bool _hasHoles = false;
+  bool _borderIsHole = false;
+  std::vector<bool> _bordersAreHoles;
+  bool _infeasible = false;
+  T _theta_lb = 0;
+  T _theta_ub = 0;
   std::shared_ptr<VQ> _vq, _holeVQ;
   std::vector<Vertex<T>> _vertices;
   std::vector<Point_2> _points, _holePoints;
   std::vector<Vertex_const_handle> _vertexHandles;
   std::vector<Polygon_2> _grownObs;
   std::vector<Polygon_2> _holes;
+  std::vector<Polygon_2> _borderHoles;
   std::vector<std::pair<std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>> _edges;
   Polygon<T> _shrunkBorder, _robotBBox, _robotBBoxInverted;
+  std::vector<Polygon<T>> _shrunkBorders;
+  std::vector<Polygon_2> _shrunkBorderExactList;
   std::vector<Segment_2> _segments;
   Polygon_with_holes_2 _complementBorder;
   Arrangement_2 _env;

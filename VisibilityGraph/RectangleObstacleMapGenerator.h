@@ -1,6 +1,7 @@
 #ifndef ROTATIONALVISIBILITYGRAPH_VISIBILITYGRAPH_RECTANGLEOBSTACLEMAPGENERATOR_H_
 #define ROTATIONALVISIBILITYGRAPH_VISIBILITYGRAPH_RECTANGLEOBSTACLEMAPGENERATOR_H_
 
+#include <cstdint>
 #include <VisibilityGraph/MapGenerator.h>
 
 namespace RotationalVisibilityGraph {
@@ -26,6 +27,12 @@ class RectangleObstacleMapGenerator : public MapGenerator<T> {
                                          T minObstacleSize,
                                          T maxObstacleSize,
                                          const Polygon<T> &robot);
+  RectangleObstacleMapGenerator(int mapSize,
+                                int numObstacles,
+                                T minObstacleSize,
+                                T maxObstacleSize,
+                                const Polygon<T> &robot,
+                                std::uint32_t seed);
  protected:
   Polygon<T> _generateObstacle() override;
  private:

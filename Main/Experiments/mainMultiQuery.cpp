@@ -46,7 +46,7 @@ int main() {
   bool incremental = false;
   bool simpilfiedGeometry = true;
   int numThreads = 16;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, simpilfiedGeometry, numThreads, incremental);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, numThreads, incremental);
   visibilityGraph.setWeight(1.0, 0.);
   T buildTime = visibilityGraph.getBuildTime();
   T totoalQueryTime = 0;

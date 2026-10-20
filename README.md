@@ -72,7 +72,7 @@ RVG can produce different solutions based on the relative weighting of translati
 
 ## <a name="install"></a>Installation and Example Usage
 
-We provide C++ implementation of RVG with python bindings. Give it a try!
+RVG provides a C++17 library and Python bindings. CMake 3.18 or newer is required. The static planner supports exact CPU propagation and optional CUDA filtering; uncertain CUDA decisions are resolved by CGAL on the CPU. See [the static RVG update notes](STATIC_RVG_UPDATE.md) for API migration and provenance.
 
 ### Clone this repository with submodules
 ```bash
@@ -87,7 +87,7 @@ git submodule update --init --recursive
 ### Requirements
 For Ubuntu
 ```bash
-sudo apt install libboost-all-dev  libgmp-dev  libmpfr-dev libtinyxml2-dev libeigen3-dev
+sudo apt install cmake g++ libboost-all-dev libgmp-dev libmpfr-dev libtinyxml2-dev libeigen3-dev
 ```
 For Mac, use brew to install the corresponding libraries, and the C++ code should be able to run. The python-bindings for MacOS is still under development.
 
@@ -122,13 +122,36 @@ pip install .
 There are a few CMake variables that can be configured:
 1. `PYTHON_EXECUTABLE`: see [here](#configure-python-for-rvg)
 2. `TRACY_ENABLE`: To use [tracy](https://github.com/wolfpld/tracy) to profile the performance
-3. `OMPL_ENABLE`: OMPL will be dowloaded and installed, if you want to run comparisons between sampling based motion planner with RVG
+3. `OMPL_ENABLE=ON`: build the original static RVG/OMPL comparisons.
+4. `RVG_CUDA=AUTO|ON|OFF`: build CUDA when available, require CUDA, or build CPU only.
+5. `PYTHON_BINDINGS=ON`: also build the Python module.
+6. `BUILD_TESTING=ON`: build the static geometry, graph, propagation, and Python regressions.
+
+```bash
+cmake -S . -B build/cpu -DCMAKE_BUILD_TYPE=Release -DRVG_CUDA=OFF
+cmake --build build/cpu -j32
+ctest --test-dir build/cpu --output-on-failure
+./build/cpu/mainRVGConfigRun Configs/EasyDemo.xml 36 24 --propagation-backend cpu
 ```
-mkdir build
-cd build
-cmake -D<settings of variables> ..
-make -j24
+
+For CUDA:
+
+```bash
+cmake -S . -B build/cuda -DCMAKE_BUILD_TYPE=Release -DRVG_CUDA=ON
+cmake --build build/cuda -j32
+ctest --test-dir build/cuda --output-on-failure
+./build/cuda/mainRVGConfigRun Configs/EasyDemo.xml 36 24 --propagation-backend cuda
 ```
+
+The runtime backend accepts `auto`, `cpu`, `cpu_reference`, or `cuda`.
+`auto` uses CUDA for a propagation round with at least 65,536 candidates.
+Explicit `cuda` reports an error when CUDA is unavailable; `auto` falls back
+to the CPU. CUDA tests skip when there is no device. No AVX or native-CPU
+instruction flags are forced by the build.
+
+Python packages can be built with `CMAKE_ARGS="-DRVG_CUDA=OFF" pip install .`
+for a portable CPU build. Use a fresh build directory when migrating from
+the older CMake configuration.
 
 ### To build the function annotation for python if you have built more functions with Pybind11
 1. Install pybind11-stubgen first. 
@@ -182,11 +205,24 @@ vg = rvg(robot=robot, # represented by a polygon
          obstacles = obstacles, # represented by a list of polygons 
          resolution=18, 
          numThreads=1,  # number of cores for parallelization
-         verbose=False, # show running details
-         fineApprox=True # Use a finer approximation of the rotation range
+         optimal=True, # complete propagation around the orientation layers
+         verbose=False # show running details
          )
 ```
-and then set the weights on translation and rotation. The default value is 1.0 for translation and 0.0 for rotation.
+The `fineApprox` argument has been removed. The planner always uses the
+conservative interval envelope. Select a propagation backend and inspect its
+statistics as follows:
+
+```python
+from rvg import VertexPropagationBackend
+
+vg = rvg(robot, border, obstacles, 36, 24, optimal=True,
+         propagationBackend=VertexPropagationBackend.Cpu)
+stats = vg.getVertexPropagationStatistics()
+print(stats["candidatePairs"], stats["cpuExactFallbacks"])
+```
+
+Then set the weights on translation and rotation. The default value is 1.0 for translation and 0.0 for rotation.
 ```python
 vg.setWeight(euclideanWeight=1.0, rotationalWeight=0.1)
 ```

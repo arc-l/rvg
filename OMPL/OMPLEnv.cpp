@@ -114,7 +114,7 @@ void Env<T>::incrementalPlan(T time, T &dist) {
     _sol.clear();
     for (size_t i = 0; i < states.size(); i++) {
       const auto *state = states[i]->as<ob::SE2StateSpace::StateType>();
-      _sol.push_back(Vertex<T>(state->getX(), state->getY(), 0, 2*PI, state->getYaw(), 2*PI, true));
+      _sol.push_back(Vertex<T>(state->getX(), state->getY(), 0, 2*PI, state->getYaw()));
     }
     Utils::print("Solution=", _sol);
     dist = 0;

@@ -39,7 +39,7 @@ int main() {
   Vertex<T> start = robot.getCentroid();
   start.setBounds(0, 0);
   start.setTheta(0);
-  Vertex<T> goal(8, 0, PI / 2., PI / 2., PI / 2, 2 * PI, false);
+  Vertex<T> goal(8, 0, PI / 2., PI / 2., PI / 2);
 //  Env<T>::SolverType solverType = Env<T>::SolverType::AITStar;
   Env<T>::SolverType solverType = Env<T>::SolverType::RRTStar;
 //  Env<T>::SolverType solverType = Env<T>::SolverType::RRTConnect;

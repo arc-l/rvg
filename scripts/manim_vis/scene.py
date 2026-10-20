@@ -34,7 +34,6 @@ class RVG(VoiceoverScene, ThreeDScene):
             resolution=8, 
             considerSymmetry=True, 
             hashWithTheta=True, 
-            fineApprox=False, 
             numThreads=1, 
             optimal=False, 
             verbose=False

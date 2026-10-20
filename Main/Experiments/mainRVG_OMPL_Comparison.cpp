@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <Utils/Utils.h>
 #include <Utils/Timer.h>
 #include <Utils/Pragma.h>
@@ -46,11 +47,11 @@ int main(int argc, char *argv[]) {
         figPath
         );
   T distsRVG, rvgBuildTime, rvgSearchTime;
-  setPrecision<T>(3);
+  std::cout << std::fixed << std::setprecision(3);
   bool incremental = false;
   bool simpilfiedGeometry = true;
   int numThreads = 16;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, simpilfiedGeometry, numThreads, incremental);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, numThreads, incremental);
 //  visibilityGraph.plotLayers("");
   visibilityGraph.setWeight(1.0, 0.);
   std::string obsPath = figPath.substr(0, figPath.find_last_of('.')) + "_obs.txt";

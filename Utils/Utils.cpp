@@ -1,6 +1,11 @@
 #include "Utils.h"
 
 namespace RotationalVisibilityGraph::Utils {
+
+int availableProcessorCount() {
+  return std::max(1, omp_get_num_procs());
+}
+
 template<>
 std::vector<std::string> split<std::string>(const std::string &l, const std::string &sep) {
   int i, last = -1;

@@ -12,6 +12,16 @@ RectangleObstacleMapGenerator<T>::RectangleObstacleMapGenerator(int mapSize,
     : MapGenerator<T>(mapSize, numObstacles, maxObstacleSize, robot), _minObstacleSize(minObstacleSize) {}
 
 template<typename T>
+RectangleObstacleMapGenerator<T>::RectangleObstacleMapGenerator(int mapSize,
+                                                                int numObstacles,
+                                                                T minObstacleSize,
+                                                                T maxObstacleSize,
+                                                                const Polygon<T> &robot,
+                                                                std::uint32_t seed)
+    : MapGenerator<T>(mapSize, numObstacles, maxObstacleSize, robot, seed),
+      _minObstacleSize(minObstacleSize) {}
+
+template<typename T>
 Polygon<T> RectangleObstacleMapGenerator<T>::_generateObstacle() {
   T x = this->_randomReal(0, this->_mapSize);
   T y = this->_randomReal(0, this->_mapSize);

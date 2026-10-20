@@ -4,8 +4,107 @@
 #include <CGAL/Partition_traits_2.h>
 #include <CGAL/Boolean_set_operations_2.h>
 #include <CGAL/extremal_polygon_2.h>
+#include <CGAL/number_utils.h>
+#include <cmath>
 
 namespace RotationalVisibilityGraph {
+
+namespace {
+
+template<typename T>
+bool samePosition(const Vertex<T> &lhs, const Vertex<T> &rhs) {
+  return CGAL::abs(lhs.getX() - rhs.getX()) <= RVG_EPS &&
+         CGAL::abs(lhs.getY() - rhs.getY()) <= RVG_EPS;
+}
+
+template<typename T>
+bool isFiniteVertex(const Vertex<T> &vertex) {
+  return CGAL::is_finite(vertex.getX()) && CGAL::is_finite(vertex.getY());
+}
+
+template<typename T>
+T signedAreaTwice(const std::vector<Vertex<T>> &vertices) {
+  T area = 0;
+  if (vertices.size() < 3) {
+    return area;
+  }
+  for (size_t i = 0; i < vertices.size(); ++i) {
+    const Vertex<T> &current = vertices[i];
+    const Vertex<T> &next = vertices[(i + 1) % vertices.size()];
+    area += current.getX() * next.getY() - next.getX() * current.getY();
+  }
+  return area;
+}
+
+template<typename T>
+std::vector<Vertex<T>> sanitizePolygonVertices(const std::vector<Vertex<T>> &vertices) {
+  std::vector<Vertex<T>> cleanedVertices;
+  cleanedVertices.reserve(vertices.size());
+  for (const Vertex<T> &vertex : vertices) {
+    if (!isFiniteVertex(vertex)) {
+      return {};
+    }
+    if (!cleanedVertices.empty() && samePosition(cleanedVertices.back(), vertex)) {
+      continue;
+    }
+    cleanedVertices.push_back(vertex);
+  }
+
+  while (cleanedVertices.size() >= 2 &&
+         samePosition(cleanedVertices.front(), cleanedVertices.back())) {
+    cleanedVertices.pop_back();
+  }
+  if (cleanedVertices.size() < 3) {
+    return {};
+  }
+
+  bool removedPoint = true;
+  while (removedPoint && cleanedVertices.size() >= 3) {
+    removedPoint = false;
+    std::vector<Vertex<T>> simplifiedVertices;
+    simplifiedVertices.reserve(cleanedVertices.size());
+    for (size_t i = 0; i < cleanedVertices.size(); ++i) {
+      const Vertex<T> &prev = cleanedVertices[(i + cleanedVertices.size() - 1) % cleanedVertices.size()];
+      const Vertex<T> &curr = cleanedVertices[i];
+      const Vertex<T> &next = cleanedVertices[(i + 1) % cleanedVertices.size()];
+      if (samePosition(prev, curr) || samePosition(curr, next)) {
+        removedPoint = true;
+        continue;
+      }
+
+      const T dx1 = curr.getX() - prev.getX();
+      const T dy1 = curr.getY() - prev.getY();
+      const T dx2 = next.getX() - curr.getX();
+      const T dy2 = next.getY() - curr.getY();
+      const T cross = dx1 * dy2 - dy1 * dx2;
+      const T scale = std::max<T>(
+          static_cast<T>(1),
+          std::max({CGAL::abs(dx1), CGAL::abs(dy1), CGAL::abs(dx2), CGAL::abs(dy2)})
+      );
+      if (CGAL::abs(cross) <= RVG_EPS * scale * scale) {
+        removedPoint = true;
+        continue;
+      }
+      simplifiedVertices.push_back(curr);
+    }
+    cleanedVertices.swap(simplifiedVertices);
+  }
+
+  if (cleanedVertices.size() < 3) {
+    return {};
+  }
+
+  const T area = signedAreaTwice(cleanedVertices);
+  if (CGAL::abs(area) <= RVG_EPS) {
+    return {};
+  }
+  if (area < 0) {
+    std::reverse(cleanedVertices.begin(), cleanedVertices.end());
+  }
+  return cleanedVertices;
+}
+
+}
 
 template<typename T>
 Polygon<T>::Polygon() : _vertices(), _centroid() {}
@@ -34,13 +133,14 @@ Polygon<T>::Polygon(const Polygon<T> &other) :
 
 template<typename T>
 Polygon<T>::Polygon(const Polygon_2 &polygon) {
-  _polygon = polygon;
-  if (_polygon.is_clockwise_oriented())
-    _polygon.reverse_orientation();
   for (auto it = polygon.vertices_begin(); it != polygon.vertices_end(); it++) {
     _vertices.emplace_back(CGAL::to_double(it->x()), CGAL::to_double(it->y()));
   }
   _centroid = _calculateCentroid();
+  _updatePolygon();
+  if (!_vertices.empty()) {
+    _centroid = _calculateCentroid();
+  }
 }
 
 template<typename T>
@@ -51,6 +151,9 @@ Polygon<T>::Polygon(const Polygon_2 &polygon, const Vertex<T> &center)
 
 template<typename T>
 Vertex<T> Polygon<T>::_calculateCentroid() const {
+  if (_vertices.empty()) {
+    return Vertex<T>();
+  }
   T x = 0;
   T y = 0;
   for (const Vertex<T> &vertex : _vertices) {
@@ -182,16 +285,13 @@ Polygon<T> Polygon<T>::moveToCopy(T x, T y, T theta) const {
 
 template<typename T>
 void Polygon<T>::_updatePolygon() {
+  _vertices = sanitizePolygonVertices(_vertices);
   _polygon.clear();
-  for (size_t i = 0; i < _vertices.size(); i++) {
-    _polygon.push_back(_vertices[i].getPoint());
+  for (const Vertex<T> &vertex : _vertices) {
+    _polygon.push_back(vertex.getPoint());
   }
-  try{
-    if (_polygon.is_clockwise_oriented())
-      _polygon.reverse_orientation();
-  }
-  catch(...){
-    draw("", "", true);
+  if (_vertices.empty()) {
+    return;
   }
 }
 
@@ -234,16 +334,13 @@ Polygon<T> Polygon<T>::scale(T scale) const {
 template<typename T>
 typename Polygon<T>::Polygon_2 Polygon<T>::getClockWise() const {
   Polygon_2 hole = _polygon;
-  if (hole.is_counterclockwise_oriented())
+  if (_vertices.size() >= 3 && signedAreaTwice(_vertices) > 0)
     hole.reverse_orientation();
   return hole;
 }
 template<typename T>
 typename Polygon<T>::Polygon_2 Polygon<T>::getCounterClockWise() const {
-  Polygon_2 hole = _polygon;
-  if (hole.is_clockwise_oriented())
-    hole.reverse_orientation();
-  return hole;
+  return _polygon;
 }
 
 template<typename T>
@@ -254,6 +351,9 @@ const Vertex<T> &Polygon<T>::getCentroid() const {
 template<typename T>
 std::vector<T> Polygon<T>::getX() const {
   std::vector<T> x;
+  if (_vertices.empty()) {
+    return x;
+  }
   for (const Vertex<T> &vertex : _vertices) {
     x.push_back(vertex.getX());
   }
@@ -264,6 +364,9 @@ std::vector<T> Polygon<T>::getX() const {
 template<typename T>
 std::vector<T> Polygon<T>::getY() const {
   std::vector<T> y;
+  if (_vertices.empty()) {
+    return y;
+  }
   for (const Vertex<T> &vertex : _vertices) {
     y.push_back(vertex.getY());
   }
@@ -274,6 +377,9 @@ std::vector<T> Polygon<T>::getY() const {
 template<typename T>
 std::vector<T> Polygon<T>::getTheta() const {
   std::vector<T> theta;
+  if (_vertices.empty()) {
+    return theta;
+  }
   for (const Vertex<T> &vertex : _vertices) {
     theta.push_back(vertex.getTheta());
   }
@@ -524,7 +630,7 @@ Polygon<T> Polygon<T>::findMaximumInscribedCircle(int numVertices) const {
         }
 
         // Update the radius
-        if (std::abs(minDist - maxRadius) < tolerance) {
+        if (CGAL::abs(minDist - maxRadius) < tolerance) {
             Utils::print("Converged after ", iter, " iterations");
             break; // Converged
         }
@@ -536,7 +642,7 @@ Polygon<T> Polygon<T>::findMaximumInscribedCircle(int numVertices) const {
             const auto& a = _vertices[i];
             const auto& b = _vertices[(i + 1) % _vertices.size()];
             T dist = center.distanceToEdge(a, b);
-            if (std::abs(dist - minDist) < tolerance) {
+            if (CGAL::abs(dist - minDist) < tolerance) {
                 // Compute gradient for the closest edge
                 T dx = b.getY() - a.getY();
                 T dy = a.getX() - b.getX();
