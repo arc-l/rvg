@@ -1,15 +1,15 @@
 """
-pybind11 example plugin
+Static rotation-stacked visibility graphs
 """
 from __future__ import annotations
 import typing
-__all__: list[str] = ['Layer', 'TwoTuple', 'add', 'get_boundary', 'get_goal', 'get_map', 'get_obstacles', 'get_robot', 'get_start', 'graph', 'polygon', 'rvg', 'vertex']
+__all__: list[str] = ['Layer', 'TwoTuple', 'VertexPropagationBackend', 'cudaVertexPropagationAvailable', 'get_boundary', 'get_goal', 'get_map', 'get_obstacles', 'get_robot', 'get_start', 'graph', 'polygon', 'rvg', 'vertex']
 class Layer:
     @typing.overload
     def __init__(self) -> None:
         ...
     @typing.overload
-    def __init__(self, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, fineApprox: bool, simplifiedGeometry: bool) -> None:
+    def __init__(self, theta_lb: typing.SupportsFloat, theta_ub: typing.SupportsFloat, simplifiedGeometry: bool) -> None:
         ...
     @typing.overload
     def __init__(self, layer: Layer) -> None:
@@ -69,6 +69,12 @@ class TwoTuple:
     def second(self, arg0: typing.SupportsFloat) -> None:
         ...
 class graph:
+    def vertexCount(self) -> int:
+        ...
+    def edgeCount(self) -> int:
+        ...
+    def shortestPathDijkstra(self, start: vertex, goal: vertex, verbose: bool = False) -> list[vertex]:
+        ...
     def __init__(self) -> None:
         ...
     def addEdge(self, v1: vertex, v2: vertex) -> None:
@@ -168,8 +174,21 @@ class polygon:
         ...
     def translate(self, arg0: typing.SupportsFloat, arg1: typing.SupportsFloat) -> None:
         ...
+class VertexPropagationBackend:
+    Auto: typing.ClassVar[VertexPropagationBackend]
+    Cpu: typing.ClassVar[VertexPropagationBackend]
+    CpuReference: typing.ClassVar[VertexPropagationBackend]
+    Cuda: typing.ClassVar[VertexPropagationBackend]
+
+def cudaVertexPropagationAvailable() -> bool:
+    ...
+
 class rvg:
-    def __init__(self, robot: polygon, border: polygon, obstacles: list[polygon], resolution: typing.SupportsInt, fineApprox: bool, numThreads: typing.SupportsInt, optimal: bool = False, verbose: bool = False) -> None:
+    def getVertexPropagationStatistics(self) -> dict[str, typing.Any]:
+        ...
+    def getConstructionStatistics(self) -> dict[str, float]:
+        ...
+    def __init__(self, robot: polygon, border: polygon, obstacles: list[polygon], resolution: typing.SupportsInt, numThreads: typing.SupportsInt, optimal: bool = False, verbose: bool = False, propagationBackend: VertexPropagationBackend = VertexPropagationBackend.Auto) -> None:
         """
         Constructs a VisibilityGraph with the specified parameters.
         """
@@ -178,8 +197,6 @@ class rvg:
     def addVertex(self, vertex: vertex) -> bool:
         ...
     def animation(self, figPath: str, title: bool = True) -> None:
-        ...
-    def debugMaxPropagation(self) -> None:
         ...
     def draw(self, figPath: str, title: bool = True, path: bool = True, graph: bool = True, show: bool = False) -> None:
         ...
@@ -261,10 +278,6 @@ class vertex:
         ...
     def setTheta(self, arg0: typing.SupportsFloat) -> None:
         ...
-def add(arg0: typing.SupportsInt, arg1: typing.SupportsInt) -> int:
-    """
-    A function that adds two numbers
-    """
 def get_boundary(arg0: str) -> polygon:
     """
     Get the boundary polygon from XML

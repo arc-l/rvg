@@ -1,0 +1,26 @@
+# Called only when the original static comparison planners are requested.
+# The pinned submodule supplies EIT*, which older system packages omit.
+add_library(rvg_ompl INTERFACE)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extern/ompl/CMakeLists.txt")
+    set(OMPL_BUILD_DEMOS OFF CACHE BOOL "" FORCE)
+    set(OMPL_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(OMPL_BUILD_PYBINDINGS OFF CACHE BOOL "" FORCE)
+    set(OMPL_REGISTRATION OFF CACHE BOOL "" FORCE)
+    add_subdirectory(extern/ompl ompl EXCLUDE_FROM_ALL)
+    target_include_directories(rvg_ompl SYSTEM INTERFACE
+        "${CMAKE_CURRENT_SOURCE_DIR}/extern/ompl/src"
+        "${CMAKE_CURRENT_BINARY_DIR}/ompl/src")
+    target_link_libraries(rvg_ompl INTERFACE ompl)
+    return()
+endif()
+find_package(ompl CONFIG REQUIRED)
+if(TARGET ompl::ompl)
+    target_link_libraries(rvg_ompl INTERFACE ompl::ompl)
+elseif(TARGET ompl)
+    target_link_libraries(rvg_ompl INTERFACE ompl)
+elseif(OMPL_FOUND OR ompl_FOUND)
+    target_include_directories(rvg_ompl SYSTEM INTERFACE ${OMPL_INCLUDE_DIRS})
+    target_link_libraries(rvg_ompl INTERFACE ${OMPL_LIBRARIES})
+else()
+    message(FATAL_ERROR "Comparisons require OMPL with EIT*. Initialize extern/ompl or install a supported OMPL package.")
+endif()

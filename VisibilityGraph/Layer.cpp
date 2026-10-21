@@ -6,47 +6,283 @@
 #include <CGAL/offset_polygon_2.h>
 #include <CGAL/draw_polygon_with_holes_2.h>
 #include <VisibilityGraph/Utils.h>
+#include <Utils/Utils.h>
 #include <unordered_map>
 #include <climits>
+#include <iomanip>
+#include <limits>
+#include <sstream>
 #include <unistd.h>
 
 namespace RotationalVisibilityGraph {
+
+namespace {
+
+template<typename T>
+void logInvalidLayerPolygon(const char *label,
+                            T thetaLb,
+                            T thetaUb,
+                            const typename Polygon<T>::Polygon_2 &polygon) {
+  std::ostringstream oss;
+  oss << "Skipping invalid " << label << " for theta range ["
+      << thetaLb << ", " << thetaUb << "] with vertices:";
+  for (const auto &vertex : polygon.vertices()) {
+    oss << " (" << CGAL::to_double(vertex.x()) << ", "
+        << CGAL::to_double(vertex.y()) << ")";
+  }
+  std::cerr << oss.str() << std::endl;
+}
+
+template<typename T>
+bool isUsablePolygon(const Polygon<T> &polygon) {
+  return polygon.getPolygon().size() >= 3;
+}
+
+template<typename PolygonType>
+void appendTopologyPolygonPlot(std::string &pythonScript,
+                               const PolygonType &polygon,
+                               const std::string &faceColor,
+                               const std::string &edgeColor,
+                               const std::string &label,
+                               double alpha,
+                               double lineWidth,
+                               const std::string &lineStyle,
+                               int zOrder,
+                               const std::string &annotation) {
+  if (polygon.is_empty()) {
+    return;
+  }
+  std::ostringstream xValues;
+  std::ostringstream yValues;
+  xValues << std::setprecision(17);
+  yValues << std::setprecision(17);
+  double annotationX = 0;
+  double annotationY = 0;
+  size_t vertexCount = 0;
+  for (const auto &vertex : polygon.vertices()) {
+    if (vertexCount > 0) {
+      xValues << ',';
+      yValues << ',';
+    }
+    const double x = CGAL::to_double(vertex.x());
+    const double y = CGAL::to_double(vertex.y());
+    xValues << x;
+    yValues << y;
+    annotationX += x;
+    annotationY += y;
+    ++vertexCount;
+  }
+  if (vertexCount == 0) {
+    return;
+  }
+  annotationX /= static_cast<double>(vertexCount);
+  annotationY /= static_cast<double>(vertexCount);
+  pythonScript += "x = [" + xValues.str() + "]\n";
+  pythonScript += "y = [" + yValues.str() + "]\n";
+  pythonScript +=
+      "ax.fill(x, y, facecolor='" + faceColor +
+      "', edgecolor='" + edgeColor +
+      "', alpha=" + std::to_string(alpha) +
+      ", linewidth=" + std::to_string(lineWidth) +
+      ", linestyle='" + lineStyle +
+      "', zorder=" + std::to_string(zOrder) +
+      ", label='" + label + "')\n";
+  if (!annotation.empty()) {
+    pythonScript +=
+        "ax.text(" + std::to_string(annotationX) + ", " +
+        std::to_string(annotationY) + ", '" + annotation +
+        "', color='" + edgeColor +
+        "', fontsize=7, fontweight='bold', ha='center', va='center', zorder=" +
+        std::to_string(zOrder + 1) + ")\n";
+  }
+}
+
+template<typename T, typename PolygonType>
+void drawHoleObstacleClassification(
+    const std::deque<PolygonType> &holes,
+    const std::vector<PolygonType> &grownObstacles,
+    T thetaLb,
+    T thetaUb
+) {
+  std::string pythonScript;
+  PYTHON_IMPORTS(pythonScript)
+  pythonScript += "fig.set_size_inches(12, 10)\n";
+
+  bool labeledAll = false;
+  bool labeledSome = false;
+  bool labeledNone = false;
+  for (size_t holeId = 0; holeId < holes.size(); ++holeId) {
+    PolygonType hole = holes[holeId];
+    if (hole.is_clockwise_oriented()) {
+      hole.reverse_orientation();
+    }
+    std::vector<size_t> intersectingObstacles;
+    for (size_t obstacleId = 0; obstacleId < grownObstacles.size();
+         ++obstacleId) {
+      if (CGAL::do_intersect(hole, grownObstacles[obstacleId])) {
+        intersectingObstacles.push_back(obstacleId);
+      }
+    }
+
+    const bool intersectsAll = !grownObstacles.empty() &&
+        intersectingObstacles.size() == grownObstacles.size();
+    const bool intersectsSome = !intersectingObstacles.empty() &&
+        !intersectsAll;
+    std::string faceColor;
+    std::string edgeColor;
+    std::string label = "_nolegend_";
+    if (intersectsAll) {
+      faceColor = "#BBF7D0";
+      edgeColor = "#15803D";
+      if (!labeledAll) {
+        label = "Environment border (intersects all grown obstacles)";
+        labeledAll = true;
+      }
+    } else if (intersectsSome) {
+      faceColor = "#FED7AA";
+      edgeColor = "#EA580C";
+      if (!labeledSome) {
+        label = "Environment border (intersects some grown obstacles)";
+        labeledSome = true;
+      }
+    } else {
+      faceColor = "#DDD6FE";
+      edgeColor = "#7C3AED";
+      if (!labeledNone) {
+        label = "Obstacle-free hole (intersects no grown obstacles)";
+        labeledNone = true;
+      }
+    }
+
+    std::string annotation = "H" + std::to_string(holeId) + " [";
+    if (intersectingObstacles.empty()) {
+      annotation += "none";
+    } else {
+      for (size_t index = 0; index < intersectingObstacles.size(); ++index) {
+        if (index > 0) annotation += ",";
+        annotation += "G" + std::to_string(intersectingObstacles[index]);
+      }
+    }
+    annotation += "]";
+    appendTopologyPolygonPlot(
+        pythonScript,
+        hole,
+        faceColor,
+        edgeColor,
+        label,
+        0.38,
+        2.2,
+        "-",
+        10,
+        annotation
+    );
+  }
+
+  for (size_t obstacleId = 0; obstacleId < grownObstacles.size();
+       ++obstacleId) {
+    appendTopologyPolygonPlot(
+        pythonScript,
+        grownObstacles[obstacleId],
+        "#FCA5A5",
+        "#B91C1C",
+        obstacleId == 0 ? "Remaining grown obstacles" : "_nolegend_",
+        0.70,
+        1.8,
+        "-",
+        20,
+        "G" + std::to_string(obstacleId)
+    );
+  }
+
+  std::ostringstream title;
+  title << std::fixed << std::setprecision(1)
+        << "Pre-classification topology [" << thetaLb * 180.0 / M_PI
+        << " deg, " << thetaUb * 180.0 / M_PI << " deg]"
+        << " | complement holes=" << holes.size()
+        << " | remaining grown obstacles=" << grownObstacles.size();
+  pythonScript += "ax.set_title('" + title.str() + "')\n";
+  pythonScript += "ax.set_xlabel('x')\n";
+  pythonScript += "ax.set_ylabel('y')\n";
+  pythonScript += "ax.set_aspect('equal', adjustable='box')\n";
+  pythonScript +=
+      "ax.grid(True, color='#CBD5E1', linewidth=0.6, alpha=0.7)\n";
+  pythonScript += "handles, labels = ax.get_legend_handles_labels()\n";
+  pythonScript += "legend = dict(zip(labels, handles))\n";
+  pythonScript +=
+      "ax.legend(legend.values(), legend.keys(), loc='best', fontsize=8, "
+      "framealpha=0.92)\n";
+  pythonScript += "fig.tight_layout()\n";
+
+  const long long thetaLbMilliDegrees = std::llround(
+      thetaLb * 180.0 / M_PI * 1000.0
+  );
+  const long long thetaUbMilliDegrees = std::llround(
+      thetaUb * 180.0 / M_PI * 1000.0
+  );
+  const std::string figPath =
+      "Results/layer_hole_obstacle_debug_" +
+      std::to_string(thetaLbMilliDegrees) + "_" +
+      std::to_string(thetaUbMilliDegrees) + ".png";
+  pythonScript +=
+      "fig.savefig('" + figPath + "', dpi=500, bbox_inches='tight')\n";
+  const std::string pythonSavePath = figPath + ".py";
+  if (!Utils::writeStringToFile<T>(pythonScript, pythonSavePath)) {
+    throw std::runtime_error("Failed to write topology debug script");
+  }
+  if (!Utils::runPythonScriptAndRemove<T>(pythonSavePath)) {
+    throw std::runtime_error("Failed to run and remove topology debug script");
+  }
+}
+
+}
+
 template<typename T>
 Layer<T>::Layer() = default;
 
 template<typename T>
 Layer<T>::Layer(T theta_lb,
                 T theta_ub,
-                bool fineApprox,
                 bool simplifiedGeometry
 )
     : _theta_lb(theta_lb),
       _theta_ub(theta_ub),
-      _fineApprox(fineApprox),
       _simplifiedGeometry(simplifiedGeometry) {
         _infeasible = false;
       }
 
 template<typename T>
 Layer<T>::Layer(const Layer<T> &layer)
-    : _fineApprox(layer._fineApprox),
-      _simplifiedGeometry(layer._simplifiedGeometry),
+    : _simplifiedGeometry(layer._simplifiedGeometry),
+      _hasHoles(layer._hasHoles),
+      _borderIsHole(layer._borderIsHole),
+      _bordersAreHoles(layer._bordersAreHoles),
+      _infeasible(layer._infeasible),
       _theta_lb(layer._theta_lb),
-      _theta_ub(layer._theta_ub)
+      _theta_ub(layer._theta_ub),
+      _vq(layer._vq),
+      _holeVQ(layer._holeVQ),
+      _vertices(layer._vertices),
+      _points(layer._points),
+      _holePoints(layer._holePoints),
+      _vertexHandles(layer._vertexHandles),
+      _grownObs(layer._grownObs),
+      _holes(layer._holes),
+      _borderHoles(layer._borderHoles),
+      _edges(layer._edges),
+      _shrunkBorder(layer._shrunkBorder),
+      _robotBBox(layer._robotBBox),
+      _robotBBoxInverted(layer._robotBBoxInverted),
+      _shrunkBorders(layer._shrunkBorders),
+      _shrunkBorderExactList(layer._shrunkBorderExactList),
+      _segments(layer._segments),
+      _complementBorder(layer._complementBorder),
+      _env(layer._env),
+      _holeEnv(layer._holeEnv),
+      _isReflexCache(layer._isReflexCache),
+      _isVertexOnHoleCache(layer._isVertexOnHoleCache),
+      _visiblePolygonCache(layer._visiblePolygonCache),
+      _neighborCache(layer._neighborCache)
    {
-  _robotBBox = layer._robotBBox;
-  _robotBBoxInverted = layer._robotBBoxInverted;
-  _shrunkBorder = layer._shrunkBorder;
-  _segments = layer._segments;
-  _env = layer._env;
-  _holeEnv = layer._holeEnv;
-  _grownObs = layer._grownObs;
-  _holes = layer._holes;
-  _isReflexCache = layer._isReflexCache;
-  _vertices = layer._vertices;
-  _points = layer._points;
-  _infeasible = layer._infeasible;
-  _visiblePolygonCache = layer._visiblePolygonCache;
 }
 
 template<typename T>
@@ -68,13 +304,6 @@ Polygon<T> Layer<T>::_underestimate(const Polygon<T> &_robot, const Vertex<T>& c
   std::vector<Point_2> points;
   robots.push_back(robotLb);
   robots.push_back(robotUb);
-  if (_fineApprox) {
-    int resolution = int(fabs(_theta_lb - _theta_ub) / (PI / 180.));
-    for (int i = 1; i < resolution; i++) {
-      T theta = _theta_lb + i * (_theta_ub - _theta_lb) / resolution;
-      robots.push_back(_robot.rotateCopy(theta));
-    }
-  }
   for (const auto &robot : robots) {
     for (const auto &vertex : robot.getVertices())
       points.push_back(Point_2(vertex.getX(), vertex.getY()));
@@ -247,31 +476,44 @@ void Layer<T>::_shrinkBorder(const Polygon<T> &border) {
   Polygon_2 borderCGAL = border.getCounterClockWise();
   CGAL::complement(borderCGAL, _complementBorder);
   _complementBorder = CGAL::minkowski_sum_2(_complementBorder, _robotBBoxInverted.getPolygon());
-  ASSERT_MSG(_complementBorder.number_of_holes() == 1, "The border should have only one hole")
-  Polygon_2 hole = *_complementBorder.holes_begin();
-  _shrunkBorder = Polygon<T>(hole);
 #ifdef DEBUG
   std::string pythonScript;
   PYTHON_IMPORTS(pythonScript)
   pythonScript+= border.draw("obs");
-  pythonScript+=_shrunkBorder.draw("start");
+  for(const auto &hole : _complementBorder.holes()){
+    Polygon<T> holePolygon = Polygon<T>(hole);
+    pythonScript+= holePolygon.draw("hole");
+  }
   pythonScript+=_robotBBoxInverted.draw("goal");
   pythonScript += "plt.axis('equal')\n";
-  pythonScript += "plt.show()\n";
+  // pythonScript += "plt.show()\n";
+  pythonScript += "plt.savefig(";
+  pythonScript += "'layer_";
+  pythonScript += std::to_string(_theta_lb);
+  pythonScript += ".png', dpi=300)";
   std::string pythonSavePath = "shrinkedBorder.py";
   std::ofstream pythonFile(pythonSavePath);
   pythonFile << pythonScript;
   pythonFile.close();
-#ifdef PYTHON_EXECUTABLE
-  std::string command = std::string(PYTHON_EXECUTABLE) + " " + pythonSavePath;
-#else
-  std::string command = "python3 " + pythonSavePath;
+  RotationalVisibilityGraph::Utils::runPythonScriptAndRemove<T>(pythonSavePath);
 #endif
-  int status = system(command.c_str());
-  if(status != 0) throw std::runtime_error("Failed to run python script");
-  status = system("rm shrinkedBorder.py");
-  if(status != 0) throw std::runtime_error("Failed to remove the script");
-#endif
+  // ASSERT_MSG(_complementBorder.number_of_holes() == 1, "The border should have only one hole")
+  for (const auto &hole: _complementBorder.holes()) {
+    _borderHoles.push_back(hole);
+    Polygon<T> shrunkBorder(hole);
+    if (!isUsablePolygon(shrunkBorder)) {
+      logInvalidLayerPolygon<T>("shrunk border hole", _theta_lb, _theta_ub, hole);
+      continue;
+    }
+    _shrunkBorders.push_back(shrunkBorder);
+  }
+  //Utils::print("#shrunk borders for layer [", _theta_lb, ", ", _theta_ub, "]: ", _shrunkBorders.size());
+  //Utils::print("#_borderHoles for layer [", _theta_lb, ", ", _theta_ub, "]: ", _borderHoles.size());
+  if (_complementBorder.number_of_holes() == 0 || _shrunkBorders.empty()) {
+    _infeasible = true;
+    return;
+  }
+  _shrunkBorder = _shrunkBorders.front();
 }
 
 template<typename T>
@@ -288,11 +530,16 @@ void Layer<T>::_buildMap(const std::vector<Polygon<T>> &obstacles) {
   for (const Polygon_with_holes_2 &mergedObstacle : mergedObs) {
     if (mergedObstacle.has_holes()) {
       for (const Polygon_2 &hole : mergedObstacle.holes()) {
-        Polygon_2 newHole = hole;
-        if (newHole.is_clockwise_oriented())
-          newHole.reverse_orientation();
-        _holes.push_back(newHole);
-        for (const auto &vertex : hole.vertices()) {
+        if (hole.size() < 3) {
+          logInvalidLayerPolygon<T>("merged obstacle hole", _theta_lb, _theta_ub, hole);
+          continue;
+        }
+        Polygon_2 sanitizedHole = hole;
+        if (sanitizedHole.is_clockwise_oriented()) {
+          sanitizedHole.reverse_orientation();
+        }
+        _holes.push_back(sanitizedHole);
+        for (const auto &vertex : sanitizedHole.vertices()) {
           _holePoints.push_back(vertex);
         }
       }
@@ -316,9 +563,12 @@ void Layer<T>::_buildMap(const std::vector<Polygon<T>> &obstacles) {
         prev++;
       }
     } while (curr != first);
-    if (cleanedPolygon.is_clockwise_oriented())
-      cleanedPolygon.reverse_orientation();
-    _grownObs.push_back(cleanedPolygon);
+    Polygon<T> grownObstacle(cleanedPolygon);
+    if (!isUsablePolygon(grownObstacle)) {
+      logInvalidLayerPolygon<T>("grown obstacle", _theta_lb, _theta_ub, cleanedPolygon);
+      continue;
+    }
+    _grownObs.push_back(grownObstacle.getCounterClockWise());
   }
 
   auto iter = _grownObs.begin();
@@ -337,50 +587,40 @@ void Layer<T>::_buildMap(const std::vector<Polygon<T>> &obstacles) {
   size_t maxHoleId = 0;
   T maxSpan = 0;
   if(_complementBorder.number_of_holes() == 0){
-#ifdef PLOT
-    std::string pythonScript;
-    PYTHON_IMPORTS(pythonScript)
-    pythonScript += _shrunkBorder.draw("obs");
-    for(const auto &obs : obstacles){
-      pythonScript += obs.draw("obs");
-    }
-    pythonScript += "plt.axis('equal')\n";
-    pythonScript += "plt.show()\n";
-    std::string pythonSavePath = "layer.py";
-    std::ofstream pythonFile(pythonSavePath);
-    pythonFile << pythonScript;
-    pythonFile.close();
-#ifdef PYTHON_EXECUTABLE
-    std::string command = std::string(PYTHON_EXECUTABLE) + " " + pythonSavePath;
-#else
-    std::string command = "python3 " + pythonSavePath;
-#endif
-    int status = system(command.c_str());
-    if(status != 0) throw std::runtime_error("Failed to run python script");
-    status = system("rm layer.py");
-    if(status != 0) throw std::runtime_error("Failed to remove the script");
-#endif
-
     _infeasible = true;
     return;
   }
   std::deque<Polygon_2> holes = _complementBorder.holes();
+  _shrunkBorderExactList.clear();
+#ifdef PLOT
+  drawHoleObstacleClassification<T>(holes, _grownObs, _theta_lb, _theta_ub);
+#endif
+#undef PLOT
   for (size_t holeId = 0; holeId < holes.size(); holeId++) {
     Polygon_2 newHole = holes[holeId];
     if (newHole.is_clockwise_oriented())
       newHole.reverse_orientation();
     bool holeIsBorder = false;
-    // check if a hole contains any grown obstacles, if so, then this hole is the new border.
+    // A complement hole containing a remaining grown obstacle is an outer
+    // boundary of an environment component, not an obstacle-free hole.
     if (!_borderIsHole) {
-      bool intersection = false;
+      bool containsGrownObstacle = false;
       for (const auto &obs : _grownObs) {
-        if (!CGAL::do_intersect(newHole, obs)) {
-          intersection = true;
+        if (CGAL::do_intersect(newHole, obs)) {
+          containsGrownObstacle = true;
           break;
         }
       }
-      if (!intersection) {
-        _shrunkBorder = Polygon<T>(newHole);
+      if (containsGrownObstacle) {
+        Polygon<T> shrunkBorder(newHole);
+        if (!isUsablePolygon(shrunkBorder)) {
+          logInvalidLayerPolygon<T>("selected shrunk border", _theta_lb, _theta_ub, newHole);
+          continue;
+        }
+        if (_shrunkBorderExactList.empty()) {
+          _shrunkBorder = shrunkBorder;
+        }
+        _shrunkBorderExactList.push_back(newHole);
         holeIsBorder = true;
       }
     } else {
@@ -399,48 +639,44 @@ void Layer<T>::_buildMap(const std::vector<Polygon<T>> &obstacles) {
     if (holeIsBorder) {
       continue;
     }
-    if (newHole.is_clockwise_oriented())
-      newHole.reverse_orientation();
-    _holes.push_back(newHole);
-    for (const auto &vertex : newHole.vertices()) {
+    if (newHole.size() < 3) {
+      logInvalidLayerPolygon<T>("map hole", _theta_lb, _theta_ub, newHole);
+      continue;
+    }
+    Polygon_2 sanitizedHole = newHole;
+    if (sanitizedHole.is_clockwise_oriented()) {
+      sanitizedHole.reverse_orientation();
+    }
+    _holes.push_back(sanitizedHole);
+    for (const auto &vertex : sanitizedHole.vertices()) {
       _holePoints.push_back(vertex);
     }
-#ifdef PLOT
-    Polygon<T> holePolygon = Polygon<T>(hole);
-    pythonScript += holePolygon.draw("obs");
-#endif
   }
-#ifdef PLOT
-  for(const auto &obs : _grownObs){
-    Polygon<T> obsPolygon = Polygon<T>(obs);
-    pythonScript += obsPolygon.draw("obs");
-  }
-  pythonScript += "plt.axis('equal')\n";
-  pythonScript += "plt.show()\n";
-  std::string pythonSavePath = "layer.py";
-  std::ofstream pythonFile(pythonSavePath);
-  pythonFile << pythonScript;
-  pythonFile.close();
-#ifdef PYTHON_EXECUTABLE
-  std::string command = std::string(PYTHON_EXECUTABLE) + " " + pythonSavePath;
-#else
-  std::string command = "python3 " + pythonSavePath;
-#endif
-  int status = system(command.c_str());
-    if(status != 0) throw std::runtime_error("Failed to run python script");
-  status = system("rm layer.py");
-    if(status != 0) throw std::runtime_error("Failed to remove the script");
-#endif
   if (_borderIsHole) {
-    _shrunkBorder = Polygon<T>(holes[maxHoleId]);
+    Polygon_2 largestHole = holes[maxHoleId];
+    if (largestHole.is_clockwise_oriented()) {
+      largestHole.reverse_orientation();
+    }
+    Polygon<T> shrunkBorder(largestHole);
+    if (!isUsablePolygon(shrunkBorder)) {
+      logInvalidLayerPolygon<T>("largest shrunk border", _theta_lb, _theta_ub, largestHole);
+      _infeasible = true;
+      return;
+    }
+    _shrunkBorder = shrunkBorder;
+    _shrunkBorderExactList.push_back(largestHole);
   }
 
-  if (!_grownObs.empty()) {
+  if (!_grownObs.empty() && !_shrunkBorderExactList.empty()) {
     std::vector<Polygon_2> polygons = _grownObs;
-    polygons.push_back(_shrunkBorder.getCounterClockWise());
+    polygons.insert(
+        polygons.end(),
+        _shrunkBorderExactList.begin(),
+        _shrunkBorderExactList.end()
+    );
     for (const Polygon_2 &polygon : polygons) {
       for (const auto &edge : polygon.edges()) {
-        if (edge.squared_length() < RVG_EPS) Utils::print("Edge with length 0: ", edge);
+        if (edge.squared_length() < RVG_EPS) Utils::print("Env Edge with small length: ", edge, " distance = ", std::to_string(std::sqrt(CGAL::to_double(edge.squared_length()))));
         _segments.push_back(edge);
       }
     }
@@ -451,6 +687,7 @@ void Layer<T>::_buildMap(const std::vector<Polygon<T>> &obstacles) {
   std::vector<Segment_2> holeSegments;
   for (const auto &hole : _holes) {
     for (const auto &edge : hole.edges()) {
+      if (edge.squared_length() < RVG_EPS) Utils::print("Hole Edge with small length: ", edge, " distance = ", std::to_string(std::sqrt(CGAL::to_double(edge.squared_length()))));
       holeSegments.push_back(edge);
     }
   }
@@ -461,8 +698,8 @@ template<typename T>
 void Layer<T>::_connectVisibleVertices() {
   // outer obstacles
   _vq = std::make_shared<VQ>(_env);
-  PL_2 envPL(_env);
   for (const auto &v : _env.vertex_handles()) {
+    // print out v
     Arrangement_2 visibleArea;
     if (_isOnBorder(v->point())) {
       if (!_isReflex(v, false, true)) continue;
@@ -481,9 +718,6 @@ void Layer<T>::_connectVisibleVertices() {
     std::pair<Point_2, Point_2> neighbor1 = _getNeighbor(v);
 
     PL_2 pl(visibleArea);
-    //TODO: Debug traversing visibleArea
-    //    for (const auto &p : visibleArea.vertex_handles()) {
-    //      if (!Utils::isVertexOfArrangement<T>(p->point(), envPL)) continue;
     for (const auto &p : _env.vertex_handles()) {
       if (p->point() == v->point()) continue;
       if (!_isReflex(p, false, _isOnBorder(p->point()))) continue;
@@ -526,7 +760,11 @@ void Layer<T>::_connectVisibleVertices() {
   if (_holePoints.empty()) return;
   _holeVQ = std::make_shared<VQ>(_holeEnv);
   for (const auto &v : _holeEnv.vertex_handles()) {
+    // bool vertexWeWant = false;
+    // if (v->point().x() > 10 && v->point().x() < 15 && v->point().y() < -10 && v->point().y() > -15) vertexWeWant = true;
     bool vOnBorder = _isOnBorder(v->point());
+    // if (vertexWeWant) Utils::print("Hole vertex: ", v->point(), " on border: ", vOnBorder);
+    // if (vertexWeWant) Utils::print("Vertex isReflex: ", _isReflex(v, true, vOnBorder));
     if (vOnBorder)
       if (!_isReflex(v, true, true)) continue;
     Arrangement_2 visibleArea = visibleAreaOnHoles<T>(v->point(), _holeEnv, _holeVQ);
@@ -538,12 +776,31 @@ void Layer<T>::_connectVisibleVertices() {
         (_theta_ub + _theta_lb) / 2.
     );
     std::pair<Point_2, Point_2> neighbor1 = _getNeighbor(v);
+    _visiblePolygonCache.insert({*v1, Utils::arrangementToPolygon<T>(visibleArea)});
+    _neighborCache.insert({*v1, neighbor1});
+    _isVertexOnHoleCache.insert({*v1, true});
+    if (std::find(_points.begin(), _points.end(), v->point()) == _points.end()) {
+      _points.push_back(v->point());
+      _vertices.push_back(*v1);
+    }
 
     PL_2 pl(visibleArea);
     for (const auto &p : _holeEnv.vertex_handles()) {
       if (p->point() == v->point()) continue;
       std::pair<Point_2, Point_2> neighbor2 = _getNeighbor(p);
+      // bool pvertexWeWant = false;
+      // if (p->point().x() > 10 && p->point().x() < 15 && p->point().y() < -10 && p->point().y() > -15) pvertexWeWant = true;
       bool pOnBorder = _isOnBorder(p->point());
+      // if (pvertexWeWant) Utils::print("pHole vertex: ", p->point(), " on border: ", pOnBorder);
+      // if (pvertexWeWant) Utils::print("pVertex isReflex: ", _isReflex(p, true, pOnBorder));
+      // if (vertexWeWant) Utils::print("Checking bitangent between ", v->point(), " and ", p->point());
+      // if (vertexWeWant) Utils::print("Neighbor1: ", neighbor1.first, " ", neighbor1.second, " Neighbor2: ", neighbor2.first, " ", neighbor2.second);
+      // if (vertexWeWant) Utils::print("Is bitangent: ", Utils::isBitangent<T>(v->point(),
+                                                                                                //  neighbor1.first,
+                                                                                                //  neighbor1.second,
+                                                                                                //  p->point(),
+                                                                                                //  neighbor2.first,
+                                                                                                //  neighbor2.second));
       if (pOnBorder) {
         if (!_isReflex(p, true, true)) continue;
         if (vOnBorder && !Utils::isBitangent<T>(v->point(),
@@ -556,6 +813,7 @@ void Layer<T>::_connectVisibleVertices() {
       }
       CGAL::Arr_point_location_result<Arrangement_2>::Type obj = pl.locate(p->point());
       if (boost::get<Arrangement_2::Vertex_const_handle>(&obj)) {
+        // if(vertexWeWant) Utils::print("Adding edge between ", v->point(), " and ", p->point());
       std::shared_ptr<Vertex<T>> v2 = std::make_shared<Vertex<T>>(
             CGAL::to_double(p->point().x()),
             CGAL::to_double(p->point().y()),
@@ -563,20 +821,14 @@ void Layer<T>::_connectVisibleVertices() {
             _theta_ub,
             (_theta_ub + _theta_lb) / 2.
         );
-        _visiblePolygonCache.insert({*v1, Utils::arrangementToPolygon<T>(visibleArea)});
-        _neighborCache.insert({*v1, neighbor1});
         _neighborCache.insert({*v2, neighbor2});
-        _isVertexOnHoleCache.insert({*v1, true});
         _isVertexOnHoleCache.insert({*v2, true});
-        if (std::find(_points.begin(), _points.end(), v->point()) == _points.end()) {
-          _points.push_back(v->point());
-          _vertices.push_back(*v1);
-        }
         if (std::find(_points.begin(), _points.end(), p->point()) == _points.end()) {
           _points.push_back(p->point());
           _vertices.push_back(*v2);
         }
         _edges.push_back(std::make_pair(v1, v2));
+        //TODO: edge (v1, v2) and (v2, v1) are all added. We should remove this redundancy.
       }
     }
   }
@@ -592,29 +844,81 @@ bool Layer<T>::_isReflex(const Vertex_const_handle &v, bool isHoleVertex, bool i
   typename Arrangement_2::Halfedge_around_vertex_const_circulator first, curr;
   first = curr = v->incident_halfedges();
   while (true) {
-    if (curr->is_on_outer_ccb())
+    if (curr->is_on_outer_ccb()) {
       vl = curr->source()->point();
-    if (curr->is_on_inner_ccb())
+    }
+    if (curr->is_on_inner_ccb()) {
       vr = curr->source()->point();
+    }
     curr++;
     if (curr == first)
       break;
   }
   bool isReflex;
-  if (isHoleVertex || isOnBorder) {
-    isReflex = CGAL::right_turn(vl, v->point(), vr);
-    _isReflexCache.insert({p, isReflex});
-  } else {
-    isReflex = CGAL::left_turn(vl, v->point(), vr);
-    _isReflexCache.insert({p, isReflex});
+  if (_borderIsHole){
+    if (isOnBorder){
+      isReflex = CGAL::right_turn(vl, v->point(), vr);
+      _isReflexCache.insert({p, isReflex});
+    } else {
+      isReflex = CGAL::left_turn(vl, v->point(), vr);
+      _isReflexCache.insert({p, isReflex});
+    }
   }
+  else{
+    if (isHoleVertex || isOnBorder) {
+      isReflex = CGAL::right_turn(vl, v->point(), vr);
+      // isReflex = CGAL::left_turn(vl, v->point(), vr);
+      _isReflexCache.insert({p, isReflex});
+    } else {
+      isReflex = CGAL::left_turn(vl, v->point(), vr);
+      _isReflexCache.insert({p, isReflex});
+    }
+  }
+  // if (isHoleVertex || isOnBorder) {
+  //   isReflex = CGAL::right_turn(vl, v->point(), vr);
+  //   // isReflex = CGAL::left_turn(vl, v->point(), vr);
+  //   _isReflexCache.insert({p, isReflex});
+  // } else {
+  //   isReflex = CGAL::left_turn(vl, v->point(), vr);
+  //   _isReflexCache.insert({p, isReflex});
+  // }
   return isReflex;
 }
 
 template<typename T>
 bool Layer<T>::_isOnBorder(const Point_2 &v) const {
-  const auto &mapBorder = _shrunkBorder.getCounterClockWise();
-  return CGAL::bounded_side_2(mapBorder.begin(), mapBorder.end(), v, K()) == CGAL::ON_BOUNDARY;
+  for (const auto &border : _shrunkBorderExactList) {
+    if (CGAL::bounded_side_2(
+            border.vertices_begin(), border.vertices_end(), v, K()
+        ) == CGAL::ON_BOUNDARY) {
+      return true;
+    }
+  }
+  for (const auto &hole : _borderHoles) {
+    //   Point_2 closestVertex;
+    //   double closestSquaredDistance = std::numeric_limits<double>::max();
+    //   bool closestExactEqual = false;
+    //   for (const auto &vertex : hole.vertices()) {
+    //     const double squaredDistance = CGAL::to_double(CGAL::squared_distance(vertex, v));
+    //     if (squaredDistance < closestSquaredDistance) {
+    //       closestSquaredDistance = squaredDistance;
+    //       closestVertex = vertex;
+    //       closestExactEqual = vertex == v;
+    //     }
+    //   }
+    //   auto result = CGAL::bounded_side_2(hole.vertices_begin(), hole.vertices_end(), v, K());
+    //   Utils::print(
+    //       "query", v,
+    //       "bounded_side_2(query)", result,
+    //       "on boundary:", result == CGAL::ON_BOUNDARY,
+    //       "closest vertex:", closestVertex,
+    //       "closest squared distance:", closestSquaredDistance,
+    //       "closest exact equal:", closestExactEqual
+    //   );
+    if (CGAL::bounded_side_2(hole.vertices_begin(), hole.vertices_end(), v, K()) == CGAL::ON_BOUNDARY)
+      return true;
+  }
+  return false;
 }
 
 template<typename T>
@@ -653,11 +957,6 @@ const typename Layer<T>::Point_2 &Layer<T>::getPoint(int index) const {
 }
 
 template<typename T>
-const typename Layer<T>::Arrangement_2 &Layer<T>::getEnv() const {
-  return _env;
-}
-
-template<typename T>
 const std::vector<typename Layer<T>::Polygon_2> &Layer<T>::getHoles() const {
   return _holes;
 }
@@ -686,55 +985,119 @@ void Layer<T>::draw(const std::string &figPath,
 ) const {
   if (figPath.empty())
     return;
+  (void)border;
   std::string pythonScript;
   PYTHON_IMPORTS(pythonScript)
-  pythonScript += border.draw("obs");
-// obstacles
-  for (
-    const auto &obs
-      : obstacles) {
-    pythonScript += obs.draw("obs");
-  }
-// grown obstacles
-  for (
-    const auto &obstacle
-      : _grownObs) {
-    Polygon<T> obs(obstacle);
-    pythonScript += obs.draw("start");
-  }
+  pythonScript += "fig.set_size_inches(12, 10)\n";
 
-// shrinked border
-  pythonScript += _shrunkBorder.draw("goal");
-
-// holes
-  for (
-    const auto &holePolygon
-      : _holes) {
-    Polygon<T> hole(holePolygon);
-    pythonScript += hole.draw("hole");
+  for (size_t index = 0; index < obstacles.size(); ++index) {
+    appendTopologyPolygonPlot(
+        pythonScript,
+        obstacles[index].getPolygon(),
+        "#CBD5E1",
+        "#64748B",
+        index == 0 ? "Original obstacles" : "_nolegend_",
+        0.22,
+        0.7,
+        "-",
+        10,
+        ""
+    );
   }
 
-// graph
+  for (size_t index = 0; index < _borderHoles.size(); ++index) {
+    appendTopologyPolygonPlot(
+        pythonScript,
+        _borderHoles[index],
+        "#BAE6FD",
+        "#0284C7",
+        index == 0 ? "borderHoles (_borderHoles)" : "_nolegend_",
+        0.12,
+        2.0,
+        "--",
+        20,
+        "BH" + std::to_string(index)
+    );
+  }
+
+  for (size_t index = 0; index < _shrunkBorderExactList.size(); ++index) {
+    appendTopologyPolygonPlot(
+        pythonScript,
+        _shrunkBorderExactList[index],
+        "none",
+        "#047857",
+        index == 0
+            ? "shrunkBorderExactList (_shrunkBorderExactList)"
+            : "_nolegend_",
+        1.0,
+        3.5,
+        "-",
+        40,
+        "SBE" + std::to_string(index)
+    );
+  }
+
+  for (size_t index = 0; index < _grownObs.size(); ++index) {
+    appendTopologyPolygonPlot(
+        pythonScript,
+        _grownObs[index],
+        "#FCA5A5",
+        "#DC2626",
+        index == 0 ? "grownObs (_grownObs)" : "_nolegend_",
+        0.32,
+        1.4,
+        "-",
+        30,
+        ""
+    );
+  }
+
+  for (size_t index = 0; index < _holes.size(); ++index) {
+    appendTopologyPolygonPlot(
+        pythonScript,
+        _holes[index],
+        "#E9D5FF",
+        "#9333EA",
+        index == 0 ? "holes (_holes)" : "_nolegend_",
+        0.55,
+        1.8,
+        ":",
+        50,
+        "H" + std::to_string(index)
+    );
+  }
+
   if (graph) {
-    pythonScript += graph->
-        draw();
+    pythonScript += graph->drawOnAxis("ax", 60);
   }
 
-
-  pythonScript += "plt.axis('equal')\n";
-  pythonScript += "plt.savefig('" + figPath + "', dpi=500, bbox_inches='tight')\n";
+  std::ostringstream title;
+  title << std::fixed << std::setprecision(1)
+        << "Layer [" << _theta_lb * 180.0 / M_PI << " deg, "
+        << _theta_ub * 180.0 / M_PI << " deg]"
+        << " | border holes=" << _borderHoles.size()
+        << " | environment borders=" << _shrunkBorderExactList.size()
+        << " | grown obstacles=" << _grownObs.size()
+        << " | holes=" << _holes.size()
+        << " | borderIsHole=" << (_borderIsHole ? "true" : "false");
+  pythonScript += "ax.set_title('" + title.str() + "')\n";
+  pythonScript += "ax.set_xlabel('x')\n";
+  pythonScript += "ax.set_ylabel('y')\n";
+  pythonScript += "ax.set_aspect('equal', adjustable='box')\n";
+  pythonScript += "ax.grid(True, color='#CBD5E1', linewidth=0.6, alpha=0.7)\n";
+  pythonScript += "handles, labels = ax.get_legend_handles_labels()\n";
+  pythonScript += "legend = dict(zip(labels, handles))\n";
+  pythonScript += "ax.legend(legend.values(), legend.keys(), loc='best', fontsize=8, framealpha=0.92)\n";
+  pythonScript += "fig.tight_layout()\n";
+  pythonScript += "fig.savefig('" + figPath + "', dpi=500, bbox_inches='tight')\n";
   if (show) pythonScript += "plt.show()\n";
-  std::string pythonSavePath = "layer.py";
-  std::ofstream pythonFile(pythonSavePath);
-  pythonFile << pythonScript;
-  pythonFile.close();
-#ifdef PYTHON_EXECUTABLE
-  std::string command = std::string(PYTHON_EXECUTABLE) + " " + pythonSavePath;
-#else
-  std::string command = "python3 " + pythonSavePath;
-#endif
-  int status = system(command.c_str());
-  if (status != 0) throw std::runtime_error("Failed to run python script");
+  std::string pythonSavePath = figPath + ".py";
+  if (!Utils::writeStringToFile<T>(pythonScript, pythonSavePath)) {
+    throw std::runtime_error("Failed to write python script");
+  }
+  if (!Utils::runPythonScriptAndRemove<T>(pythonSavePath)) {
+    throw std::runtime_error("Failed to run and remove python script");
+  }
 }
 
 template<typename T>
@@ -745,21 +1108,6 @@ bool Layer<T>::borderIsHole() const {
 template<typename T>
 const Polygon<T> &Layer<T>::getShrinkedBorder() const {
   return _shrunkBorder;
-}
-
-template<typename T>
-std::shared_ptr<VQ> Layer<T>::getVQ() const {
-  return _vq;
-}
-
-template<typename T>
-std::shared_ptr<VQ> Layer<T>::getHoleVQ() const {
-  return _holeVQ;
-}
-
-template<typename T>
-const typename Layer<T>::Arrangement_2 &Layer<T>::getHoleEnv() const {
-  return _holeEnv;
 }
 
 template<typename T>
@@ -797,17 +1145,10 @@ std::string Layer<T>::draw(bool curr) const {
 
 template<typename T>
 bool Layer<T>::legalConfig(const Vertex<T> &v) const {
-  if (_borderIsHole) {
-    const Point_2 &p = v.getPoint();
-    if (IN_ANY_POLYGON(p, _holes)) return true;
-    if (_shrunkBorder.contains(v)) return true;
-    else return false;
-  } else {
-    const Point_2 &p = v.getPoint();
-    if (IN_ANY_POLYGON(p, _holes)) return true;
-    if (IN_ANY_POLYGON(p, _grownObs)) return false;
-    return true;
-  }
+  const Point_2 &p = v.getPoint();
+  if (IN_ANY_POLYGON(p, _holes)) return true;
+  if (IN_ANY_POLYGON(p, _grownObs)) return false;
+  return IN_ANY_POLYGON(p, _shrunkBorderExactList);
 }
 
 template<typename T>
@@ -818,7 +1159,10 @@ std::shared_ptr<typename Layer<T>::Arrangement_2> Layer<T>::getVisibleArea(const
   if (!_holes.empty() && IN_ANY_POLYGON(p, _holes)) {
     return std::make_shared<Arrangement_2>(visibleAreaOnHoles<T>(p, _holeEnv, _holeVQ));
   }
-  if(IN_POLYGON(p, _shrunkBorder.getPolygon()) && !_grownObs.empty() && !IN_ANY_POLYGON(p, _grownObs)){
+  if (!_shrunkBorderExactList.empty() &&
+      IN_ANY_POLYGON(p, _shrunkBorderExactList) &&
+      !_grownObs.empty() &&
+      !IN_ANY_POLYGON(p, _grownObs)) {
     return std::make_shared<Arrangement_2>(visibleAreaInMap<T>(p, _env, _vq));
   }
   else
@@ -849,16 +1193,6 @@ Layer<T>::getEdges() const {
 }
 
 template<typename T>
-const std::vector<typename Layer<T>::Vertex_const_handle> Layer<T>::getVertexHandles() const {
-  return _vertexHandles;
-}
-
-template<typename T>
-const typename Layer<T>::Vertex_const_handle &Layer<T>::getVertexHandle(int index) const {
-  return _vertexHandles[index];
-}
-
-template<typename T>
 std::pair<typename Layer<T>::Point_2,
           typename Layer<T>::Point_2> Layer<T>::_getNeighbor(const Vertex_const_handle &handle) const {
   std::vector<Point_2> points;
@@ -871,14 +1205,47 @@ std::pair<typename Layer<T>::Point_2,
 }
 
 template<typename T>
-const std::pair<typename Layer<T>::Point_2,
-                typename Layer<T>::Point_2> &Layer<T>::getNeighbor(const Vertex<T> &v) const {
-  return _neighborCache.at(v);
+std::pair<typename Layer<T>::Point_2,
+          typename Layer<T>::Point_2> Layer<T>::getNeighbor(const Vertex<T> &v) const {
+  const auto found = _neighborCache.find(v);
+  if (found != _neighborCache.end()) {
+    return found->second;
+  }
+  // Vertex equality is tolerant while Vertex::hash() is quantized.  Values on
+  // opposite sides of a quantization boundary can therefore compare equal but
+  // occupy different buckets.  Search the cache and exact arrangements before
+  // declaring a generated layer invalid.
+  for (const auto &entry : _neighborCache) {
+    if (entry.first == v) {
+      return entry.second;
+    }
+  }
+  for (auto handle = _env.vertices_begin(); handle != _env.vertices_end(); ++handle) {
+    if (handle->point() == v.getPoint()) {
+      return _getNeighbor(handle);
+    }
+  }
+  for (auto handle = _holeEnv.vertices_begin(); handle != _holeEnv.vertices_end(); ++handle) {
+    if (handle->point() == v.getPoint()) {
+      return _getNeighbor(handle);
+    }
+  }
+  throw std::out_of_range("Layer neighbor is not present in either arrangement");
 }
 
 template<typename T>
 bool Layer<T>::isVertexOnHole(const Vertex<T> &vertex) const {
-  return _isVertexOnHoleCache.at(vertex);
+  const auto found = _isVertexOnHoleCache.find(vertex);
+  if (found != _isVertexOnHoleCache.end()) {
+    return found->second;
+  }
+  for (const auto &entry : _isVertexOnHoleCache) {
+    if (entry.first == vertex) {
+      return entry.second;
+    }
+  }
+  return std::find(_holePoints.begin(), _holePoints.end(), vertex.getPoint()) !=
+      _holePoints.end();
 }
 
 template<typename T>
@@ -941,21 +1308,6 @@ std::string Layer<T>::drawVisibleAreas(int cnt)const{
 }
 
 template<typename T>
-void Layer<T>::drawRobotBB(const Polygon<T> & robot) const{
-  std::string pythonScript;
-  PYTHON_IMPORTS(pythonScript)
-  Polygon<T> robotLb = robot.rotateCopy(_theta_lb, robot.getCentroid());
-  Polygon<T> robotUb = robot.rotateCopy(_theta_ub, robot.getCentroid());
-  pythonScript += robotLb.draw("start");
-  pythonScript += robotUb.draw("goal");
-  pythonScript += _robotBBox.draw("obs");
-  pythonScript += "plt.axis('equal')\n";
-  pythonScript += "plt.show()\n";
-  Utils::writeStringToFile<T>(pythonScript, "overestimate.py");
-  Utils::runPythonScriptAndRemove<T>("overestimate.py");
-}
-
-template<typename T>
 const Polygon<T> &Layer<T>::getRobotBBox() const {
   return _robotBBox;
 }
@@ -992,4 +1344,3 @@ class Layer<double>;
 template
 class Layer<float>;
 } // namespace RotationalVisibilityGraph
-

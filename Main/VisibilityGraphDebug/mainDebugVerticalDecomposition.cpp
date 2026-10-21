@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <Utils/Utils.h>
 #include <Utils/Timer.h>
 #include <Utils/Pragma.h>
@@ -40,11 +41,10 @@ int main(int argc, char *argv[]) {
         resolution
         );
   std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
-  setPrecision<T>(3);
-  bool fineApprox = false;
+  std::cout << std::fixed << std::setprecision(3);
   bool optimal = true;
   bool verbose = true;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, fineApprox, numThreads, optimal, verbose);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, numThreads, optimal, verbose);
   visibilityGraph.verticalDecomposition();
   return 0;
 }

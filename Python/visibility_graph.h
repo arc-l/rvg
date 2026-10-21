@@ -23,186 +23,132 @@ void bind_visibility_graph(py::module &m) {
                  return "TwoTuple(" + std::to_string(tuple.first) + ", " + std::to_string(tuple.second) + ")";
              });
 
+    py::enum_<VertexPropagationBackend>(m, "VertexPropagationBackend")
+        .value("Auto", VertexPropagationBackend::Auto)
+        .value("Cpu", VertexPropagationBackend::Cpu)
+        .value("CpuReference", VertexPropagationBackend::CpuReference)
+        .value("Cuda", VertexPropagationBackend::Cuda);
+    m.def("cudaVertexPropagationAvailable", &cudaVertexPropagationAvailable);
+
     py::class_<VisibilityGraph<T>>(m, "rvg")
-        // Constructor with exception handling
         .def(py::init([](const Polygon<T> &robot,
                          const Polygon<T> &border,
                          const std::vector<Polygon<T>> &obstacles,
                          int resolution,
-                         bool fineApprox,
                          int numThreads,
                          bool optimal = false,
-                         bool verbose = false) {
-            try {
-                return new VisibilityGraph<T>(robot, border, obstacles, resolution, fineApprox, numThreads, optimal, verbose);
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+                         bool verbose = false,
+                         VertexPropagationBackend propagationBackend = VertexPropagationBackend::Auto) {
+            return new VisibilityGraph<T>(robot, border, obstacles, resolution, numThreads, optimal, verbose, propagationBackend);
         }),
         py::arg("robot"),
         py::arg("border"),
         py::arg("obstacles"),
         py::arg("resolution"),
-        py::arg("fineApprox"),
         py::arg("numThreads"),
         py::arg("optimal") = false,
         py::arg("verbose") = false,
+        py::arg("propagationBackend") = VertexPropagationBackend::Auto,
         "Constructs a VisibilityGraph with the specified parameters.")
 
-        // Methods with exception handling
+
+        .def("getVertexPropagationStatistics", [](const VisibilityGraph<T> &self) {
+            const auto &stats = self.getVertexPropagationStatistics();
+            py::dict result;
+            result["requestedBackend"] = stats.requestedBackend;
+            result["effectiveBackend"] = stats.effectiveBackend;
+            result["forwardRounds"] = stats.forwardRounds;
+            result["backwardRounds"] = stats.backwardRounds;
+            result["candidatePairs"] = stats.candidatePairs;
+            result["cpuExactCandidates"] = stats.cpuExactCandidates;
+            result["cpuCertifiedAccepts"] = stats.cpuCertifiedAccepts;
+            result["cpuCertifiedRejects"] = stats.cpuCertifiedRejects;
+            result["cpuUncertainCandidates"] = stats.cpuUncertainCandidates;
+            result["cudaCertifiedAccepts"] = stats.cudaCertifiedAccepts;
+            result["cudaCertifiedRejects"] = stats.cudaCertifiedRejects;
+            result["cpuExactFallbacks"] = stats.cpuExactFallbacks;
+            result["flattenMilliseconds"] = stats.flattenMilliseconds;
+            result["scalarFilterMilliseconds"] = stats.scalarFilterMilliseconds;
+            result["cpuMilliseconds"] = stats.cpuMilliseconds;
+            result["transferMilliseconds"] = stats.transferMilliseconds;
+            result["kernelMilliseconds"] = stats.kernelMilliseconds;
+            result["exactFallbackMilliseconds"] = stats.exactFallbackMilliseconds;
+            result["materializationMilliseconds"] = stats.materializationMilliseconds;
+            result["totalMilliseconds"] = stats.totalMilliseconds;
+            result["cudaFallback"] = stats.cudaFallback;
+            result["cudaError"] = stats.cudaError;
+            return result;
+        })
+        .def("getConstructionStatistics", [](const VisibilityGraph<T> &self) {
+            const auto &stats = self.getConstructionStatistics();
+            py::dict result;
+            result["layerBuildMilliseconds"] = stats.layerBuildMilliseconds;
+            result["nativeMaterializationMilliseconds"] = stats.nativeMaterializationMilliseconds;
+            result["propagationMilliseconds"] = stats.propagationMilliseconds;
+            result["finalizationMilliseconds"] = stats.finalizationMilliseconds;
+            result["totalMilliseconds"] = stats.totalMilliseconds;
+            return result;
+        })
+
         .def("setWeight", [](VisibilityGraph<T> &self, T euclideanWeight, T rotationalWeight) {
-            try {
-                self.setWeight(euclideanWeight, rotationalWeight);
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            self.setWeight(euclideanWeight, rotationalWeight);
         }, py::arg("euclideanWeight"), py::arg("rotationalWeight"))
 
         .def("shortestPath", [](VisibilityGraph<T> &self, std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal, int interpolationDensity, bool unwrap) {
-            try {
-                return self.shortestPath(start, goal, interpolationDensity, unwrap);
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.shortestPath(start, goal, interpolationDensity, unwrap);
         }, py::arg("start"), py::arg("goal"), py::arg("interpolationDensity") = 0, py::arg("unwrap") = true)
         .def("addStartAndGoal", [](VisibilityGraph<T> &self, std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal) {
-            try {
-                self._addStartAndGoal(start, goal);
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            self._addStartAndGoal(start, goal);
         }, py::arg("start"), py::arg("goal"))
         .def("addVertex", [](VisibilityGraph<T> &self, std::shared_ptr<Vertex<T>> vertex) {
-            try {
-                return self.addVertex(vertex);
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.addVertex(vertex);
         }, py::arg("vertex"))
 
         .def("getPathLength", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getPathLength();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getPathLength();
         })
 
         .def("getTotalRotation", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getTotalRotation();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getTotalRotation();
         })
 
         .def("getTotalTime", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getTotalTime();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getTotalTime();
         })
 
         .def("getBuildTime", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getBuildTime();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getBuildTime();
         })
 
         .def("getSearchTime", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getSearchTime();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getSearchTime();
         })
 
         .def("draw", [](VisibilityGraph<T> &self, const std::string &figPath, bool title, bool path, bool graph, bool show) {
-            try {
-                self.draw(figPath, title, path, graph, show);
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            self.draw(figPath, title, path, graph, show);
         }, py::arg("figPath"), py::arg("title") = true, py::arg("path") = true, py::arg("graph") = true, py::arg("show") = false)
 
         .def("animation", [](VisibilityGraph<T> &self, const std::string &figPath, bool title) {
-            try {
-                self.animation(figPath, title);
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            self.animation(figPath, title);
         }, py::arg("figPath"), py::arg("title") = true)
 
-        .def("debugMaxPropagation", [](VisibilityGraph<T> &self) {
-            try {
-                self.debugMaxPropagation();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
-        })
         .def("getLayers", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getLayers();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getLayers();
         })
         .def("getEdgeLayersForward", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getEdgeLayersForward();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getEdgeLayersForward();
         })
         .def("getEdgeLayersBackward", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getEdgeLayersBackward();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getEdgeLayersBackward();
         })
         .def("getAdjacentVertices", [](const VisibilityGraph<T> &self, std::shared_ptr<Vertex<T>> v) {
-            try {
-                return self.getAdjacentVertices(v);
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getAdjacentVertices(v);
         }, py::arg("v"))
         .def("verticalDecomposition", [](VisibilityGraph<T> &self) {
-            try {
-                return self.verticalDecomposition();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.verticalDecomposition();
         })
         .def("getGraphVertices", [](const VisibilityGraph<T> &self) {
-            try {
-                return self.getGraphVertices();
-            } catch (const std::exception &e) {
-                PyErr_SetString(PyExc_RuntimeError, e.what());
-                throw py::error_already_set();
-            }
+            return self.getGraphVertices();
         })
         .def("getGraph",
              py::overload_cast<>(&VisibilityGraph<T>::getGraph),

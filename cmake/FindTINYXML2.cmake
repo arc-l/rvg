@@ -17,9 +17,12 @@ FIND_PATH(TINYXML2_INCLUDE_DIRS tinyxml2.h
 FIND_LIBRARY(TINYXML2_LIBRARIES tinyxml2
         $ENV{TINYXML2_PATH}
         $ENV{TINYXML2_PATH}/lib/
+        $ENV{TINYXML2_PATH}/lib64/
         /usr/lib/x86_64-linux-gnu/
         /opt/local/lib/
         /usr/local/lib/
+        /usr/local/lib64/
+        /usr/lib64/
         /usr/lib/)
 
 INCLUDE(FindPackageHandleStandardArgs)

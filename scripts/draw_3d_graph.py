@@ -26,7 +26,6 @@ if __name__ == "__main__":
                               obstacles = obstacles, 
                               numThreads=num_threads, 
                               resolution=180, 
-                              fineApprox=False, 
                               optimal=True, 
                               verbose=False)
     

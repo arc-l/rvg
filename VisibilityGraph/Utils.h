@@ -8,20 +8,118 @@
 #include <CGAL/Polygon_2.h>
 #include <CGAL/Polygon_set_2.h>
 #include <CGAL/Polygon_2_algorithms.h>
-#ifdef VISIBILITY_QUERY_TEV
 #include <CGAL/Triangular_expansion_visibility_2.h>
-#elif defined(VISIBILITY_QUERY_RSV)
-#include <CGAL/Rotational_sweep_visibility_2.h>
-#endif
+
 #include <CGAL/Arr_segment_traits_2.h>
 #include <CGAL/Arrangement_2.h>
 #include <CGAL/convex_hull_2.h>
 #include <CGAL/Convex_hull_traits_adapter_2.h>
 
+#include <cerrno>
+#include <charconv>
+#include <cmath>
+#include <cstdlib>
+#include <limits>
+#include <string>
+#include <system_error>
+#include <type_traits>
+
 namespace RotationalVisibilityGraph::Utils {
 DECL_CGAL_CARTESIAN_TYPES_T
 DECL_CGAL_POLYGON_TYPES_T
 DECL_CGAL_VISIBILITY_GRAPH_TYPES_T
+
+inline bool parseCommandLineInt(const std::string &text, int &value) {
+  if (text.empty()) {
+    return false;
+  }
+  int parsed = 0;
+  const auto result = std::from_chars(
+      text.data(),
+      text.data() + text.size(),
+      parsed
+  );
+  if (result.ec != std::errc() || result.ptr != text.data() + text.size()) {
+    return false;
+  }
+  value = parsed;
+  return true;
+}
+
+inline bool parsePositiveCommandLineInt(const std::string &text, int &value) {
+  int parsed = 0;
+  if (!parseCommandLineInt(text, parsed) || parsed <= 0) {
+    return false;
+  }
+  value = parsed;
+  return true;
+}
+
+inline bool parseCommandLineSize(const std::string &text, size_t &value) {
+  if (text.empty() || text.front() == '-') {
+    return false;
+  }
+  size_t parsed = 0;
+  const auto result = std::from_chars(
+      text.data(),
+      text.data() + text.size(),
+      parsed
+  );
+  if (result.ec != std::errc() || result.ptr != text.data() + text.size()) {
+    return false;
+  }
+  value = parsed;
+  return true;
+}
+
+inline bool parsePositiveCommandLineSize(
+    const std::string &text,
+    size_t &value
+) {
+  size_t parsed = 0;
+  if (!parseCommandLineSize(text, parsed) || parsed == 0) {
+    return false;
+  }
+  value = parsed;
+  return true;
+}
+
+template<typename Scalar>
+bool parseCommandLineScalar(const std::string &text, Scalar &value) {
+  static_assert(
+      std::is_floating_point<Scalar>::value,
+      "Command-line scalar parsing requires a floating-point type"
+  );
+  if (text.empty()) {
+    return false;
+  }
+  errno = 0;
+  char *end = nullptr;
+  const long double parsed = std::strtold(text.c_str(), &end);
+  if (end != text.c_str() + text.size() || errno == ERANGE ||
+      !std::isfinite(parsed) ||
+      parsed < static_cast<long double>(std::numeric_limits<Scalar>::lowest()) ||
+      parsed > static_cast<long double>(std::numeric_limits<Scalar>::max())) {
+    return false;
+  }
+  value = static_cast<Scalar>(parsed);
+  return true;
+}
+
+inline bool readCommandLineOptionValue(
+    int argc,
+    char *const argv[],
+    int &index,
+    std::string &value,
+    std::string &error
+) {
+  if (index + 1 >= argc) {
+    error = "Missing value for option: " + std::string(argv[index]);
+    return false;
+  }
+  value = argv[++index];
+  return true;
+}
 
 template<typename T>
 std::shared_ptr<Vertex<T>> getVertex(const tinyxml2::XMLElement &element) {
@@ -138,43 +236,6 @@ Polygon<T> getMap(int mapSize) {
 }
 
 template<typename T>
-bool pointInsideOrOnArrangement(const Point_2 &point, const Arrangement_2 & visibleArea) {
-  PL_2 pl(visibleArea);
-  CGAL::Arr_point_location_result<Arrangement_2>::Type obj = pl.locate(point);
-  const Vertex_const_handle*   v;
-  const Halfedge_const_handle* e;
-  const Face_const_handle*     f;
-  f = boost::get<Face_const_handle>(&obj);
-  if (f) // located inside a face
-  {
-    return (!(*f)->is_unbounded());
-  }
-  else {
-    e = boost::get<Halfedge_const_handle>(&obj);
-    if (e) // located on an edge
-    {
-      return true;
-    }
-    else {
-      v = boost::get<Vertex_const_handle>(&obj);
-      if (v) // located on a vertex
-      {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-template<typename T>
-bool isVertexOfArrangement(const Point_2& point, const PL_2 & pl) {
-  CGAL::Arr_point_location_result<Arrangement_2>::Type obj = pl.locate(point);
-  const Vertex_const_handle*   v;
-  v = boost::get<Vertex_const_handle>(&obj);
-  return v != nullptr;
-}
-
-template<typename T>
 Polygon_2 arrangementToPolygon(const Arrangement_2 &arrangement) {
   std::vector<Point_2> points;
   for (auto v = arrangement.vertices_begin(); v != arrangement.vertices_end(); ++v) {
@@ -194,4 +255,3 @@ bool isBitangent(const Point_2 & v1, const Point_2 & v1l, const Point_2 & v1r, c
 }
 
 #endif //ROTATIONALVISIBILITYGRAPH_VISIBILITYGRAPH_UTILS_H_
-

@@ -32,10 +32,9 @@ int main(int argc, char *argv[]) {
   auto start = getVertex<T>(*plannerSettings->FirstChildElement("start")->FirstChildElement("Vertex"));
   auto goal = getVertex<T>(*plannerSettings->FirstChildElement("goal")->FirstChildElement("Vertex"));
   T resolution = 36;
-  bool fineApprox = false;
   for (int i = 0; i < resolution; i++) {
     Graph<T> graph;
-    Layer<T> layer = Layer<T>(2 * PI * i / resolution, 2 * PI * (i + 1) / resolution, fineApprox, false);
+    Layer<T> layer = Layer<T>(2 * PI * i / resolution, 2 * PI * (i + 1) / resolution, false);
     layer.buildVisibilityGraph(robot, map, obstacles);
     std::vector<Vertex_const_handle> vertexHandles = layer.getVertexHandles();
     graph.addEdges(layer.getEdges());

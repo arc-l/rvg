@@ -19,7 +19,6 @@ if __name__ == "__main__":
                     resolution=36,
                     numThreads=num_threads,
                     verbose=False,
-                    fineApprox=False,
                     optimal=True
         )
         path = vg.shortestPath(start, goal)

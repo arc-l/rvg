@@ -1,4 +1,5 @@
 #include "VisibilityGraph.h"
+#include <atomic>
 
 #include <CGAL/Boolean_set_operations_2.h>
 #include <CGAL/Partition_traits_2.h>
@@ -8,6 +9,7 @@
 #include <VisibilityGraph/Utils.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <cstdlib>
 
 namespace RotationalVisibilityGraph {
@@ -36,14 +38,15 @@ template <typename T>
 VisibilityGraph<T>::VisibilityGraph(const Polygon<T> &robot,
                                     const Polygon<T> &border,
                                     const std::vector<Polygon<T>> &obstacles,
-                                    bool fineApprox, int numThreads,
-                                    bool verbose)
+                                    int numThreads,
+                                    bool verbose,
+                                    VertexPropagationBackend propagationBackend)
     : _realRobot(robot),
       _border(border),
       _obstacles(obstacles),
-      _fineApprox(fineApprox),
       _numThreads(numThreads),
-      _verbose(verbose) {
+      _verbose(verbose),
+      _propagationBackend(propagationBackend) {
   TRACY_DO(ZoneScopedN("VisibilityGraph Constructor");)
   _robot = _realRobot;
   _isSymmetric = false;
@@ -58,9 +61,10 @@ VisibilityGraph<T>::VisibilityGraph(const Polygon<T> &robot,
                                     const Polygon<T> &border,
                                     const std::vector<Polygon<T>> &obstacles,
                                     int resolution, 
-                                    bool fineApprox,
-                                    int numThreads, bool optimal, bool verbose)
-    : VisibilityGraph(robot, border, obstacles, fineApprox, numThreads, verbose){
+                                    int numThreads, bool optimal, bool verbose,
+                                    VertexPropagationBackend propagationBackend)
+    : VisibilityGraph(robot, border, obstacles, numThreads, verbose,
+                      propagationBackend) {
   _resolution=resolution;
   _optimal= optimal; 
 
@@ -69,6 +73,7 @@ VisibilityGraph<T>::VisibilityGraph(const Polygon<T> &robot,
   Utils::Timer timer(_verbose);
   _buildLayers();
   _buildTime = timer.elapsed();
+  _constructionStatistics.totalMilliseconds = _buildTime * 1000.0;
   if (_verbose)
     Utils::print("Resolution: ", resolution, " Time: ", _buildTime, "s");
 }
@@ -77,58 +82,104 @@ template <typename T>
 void VisibilityGraph<T>::_buildLayers() {
   TRACY_DO(ZoneScopedN("Build Layers");)
   Utils::Timer buildTimer("Build Layers", false);
+  const auto layerBuildStart = std::chrono::steady_clock::now();
   if (_isSymmetric) {
     _layers.resize(_symmetricCycle);
     OMP_PARALLEL_FOR_XI(
         _numThreads,
-        default(none) shared(_layers, _obstacles, _graph, _layerVertices,
+        default(none) shared(_layers, _obstacles, _layerVertices,
                              _robot, _border, _resolution, _symmetricCycle))
     for (int i = 0; i < _symmetricCycle; i++) {
       TRACY_DO(ZoneScopedN("Build Layer Loop");)
       T first = i * 2 * M_PI / _resolution;
       T second = (i + 1) * 2 * M_PI / _resolution;
-      Layer<T> layer(first, second, _fineApprox, false);
+      Layer<T> layer(first, second, false);
       layer.buildVisibilityGraph(_robot, _border, _obstacles);
-      OMP_CRITICAL_ {
-        _layers[i] = layer;
-        _graph.addEdges(layer.getEdges());
-        for (size_t pointNum = 0; pointNum < _layers[i].getPoints().size();
-             pointNum++) {
-          _layerVertices[i].insert(
-              {static_cast<T>(i), static_cast<T>(pointNum)});
-        }
+      // Debug-only layer dumps are handled by the dedicated debug entrypoints.
+      // Avoid generating and executing Python plot scripts during normal builds.
+      // Graph<T> layerGraph;
+      // layerGraph.addEdges(layer.getEdges());
+      // layer.draw("Results/layer_" + std::to_string(i) + ".png", _border, _obstacles, &layerGraph, false);
+      // layer.draw("Results/layer_" + std::to_string(i) + ".png", _border, _obstacles, nullptr, false);
+      _layers[i] = std::move(layer);
+      for (size_t pointNum = 0; pointNum < _layers[i].getPoints().size();
+           pointNum++) {
+        _layerVertices[i].insert(
+            {static_cast<T>(i), static_cast<T>(pointNum)});
       }
     }
   } else {
     _layers.resize(_resolution);
     OMP_PARALLEL_FOR_XI(
         _numThreads,
-        default(none) shared(_layers, _obstacles, _graph, _layerVertices,
+        default(none) shared(_layers, _obstacles, _layerVertices,
                              _robot, _border, _resolution, _symmetricCycle))
     for (int i = 0; i < _resolution; i++) {
       T first = i * 2 * M_PI / _resolution;
       T second = (i + 1) * 2 * M_PI / _resolution;
-      Layer<T> layer(first, second, _fineApprox, false);
+      Layer<T> layer(first, second, false);
       layer.buildVisibilityGraph(_robot, _border, _obstacles);
-      OMP_CRITICAL_ {
-        _layers[i] = layer;
-        _graph.addEdges(layer.getEdges());
-        for (size_t pointNum = 0; pointNum < _layers[i].getPoints().size();
-             pointNum++) {
-          _layerVertices[i].insert(
-              {static_cast<T>(i), static_cast<T>(pointNum)});
-        }
+      _layers[i] = std::move(layer);
+      for (size_t pointNum = 0; pointNum < _layers[i].getPoints().size();
+           pointNum++) {
+        _layerVertices[i].insert(
+            {static_cast<T>(i), static_cast<T>(pointNum)});
       }
     }
   }
+  _constructionStatistics.layerBuildMilliseconds =
+      std::chrono::duration<double, std::milli>(
+          std::chrono::steady_clock::now() - layerBuildStart
+      ).count();
+  const auto nativeMaterializationStart =
+      std::chrono::steady_clock::now();
+  std::size_t layerEdgeCount = 0;
+  for (const Layer<T> &layer : _layers) {
+    layerEdgeCount += layer.getEdges().size();
+  }
+  std::vector<std::pair<
+      std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>> layerEdges;
+  layerEdges.reserve(layerEdgeCount);
+  for (const Layer<T> &layer : _layers) {
+    layerEdges.insert(
+        layerEdges.end(), layer.getEdges().begin(), layer.getEdges().end()
+    );
+  }
+  _graph.addEdges(layerEdges);
+  _constructionStatistics.nativeMaterializationMilliseconds =
+      std::chrono::duration<double, std::milli>(
+          std::chrono::steady_clock::now() - nativeMaterializationStart
+      ).count();
   // _graph.draw3D("../Results/graph.png", true);
   // drawLayers3D("../Results/semi-algebraic-set"+std::to_string(_resolution)+".png",
   // true);
   if (_verbose)
     Utils::print("Time for building all layers take ", buildTimer.elapsed(),
                  "s");
+  if (_verbose) {
+    for (size_t i = 0; i < _layers.size(); ++i) {
+      Utils::print(
+          "Initial layer", i,
+          "#points:", _layers[i].getPoints().size(),
+          "#edges:", _layers[i].getEdges().size(),
+          "#grownObs:", _layers[i].getGrownObs().size(),
+          "#holes:", _layers[i].getHoles().size(),
+          "feasible:", _layers[i].isFeasible()
+      );
+    }
+    Utils::print("Initial graph #vertices:", _graph.getVertices().size());
+    Utils::print("Initial graph #edges:", _graph.getEdges().size());
+  }
   Utils::Timer connectTimer("Connect Layers", false);
   _connectLayers();
+  _constructionStatistics.propagationMilliseconds =
+      _propagationStatistics.totalMilliseconds;
+  const auto finalizationStart = std::chrono::steady_clock::now();
+  _graph.finalizeStatic();
+  _constructionStatistics.finalizationMilliseconds =
+      std::chrono::duration<double, std::milli>(
+          std::chrono::steady_clock::now() - finalizationStart
+      ).count();
   if (_verbose)
     Utils::print("Time for connecting all layers take ", connectTimer.elapsed(),
                  "s");
@@ -137,230 +188,15 @@ void VisibilityGraph<T>::_buildLayers() {
 template <typename T>
 void VisibilityGraph<T>::_connectLayers() {
   TRACY_DO(ZoneScopedN("Connect Layers");)
-// #define PARALLELIZE_LAYERS
-// TODO: Parallelism on layers should be removed later
-#ifdef PARALLELIZE_LAYERS
-  _connectLayersParallelizedLayers();
-#else
-  _connectLayersParallelizedVertices();
-#endif
-}
-
-template <typename T>
-void VisibilityGraph<T>::_connectLayersParallelizedVertices() {
-#define NEXT ((i + 1) % _layers.size())
-#define PREV ((i - 1 + _layers.size()) % _layers.size())
-#define PRINT
-// #define PLOT
-#define MANIM
-#define BACKWARD_PASS
-  TRACY_DO(ZoneScopedN("Connect Layers Parallelized Vertices");)
-#ifdef MANIM
-  _edgeLayersForward.clear();
-  _edgeLayersBackward.clear();
-  _edgeLayersForward.resize(_layers.size());
-  _edgeLayersBackward.resize(_layers.size());
-#endif
-  std::vector<std::vector<
-      std::unordered_map<Vertex<T>, Polygon_2, typename Vertex<T>::Hash>>>
-      visibleAreaCacheParallelVector(_layers.size());
-  for (size_t i = 0; i < _layers.size(); ++i) {
-    const Layer<T> &currLayer = _layers[i];
-    // load visibleAreas
-    std::vector<
-        std::unordered_map<Vertex<T>, Polygon_2, typename Vertex<T>::Hash>>
-        visibleAreaCacheParallel;
-    for (int threadId = 0; threadId < omp_get_max_threads(); threadId++) {
-      visibleAreaCacheParallel.push_back(currLayer.getVisibleAreaCache());
-    }
-    visibleAreaCacheParallelVector[i] = visibleAreaCacheParallel;
-  }
-
-  // forward pass
-  for (int i = 0; i < (int)_layers.size(); i++) {
-    TRACY_DO(ZoneScopedN("Forward Pass");)
-    const Layer<T> &currLayer = _layers[i];
-    const Layer<T> &nextLayer = _layers[NEXT];
-    T thetaLb = currLayer.getThetaLb();
-    T thetaUb = currLayer.getThetaUb();
-    T theta = (thetaLb < thetaUb ? (thetaLb + thetaUb) / 2 : 0);
-    // std::unordered_set<TwoTuple, TwoTupleHash> addToNextLayer;
-    std::vector<std::unordered_set<TwoTuple, TwoTupleHash>>
-        addToNextLayerParallel(_numThreads);
-    std::vector<std::vector<
-        std::pair<std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>>>
-        edgesParallel(_numThreads);
-    const auto &currVertexIndexSet = _layerVertices[i];
-#ifdef PRINT
-    if (_verbose)
-      Utils::print("Layer", i,
-                   "current Layer #vertices = ", currVertexIndexSet.size(),
-                   "nextLayer #vertices = ", _layerVertices[i].size());
-#endif
-    // use OMP
-    std::vector<TwoTuple> currVertexIndex(currVertexIndexSet.begin(),
-                                          currVertexIndexSet.end());
-    OMP_PARALLEL_FOR_XI(
-        _numThreads, default(none) shared(
-                         currVertexIndex, addToNextLayerParallel,
-                         visibleAreaCacheParallelVector, currLayer, nextLayer,
-                         thetaLb, thetaUb, theta, i, _graph, edgesParallel))
-    for (size_t vertexIndex = 0; vertexIndex < currVertexIndex.size();
-         vertexIndex++) {
-      TRACY_DO(ZoneScopedN("Forward Pass OMP Loop");)
-      int threadId = omp_get_thread_num();
-      const auto &vertex = currVertexIndex[vertexIndex];
-      const Point_2 &p = _layers[vertex.first].getPoint(vertex.second);
-      const Vertex<T> &v = _layers[vertex.first].getVertex(vertex.second);
-      const auto &neighbor1 = _layers[vertex.first].getNeighbor(v);
-      const auto &visibleAreaCache = visibleAreaCacheParallelVector[NEXT][threadId];
-      for (const auto &pair : visibleAreaCache) {
-        const Vertex<T> &vObs = pair.first;
-        const auto &neighbor2 = _layers[NEXT].getNeighbor(vObs);
-        if ((!_layers[vertex.first].isVertexOnHole(v) &&
-             !_layers[NEXT].isVertexOnHole(vObs)) &&
-            !Utils::isBitangent<T>(p, neighbor1.first, neighbor1.second,
-                                   vObs.getPoint(), neighbor2.first,
-                                   neighbor2.second))
-          continue;
-        const Polygon_2 &visibleArea = pair.second;
-        if (IN_POLYGON(p, visibleArea) || ON_EDGE(p, visibleArea)) {
-          std::shared_ptr<Vertex<T>> vNew = std::make_shared<Vertex<T>>(vObs);
-          std::shared_ptr<Vertex<T>> vv = std::make_shared<Vertex<T>>(v);
-          vv->setBounds(thetaLb, thetaUb);
-          vv->setTheta(theta);
-          std::shared_ptr<Vertex<T>> vv1 = std::make_shared<Vertex<T>>(v);
-          vv1->setBounds(nextLayer.getThetaLb(), nextLayer.getThetaUb());
-          vv1->setTheta((nextLayer.getThetaLb()+nextLayer.getThetaUb())/2.);
-          edgesParallel[threadId].emplace_back(vv, vv1);
-          edgesParallel[threadId].emplace_back(vv1, vNew);
-          addToNextLayerParallel[threadId].insert(vertex);
-        }
-      }
-    }
-
-    {
-      TRACY_DO(ZoneScopedN("Add Edges");)
-      for (const auto &edgeThread : edgesParallel) {
-        _graph.addEdges(edgeThread);
-#ifdef MANIM
-        for (const auto &edge : edgeThread) {
-          _edgeLayersForward[i].emplace_back(edge);
-        }
-#endif
-      }
-    }
-    if (_optimal) {
-      TRACY_DO(ZoneScopedN("Add to Next Layer");)
-      for (const auto &addToNextLayerThread : addToNextLayerParallel) {
-        if (addToNextLayerThread.size() == 0) continue;
-        _layerVertices[NEXT].insert(addToNextLayerThread.begin(),
-                                    addToNextLayerThread.end());
-      }
-    }
-  }
-
-#ifdef BACKWARD_PASS
-  // backward pass
-  for (int i = (int)_layers.size() - 1; i >= 0; i--) {
-    TRACY_DO(ZoneScopedN("Backward Pass");)
-    Layer<T> &currLayer = _layers[i];
-    Layer<T> &nextLayer = _layers[PREV];
-    T thetaLb = currLayer.getThetaLb();
-    T thetaUb = currLayer.getThetaUb();
-    T theta = (thetaLb < thetaUb ? (thetaLb + thetaUb) / 2 : 0);
-    // std::unordered_set<TwoTuple, TwoTupleHash> addToNextLayer;
-    std::vector<std::unordered_set<TwoTuple, TwoTupleHash>>
-        addToNextLayerParallel(_numThreads);
-    std::vector<std::vector<
-        std::pair<std::shared_ptr<Vertex<T>>, std::shared_ptr<Vertex<T>>>>>
-        edgesParallel(_numThreads);
-    const auto &currVertexIndexSet = _layerVertices[i];
-#ifdef PRINT
-    if (_verbose)
-      Utils::print("Layer", i,
-                   "current Layer #vertices = ", currVertexIndexSet.size(),
-                   "nextLayer #vertices = ", _layerVertices[i].size());
-#endif
-    // use OMP
-    std::vector<TwoTuple> currVertexIndex(currVertexIndexSet.begin(),
-                                          currVertexIndexSet.end());
-    OMP_PARALLEL_FOR_XI(
-        _numThreads, default(none) shared(
-                         currVertexIndex, addToNextLayerParallel,
-                         visibleAreaCacheParallelVector, currLayer, nextLayer,
-                         thetaLb, thetaUb, theta, i, _graph, edgesParallel))
-    for (size_t vertexIndex = 0; vertexIndex < currVertexIndex.size();
-         vertexIndex++) {
-      TRACY_DO(ZoneScopedN("Backward Pass OMP Loop");)
-      int threadId = omp_get_thread_num();
-      const auto &vertex = currVertexIndex[vertexIndex];
-      if (vertex.first < i) continue;
-      const Point_2 &p = _layers[vertex.first].getPoint(vertex.second);
-      const Vertex<T> &v = _layers[vertex.first].getVertex(vertex.second);
-      const auto &neighbor1 = _layers[vertex.first].getNeighbor(v);
-      const auto &visibleAreaCache =
-          visibleAreaCacheParallelVector[PREV][threadId];
-      for (const auto &pair : visibleAreaCache) {
-        const Vertex<T> &vObs = pair.first;
-        const auto &neighbor2 = _layers[PREV].getNeighbor(vObs);
-        if ((!_layers[vertex.first].isVertexOnHole(v) &&
-             !_layers[PREV].isVertexOnHole(vObs)) &&
-            !Utils::isBitangent<T>(p, neighbor1.first, neighbor1.second,
-                                   vObs.getPoint(), neighbor2.first,
-                                   neighbor2.second))
-          continue;
-        const Polygon_2 &visibleArea = pair.second;
-        if (IN_POLYGON(p, visibleArea) || ON_EDGE(p, visibleArea)) {
-          std::shared_ptr<Vertex<T>> vNew = std::make_shared<Vertex<T>>(vObs);
-          std::shared_ptr<Vertex<T>> vv = std::make_shared<Vertex<T>>(v);
-          vv->setBounds(thetaLb, thetaUb);
-          vv->setTheta(theta);
-          std::shared_ptr<Vertex<T>> vv1 = std::make_shared<Vertex<T>>(v);
-          vv1->setBounds(nextLayer.getThetaLb(), nextLayer.getThetaUb());
-          vv1->setTheta((nextLayer.getThetaLb()+nextLayer.getThetaUb())/2.);
-          edgesParallel[threadId].emplace_back(vv, vv1);
-          edgesParallel[threadId].emplace_back(vv1, vNew);
-          addToNextLayerParallel[threadId].insert(vertex);
-        }
-      }
-    }
-
-    {
-      TRACY_DO(ZoneScopedN("Add Edges");)
-      for (const auto &edgeThread : edgesParallel) {
-        _graph.addEdges(edgeThread);
-#ifdef MANIM
-        for (const auto &edge : edgeThread) {
-          _edgeLayersBackward[i].emplace_back(edge);
-        }
-#endif
-      }
-    }
-    // _layerVertices[PREV].insert(addToNextLayer.begin(),
-    // addToNextLayer.end());
-    if (_optimal) {
-      TRACY_DO(ZoneScopedN("Add to Next Layer");)
-      for (const auto &addToNextLayerThread : addToNextLayerParallel) {
-        if (addToNextLayerThread.size() == 0) continue;
-        _layerVertices[PREV].insert(addToNextLayerThread.begin(),
-                                    addToNextLayerThread.end());
-      }
-    }
-  }
-  // Utils::print("Number of connected components = ",
-  // _graph.numConnectedComponents()); _graph.draw("../Results/graph.png",
-  // true); _graph.draw3D("../Results/graph.png", true);
-  // draw("../Results/graph.png", false, false, true, true);
-  // drawSetup();
-
-#endif
-#undef NEXT
-#undef PREV
+  _connectLayersFixedPoint();
 }
 
 template <typename T>
 bool VisibilityGraph<T>::addVertex(std::shared_ptr<Vertex<T>> vertex) {
+  if (_graph.containsVertex(vertex)) {
+    return true;
+  }
+
   std::vector<bool> legalVec(_layers.size(), false);
   std::vector<Polygon_2> visibleAreaVec(_layers.size());
   std::vector<std::shared_ptr<Vertex<T>>> vertexInLayerVec(_layers.size(), nullptr);
@@ -458,17 +294,19 @@ bool VisibilityGraph<T>::addVertex(std::shared_ptr<Vertex<T>> vertex) {
 
 template <typename T>
 void VisibilityGraph<T>::_addStartAndGoal(std::shared_ptr<Vertex<T>> start, std::shared_ptr<Vertex<T>> goal){
-  bool directConnection = false; 
+  std::atomic<bool> directConnection{false};
   std::vector<bool> startLegalVec(_layers.size(), false);
   std::vector<bool> goalLegalVec(_layers.size(), false);
   std::vector<Polygon_2> startVisibleAreaVec(_layers.size());
   std::vector<Polygon_2> goalVisibleAreaVec(_layers.size());
   std::vector<std::shared_ptr<Vertex<T>>> startInLayerVec(_layers.size(), nullptr);
   std::vector<std::shared_ptr<Vertex<T>>> goalInLayerVec(_layers.size(), nullptr);
-  size_t startLayerIndex, goalLayerIndex;
+  size_t startLayerIndex = 0;
+  size_t goalLayerIndex = 0;
 
   // find the layer that contains the start vertex and initialize the visible area
-  OMP_PARALLEL_FOR_XI(_numThreads, default(none) shared(directConnection, start, goal, startLegalVec, goalLegalVec, startVisibleAreaVec, goalVisibleAreaVec, startInLayerVec, goalInLayerVec, startLayerIndex, goalLayerIndex))
+  // Endpoint insertion mutates the graph and packed legality flags. Keep it
+  // sequential; visibility connections below can still be computed in parallel.
   for (size_t i = 0; i < _layers.size(); i++) {
     const Layer<T> &layer = _layers[i];
     const T &thetaLb = layer.getThetaLb();
@@ -511,7 +349,8 @@ void VisibilityGraph<T>::_addStartAndGoal(std::shared_ptr<Vertex<T>> start, std:
     bool allAvailable = true;
     auto & legalVec = isGoal ? goalLegalVec : startLegalVec;
     const auto & vertexInLayerVec = isGoal ? goalInLayerVec : startInLayerVec;
-    int forwardStopIndex, backwardStopIndex;
+    int forwardStopIndex = id;
+    int backwardStopIndex = id;
     for(int i = 0; i < _layers.size(); i++){
       int currIndex = (id + i) % _layers.size();
       int prevIndex = (id + i - 1) % _layers.size();
@@ -661,6 +500,18 @@ T VisibilityGraph<T>::getSearchTime() const {
 }
 
 template <typename T>
+const VertexPropagationStatistics &
+VisibilityGraph<T>::getVertexPropagationStatistics() const {
+  return _propagationStatistics;
+}
+
+template <typename T>
+const VisibilityGraphConstructionStatistics &
+VisibilityGraph<T>::getConstructionStatistics() const {
+  return _constructionStatistics;
+}
+
+template <typename T>
 void VisibilityGraph<T>::_resolutionSymmetryCheck() {
   Polygon<T> robot = _robot;
   T layerAngle = 2. * PI / (T)_resolution;
@@ -801,8 +652,11 @@ void VisibilityGraph<T>::animation(const std::string &figPath, bool title) {
   // create temp folder
   std::string tmpFolderPath = Utils::createTempFolder<T>();
   std::string pythonScript;
-  // use pillow to create gif
+  // Generate PNG frames, then encode them according to figPath's extension.
   PYTHON_IMPORTS(pythonScript)
+  pythonScript += "from matplotlib.animation import FFMpegWriter\n";
+  pythonScript += "animation_path = '" + figPath + "'\n";
+  pythonScript += "animation_extension = os.path.splitext(animation_path)[1].lower()\n";
   pythonScript += "image_paths = []\n";
   for (size_t i = 0; i < _sol.size(); i++) {
     pythonScript += "fig, ax = plt.subplots()\n";
@@ -821,7 +675,7 @@ void VisibilityGraph<T>::animation(const std::string &figPath, bool title) {
     const auto &vertex = _sol[i];
     Polygon<T> tmpRobot =
         _realRobot.moveToCopy(vertex.getX(), vertex.getY(), vertex.getTheta());
-    pythonScript += tmpRobot.draw("path");
+    pythonScript += tmpRobot.draw("path_fill");
     if (title)
       pythonScript +=
           "plt.title(f'Resolution=" + std::to_string(_resolution) +
@@ -839,31 +693,29 @@ void VisibilityGraph<T>::animation(const std::string &figPath, bool title) {
     pythonScript += "image_paths.append('" + imagePath + "')\n";
   }
   pythonScript += "images = [Image.open(img) for img in image_paths]\n";
-  pythonScript += "images[0].save('" + figPath +
-                  "', save_all=True, append_images=images[1:], optimize=False, "
-                  "duration=50, fps=60, loop=0)\n";
+  pythonScript += "if animation_extension == '.gif':\n";
+  pythonScript +=
+      "\timages[0].save(animation_path, save_all=True, "
+      "append_images=images[1:], optimize=False, duration=50, fps=60, loop=0)\n";
+  pythonScript += "else:\n";
+  pythonScript += "\tfig, ax = plt.subplots(frameon=False)\n";
+  pythonScript += "\tfirst_image = images[0].convert('RGB')\n";
+  pythonScript += "\twidth, height = first_image.size\n";
+  pythonScript += "\tfig.set_size_inches(width / 100, height / 100)\n";
+  pythonScript += "\tax.set_axis_off()\n";
+  pythonScript += "\tfig.subplots_adjust(left=0, right=1, bottom=0, top=1)\n";
+  pythonScript += "\tframe = ax.imshow(np.asarray(first_image))\n";
+  pythonScript += "\twriter = FFMpegWriter(fps=60)\n";
+  pythonScript += "\twith writer.saving(fig, animation_path, dpi=100):\n";
+  pythonScript += "\t\tfor image in images:\n";
+  pythonScript += "\t\t\tframe.set_data(np.asarray(image.convert('RGB')))\n";
+  pythonScript += "\t\t\twriter.grab_frame()\n";
+  pythonScript += "\tplt.close(fig)\n";
   pythonScript += "for img in image_paths:\n";
   pythonScript += "\tos.remove(img)\n";
   std::string pythonSavePath = tmpFolderPath + "/animation" + std::to_string(_resolution) + ".py";
   Utils::writeStringToFile<T>(pythonScript, pythonSavePath);
   Utils::runPythonScriptAndRemove<T>(pythonSavePath);
-}
-
-template <typename T>
-void VisibilityGraph<T>::drawSetup() const {
-  std::string pythonScript;
-  PYTHON_IMPORTS(pythonScript)
-  pythonScript += _drawSetup();
-  pythonScript += "plt.axis('equal')\n";
-  pythonScript += "plt.show()\n";
-
-  std::string pythonSavePath = "setup" + std::to_string(_resolution) + ".py";
-  std::ofstream pythonFile(pythonSavePath);
-  pythonFile << pythonScript;
-  pythonFile.close();
-  std::string command = std::string(PYTHON_EXECUTABLE) + " " + pythonSavePath;
-  int status = system(command.c_str());
-  if (status != 0) throw std::runtime_error("Python script failed");
 }
 
 template <typename T>
@@ -876,41 +728,13 @@ std::string VisibilityGraph<T>::_drawSetup() const {
   // start and goal
   if(_start.hasTheta()){
     Polygon<T> tmpRobot = _realRobot.moveToCopy(_start.getX(), _start.getY(), _start.getTheta());
-    pythonScript += tmpRobot.draw("start");
+    pythonScript += tmpRobot.draw("start_fill");
   }
   if(_goal.hasTheta()){
     Polygon<T> tmpRobot = _realRobot.moveToCopy(_goal.getX(), _goal.getY(), _goal.getTheta());
-    pythonScript += tmpRobot.draw("goal");
+    pythonScript += tmpRobot.draw("goal_fill");
   }
   return pythonScript;
-}
-
-template <typename T>
-void VisibilityGraph<T>::debugMaxPropagation() {
-  int n = _layers.size();
-  std::unordered_map<int, std::vector<int>> maxPropagation;
-  for (int i = 0; i < n; i++)
-    maxPropagation.insert(std::make_pair(i, std::vector<int>{0, 0}));
-
-  for (int i = 0; i < n; i++) {
-    const auto &vertices = _layerVertices[i];
-    for (const auto &vertex : vertices) {
-      int vertexLayer = vertex.first;
-      if (vertexLayer == i) continue;
-      if (vertexLayer < i) {
-        maxPropagation[vertexLayer][0] =
-            std::max(maxPropagation[vertexLayer][0], i);
-      } else {
-        maxPropagation[vertexLayer][1] =
-            std::min(maxPropagation[vertexLayer][1], i);
-      }
-    }
-  }
-  for (int i = 0; i < n; i++) {
-    Utils::print("Layer", i, "#vertices:", _layerVertices[i].size(),
-                 "Max forward propagation:", maxPropagation[i][0],
-                 "Max backward propagation:", maxPropagation[i][1]);
-  }
 }
 
 template <typename T>

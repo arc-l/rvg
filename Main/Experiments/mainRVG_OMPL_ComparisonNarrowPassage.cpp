@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
   Vertex<T> start = robot.getCentroid();
   start.setBounds(0, 2 * PI);
   start.setTheta(0);
-  Vertex<T> goal(8, 0, 0, 2 * PI, PI / 2, 2 * PI, false);
+  Vertex<T> goal(8, 0, 0, 2 * PI, PI / 2);
   std::shared_ptr<Vertex<T>> startPtr = std::make_shared<Vertex<T>>(start);
   std::shared_ptr<Vertex<T>> goalPtr = std::make_shared<Vertex<T>>(goal);
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
       bool incremental = true;
       bool simpilfiedGeometry = true;
       int numThreads = 16;
-      VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, simpilfiedGeometry, numThreads, incremental);
+      VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, numThreads, incremental);
       visibilityGraph.shortestPath(startPtr, goalPtr);
       T pathLength = visibilityGraph.getPathLength();
       T totalTime = visibilityGraph.getTotalTime();

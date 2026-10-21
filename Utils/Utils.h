@@ -16,6 +16,8 @@
 
 namespace RotationalVisibilityGraph::Utils {
 
+int availableProcessorCount();
+
 template<typename T>
 bool writeVectorToFile(const std::vector<T>& vec, const std::string& filePath) {
   std::ofstream outFile(filePath);  // Create and open the output file stream
@@ -77,10 +79,14 @@ std::string createTempFolder(){
 template<typename T>
 bool runPythonScriptAndRemove(const std::string& scriptPath) {
   // Run the Python script
+  const std::string mplConfigDir = createTempFolder<T>() + "/matplotlib";
+  if (!createTempFolderIfNotExists<T>(mplConfigDir)) {
+    return false;
+  }
 #ifdef PYTHON_EXECUTABLE
-  std::string command = std::string(PYTHON_EXECUTABLE) + " " + scriptPath;
+  std::string command = "MPLCONFIGDIR=" + mplConfigDir + " " + std::string(PYTHON_EXECUTABLE) + " " + scriptPath;
 #else
-  std::string command = "python3 " + scriptPath;
+  std::string command = "MPLCONFIGDIR=" + mplConfigDir + " python3 " + scriptPath;
 #endif
   int status = system(command.c_str());
 

@@ -9,11 +9,8 @@
 #include <CGAL/Polygon_set_2.h>
 #include <CGAL/Polygon_2_algorithms.h>
 #include <CGAL/draw_arrangement_2.h>
-#ifdef VISIBILITY_QUERY_TEV
 #include <CGAL/Triangular_expansion_visibility_2.h>
-#elif defined(VISIBILITY_QUERY_RSV)
-#include <CGAL/Rotational_sweep_visibility_2.h>
-#endif
+
 #include <CGAL/Arr_segment_traits_2.h>
 #include <CGAL/Arrangement_2.h>
 #include <CGAL/convex_hull_2.h>
@@ -49,33 +46,6 @@ Arrangement_2 visibleAreaOnObs(const Point_2 &v,
 }
 
 template<typename T>
-std::vector<Point_2> visibleVerticesOnObs(const Point_2 &v,
-                                          Arrangement_2 &env) {
-  std::vector<Point_2> visibleVertices;
-  Arrangement_2 output_arr;
-  Halfedge_const_handle he = env.halfedges_begin();
-  while (true) {
-    if (he->target()->point() == v && he->is_on_inner_ccb())
-      break;
-    else
-      he++;
-    if (he == env.halfedges_end()) {
-      break;
-    }
-  }
-  VQ vq(env);
-  vq.compute_visibility(v, he, output_arr);
-  CGAL::Arr_naive_point_location<Arrangement_2> visPl(output_arr);
-  for (const auto &validV : env.vertex_handles()) {
-    CGAL::Arr_point_location_result<Arrangement_2>::Type obj = visPl.locate(validV->point());
-    if (boost::get<Arrangement_2::Vertex_const_handle>(&obj)) {
-      visibleVertices.push_back(validV->point());
-    }
-  }
-  return visibleVertices;
-}
-
-template<typename T>
 Arrangement_2 visibleAreaInMap(
     const Point_2 &v,
     const Arrangement_2 &env,
@@ -91,157 +61,6 @@ Arrangement_2 visibleAreaInMap(
   ASSERT_MSG(face, "Face not found in the arrangement");
   vq->compute_visibility(v, *face, output_arr);
   return output_arr;
-}
-
-template<typename T>
-std::vector<Vertex<T>> visibleVerticesInMap(
-    const Point_2 &v,
-    Arrangement_2 &env,
-    const Polygon<T> &border) {
-  std::vector<Vertex<T>> visibleVertices;
-  Arrangement_2 output_arr;
-  Arrangement_2::Face_const_handle *face;
-  CGAL::Arr_naive_point_location<Arrangement_2> pl(env);
-  CGAL::Arr_point_location_result<Arrangement_2>::Type obj = pl.locate(v);
-  // The query point locates in the interior of a face
-  face = boost::get<Arrangement_2::Face_const_handle>(&obj);
-  VQ vq(env);
-  vq.compute_visibility(v, *face, output_arr);
-  CGAL::Arr_naive_point_location<Arrangement_2> visPl(output_arr);
-  for (const auto &validV : env.vertex_handles()) {
-    if (isOnBorder(validV->point(), border)) continue;
-    CGAL::Arr_point_location_result<Arrangement_2>::Type visObj = visPl.locate(validV->point());
-    if (boost::get<Arrangement_2::Vertex_const_handle>(&visObj) && validV->point() != v) {
-      Vertex<T> v1 = Vertex<T>(
-          CGAL::to_double(validV->point().x()),
-          CGAL::to_double(validV->point().y())
-      );
-      visibleVertices.push_back(v1);
-    }
-  }
-  return visibleVertices;
-}
-
-template<typename T>
-std::vector<Point_2> visibleVertices(
-    const Point_2 &v,
-    const Arrangement_2 &env,
-    const Polygon<T> &border,
-    const std::shared_ptr<VQ> &vq
-) {
-  std::vector<Point_2> visibleVertices, tmpOnEdge;
-  Arrangement_2 output_arr;
-  Arrangement_2 envCopy = env;
-  CGAL::Arr_naive_point_location<Arrangement_2> pl(envCopy);
-  CGAL::Arr_point_location_result<Arrangement_2>::Type obj = pl.locate(v);
-//  VQ vq(envCopy);
-
-  bool onObs = false;
-  bool onEdge = false;
-  Halfedge_const_handle he = envCopy.halfedges_begin();
-  int edgeCnt = (int)envCopy.number_of_halfedges();
-  int cnt = 0;
-  while (true) {
-    if (he->target()->point() == v && he->is_on_inner_ccb()) {
-      onObs = true;
-      break;
-    } else if (CGAL::squared_distance(Segment_2(he->source()->point(), he->target()->point()), v) < RVG_EPS
-        && he->is_on_outer_ccb() && !onEdge) {
-      onEdge = true;
-      tmpOnEdge.push_back(he->source()->point());
-      tmpOnEdge.push_back(he->target()->point());
-    } else {
-      he++;
-      cnt++;
-    }
-    if (cnt == edgeCnt) {
-      break;
-    }
-  }
-  if (onObs) {
-    vq->compute_visibility(v, he, output_arr);
-  } else {
-    Arrangement_2::Face_const_handle *face;
-    face = boost::get<Arrangement_2::Face_const_handle>(&obj);
-    if (!face) {
-      if (onEdge) return tmpOnEdge;
-      else {
-        Utils::print("Face not found in the arrangement and also not on edge, returning empty list.");
-        return visibleVertices;
-      }
-    }
-    ASSERT_MSG(face, "Face not found in the arrangement")
-    vq->compute_visibility(v, *face, output_arr);
-  }
-  CGAL::Arr_naive_point_location<Arrangement_2> visPl(output_arr);
-  for (const auto validV : envCopy.vertex_handles()) {
-    if (isOnBorder(validV->point(), border)) continue;
-    CGAL::Arr_point_location_result<Arrangement_2>::Type visObj = visPl.locate(validV->point());
-    if (boost::get<Arrangement_2::Vertex_const_handle>(&visObj) && validV->point() != v) {
-      visibleVertices.push_back(validV->point());
-    }
-  }
-  return visibleVertices;
-}
-
-template<typename T>
-std::vector<Point_2> visibleVerticesOnHoles(
-    const Point_2 &v,
-    const Arrangement_2 &env,
-    const std::shared_ptr<VQ> &vq
-) {
-  std::vector<Point_2> visibleVertices, tmpOnEdge;
-  Arrangement_2 output_arr;
-  Arrangement_2 envCopy = env;
-  CGAL::Arr_naive_point_location<Arrangement_2> pl(envCopy);
-  CGAL::Arr_point_location_result<Arrangement_2>::Type obj = pl.locate(v);
-//  VQ vq(envCopy);
-
-  bool onObs = false;
-  bool onEdge = false;
-  Halfedge_const_handle he = envCopy.halfedges_begin();
-  int edgeCnt = (int)envCopy.number_of_halfedges();
-  int cnt = 0;
-  while (true) {
-    if (he->target()->point() == v && he->is_on_outer_ccb()) {
-      onObs = true;
-      break;
-    } else if (CGAL::squared_distance(Segment_2(he->source()->point(), he->target()->point()), v) < RVG_EPS
-        && he->is_on_outer_ccb() && !onEdge) {
-      onEdge = true;
-      tmpOnEdge.push_back(he->source()->point());
-      tmpOnEdge.push_back(he->target()->point());
-    } else {
-      he++;
-      cnt++;
-    }
-    if (cnt == edgeCnt) {
-      break;
-    }
-  }
-  if (onObs) {
-    vq->compute_visibility(v, he, output_arr);
-  } else {
-    Arrangement_2::Face_const_handle *face;
-    face = boost::get<Arrangement_2::Face_const_handle>(&obj);
-    if (!face) {
-      if (onEdge) return tmpOnEdge;
-      else {
-        Utils::print("Face not found in the arrangement and also not on edge, returning empty list.");
-        return visibleVertices;
-      }
-    }
-    ASSERT_MSG(face, "Face not found in the arrangement")
-    vq->compute_visibility(v, *face, output_arr);
-  }
-  CGAL::Arr_naive_point_location<Arrangement_2> visPl(output_arr);
-  for (const auto validV : envCopy.vertex_handles()) {
-    CGAL::Arr_point_location_result<Arrangement_2>::Type visObj = visPl.locate(validV->point());
-    if (boost::get<Arrangement_2::Vertex_const_handle>(&visObj) && validV->point() != v) {
-      visibleVertices.push_back(validV->point());
-    }
-  }
-  return visibleVertices;
 }
 
 template<typename T>
@@ -292,12 +111,6 @@ Arrangement_2 visibleAreaOnHoles(
     vq->compute_visibility(v, *face, output_arr);
   }
   return output_arr;
-}
-
-template<typename T>
-bool isOnBorder(const Point_2 &v, const Polygon<T> &border) {
-  const auto &mapBorder = border.getCounterClockWise();
-  return ON_EDGE(v, mapBorder);
 }
 
 template<typename T>

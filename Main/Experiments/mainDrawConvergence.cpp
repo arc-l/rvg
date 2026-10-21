@@ -1,11 +1,10 @@
+#include <iomanip>
 #include <Utils/Utils.h>
 #include <Utils/Timer.h>
 #include <Utils/Pragma.h>
 #include <VisibilityGraph/Polygon.h>
 #include <VisibilityGraph/VisibilityGraph.h>
 #include <VisibilityGraph/Utils.h>
-#include <OMPL/CollisionDetection.h>
-#include <OMPL/OMPLEnv.h>
 
 using namespace RotationalVisibilityGraph;
 using namespace Utils;
@@ -46,10 +45,9 @@ int main(int argc, char *argv[]) {
         figPath
         );
   std::vector<T> distsRVG, rvgBuildTime, rvgSearchTime;
-  setPrecision<T>(3);
-  bool fineApprox = false;
+  std::cout << std::fixed << std::setprecision(3);
   bool verbose = true;
-  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, fineApprox, numThreads, verbose);
+  VisibilityGraph<T> visibilityGraph = VisibilityGraph<T>(robot, map, obstacles, resolution, numThreads, false, verbose);
   std::string pythonScript;
   PYTHON_IMPORTS_3D(pythonScript)
   pythonScript += visibilityGraph.drawLayers3D("obs3d");
